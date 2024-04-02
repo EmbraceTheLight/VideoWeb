@@ -1,0 +1,663 @@
+info:
+  contact: {}
+  description: This is a VideoWeb API
+  title: VideoWeb
+  version: "1.0"
+paths:
+  /comment/ToUser:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户要评论的视频ID
+        in: query
+        name: VideoID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户评论视频
+      tags:
+      - Comment API
+  /comment/ToVideo:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户要评论的视频ID
+        in: query
+        name: VideoID
+        required: true
+        type: string
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 用户要评论的内容
+        in: formData
+        name: CommentContent
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户评论视频
+      tags:
+      - Comment API
+  /send-code:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户邮箱
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 发送验证码
+      tags:
+      - User API
+  /user/AddSearchHistory:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: query
+        name: UID
+        required: true
+        type: string
+      - description: 搜索记录
+        in: query
+        name: searchString
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 增加搜索历史记录
+      tags:
+      - User API
+  /user/AddVideoHistory:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 视频ID
+        in: query
+        name: VID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 增加视频历史记录
+      tags:
+      - User API
+  /user/ForgetPassword:
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 用户邮箱
+        in: formData
+        name: userEmail
+        required: true
+        type: string
+      - description: 验证码
+        in: formData
+        name: Code
+        required: true
+        type: string
+      - description: 用户新密码
+        in: formData
+        name: newPassword
+        required: true
+        type: string
+      - description: 再次确认密码
+        in: formData
+        name: repeatPassword
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"重置用户密码成功"}'
+          schema:
+            type: string
+      summary: 重置用户密码
+      tags:
+      - User API
+  /user/Logout:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"注销用户成功"}'
+          schema:
+            type: string
+      summary: 用户注销
+      tags:
+      - User API
+  /user/ModifyEmail:
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 用户新邮箱
+        in: formData
+        name: userEmail
+        required: true
+        type: string
+      - description: 验证码
+        in: formData
+        name: Code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"修改用户邮箱成功"}'
+          schema:
+            type: string
+      summary: 用户信息修改-更新用户邮箱
+      tags:
+      - User API
+  /user/ModifyPassword:
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 用户密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: 用户新密码
+        in: formData
+        name: newPassword
+        required: true
+        type: string
+      - description: 再次确认密码
+        in: formData
+        name: repeatPassword
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"修改用户密码成功"}'
+          schema:
+            type: string
+      summary: 用户信息修改-修改用户密码
+      tags:
+      - User API
+  /user/ModifySignature:
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 用户签名,为空表示没有签名
+        in: formData
+        name: userSignature
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"修改用户签名成功"}'
+          schema:
+            type: string
+      summary: 用户信息修改-更新用户签名
+      tags:
+      - User API
+  /user/ModifyUserName:
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 用户名
+        in: formData
+        name: userName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"修改用户名成功"}'
+          schema:
+            type: string
+      summary: 用户信息修改-修改用户名
+      tags:
+      - User API
+  /user/face/upload/Avatar:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 头像
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"上传头像成功"}'
+          schema:
+            type: string
+      summary: 用户信息修改-上传头像
+      tags:
+      - User API
+  /user/fans/follows:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 要关注的用户ID
+        in: query
+        name: FID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 关注其他用户
+      tags:
+      - User API
+  /user/fans/unfollows:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 要取消关注的用户ID
+        in: query
+        name: FID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 取消关注其他用户
+      tags:
+      - User API
+  /user/favorites/create:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 收藏夹名称
+        in: formData
+        name: FName
+        required: true
+        type: string
+      - description: 是否私密
+        enum:
+        - 公开
+        - 私密
+        in: query
+        name: IsPrivate
+        required: true
+        type: string
+      - description: 描述
+        in: formData
+        name: Description
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 创建收藏夹
+      tags:
+      - User API
+  /user/favorites/delete:
+    delete:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 收藏夹名称
+        in: query
+        name: FName
+        required: true
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 删除收藏夹
+      tags:
+      - User API
+  /user/favorites/modify:
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 收藏夹ID
+        in: query
+        name: FavoriteID
+        required: true
+        type: string
+      - description: 要修改的收藏夹名称
+        in: formData
+        name: newName
+        type: string
+      - description: 是否私密
+        enum:
+        - 公开
+        - 私密
+        in: formData
+        name: IsPrivate
+        type: string
+      - description: 描述
+        in: formData
+        name: Description
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 修改收藏夹
+      tags:
+      - User API
+  /user/login:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户账号
+        in: formData
+        name: Account
+        required: true
+        type: string
+      - description: 用户密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 用户登录
+      tags:
+      - User API
+  /user/register:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户名
+        in: formData
+        name: userName
+        required: true
+        type: string
+      - description: 用户密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: 再次确认密码
+        in: formData
+        name: repeatPassword
+        required: true
+        type: string
+      - description: 用户邮箱
+        in: formData
+        name: Email
+        required: true
+        type: string
+      - description: 验证码
+        in: formData
+        name: Code
+        required: true
+        type: string
+      - description: 用户个性签名(至多25个字)
+        in: formData
+        name: Signature
+        type: string
+      produces:
+      - application/json
+      - multipart/form-data
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 用户注册
+      tags:
+      - User API
+  /user/user-detail:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户标识
+        in: query
+        name: UserID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","data":userInfo}'
+          schema:
+            type: string
+      summary: 获取用户完整、详细的信息
+      tags:
+      - User API
+  /video/delete:
+    delete:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 视频ID
+        in: query
+        name: VideoID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户删除视频
+      tags:
+      - Video API
+  /video/download:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户要下载的视频ID
+        in: query
+        name: VideoID
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 用户下载视频(根据视频ID下载视频)
+      tags:
+      - Video API
+  /video/getVideoDetail:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 视频ID
+        in: query
+        name: VideoID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取对应视频信息
+      tags:
+      - Video API
+  /video/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户ID
+        in: query
+        name: userID
+        required: true
+        type: string
+      - description: 视频标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: 视频
+        in: formData
+        name: uploadVideo
+        required: true
+        type: file
+      - description: 视频封面
+        in: formData
+        name: videoCover
+        required: true
+        type: file
+      - description: 视频分类
+        enum:
+        - 娱乐
+        - 教育
+        - 科技
+        - 知识
+        - 健康
+        - 旅行
+        - 探险
+        - 美食
+        - 时尚
+        - 音乐
+        - 舞蹈
+        - 体育
+        - 健身
+        - 历史
+        - 文化
+        - 游戏
+        - 电影
+        - 搞笑
+        - 资讯
+        in: formData
+        name: class
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: 视频标签
+        in: formData
+        items:
+          type: string
+        name: tags
+        type: array
+      - description: 视频描述
+        in: formData
+        name: description
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户上传视频
+      tags:
+      - Video API
+swagger: "2.0"
