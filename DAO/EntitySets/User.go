@@ -32,7 +32,7 @@ type User struct {
 }
 
 func (u *User) TableName() string {
-	return "users"
+	return "Users"
 }
 
 func (u *User) Create(DB *gorm.DB) (Account int32, err error) { //返回用户账号以及错误信息

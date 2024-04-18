@@ -824,6 +824,30 @@ const docTemplate = `{
                 }
             }
         },
+        "/video/StreamTransmission": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "流式传输视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要传输的视频ID",
+                        "name": "VideoID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/video/delete": {
             "delete": {
                 "consumes": [
@@ -983,6 +1007,52 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {}
+            }
+        },
+        "/video/{VideoID}/AddBarrage": {
+            "post": {
+                "description": "添加弹幕",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Barrage API"
+                ],
+                "summary": "添加弹幕",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "发送弹幕时的视频时间",
+                        "name": "Time",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "弹幕数据",
+                        "name": "Content",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"添加弹幕成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         }
     }

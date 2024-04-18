@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -56,15 +56,10 @@ func UploadVideo(c *gin.Context) {
 	}
 	defer uploadFile.Close()
 
-	if err != nil {
-		Utilities.SendJsonMsg(c, 5011, "读取文件内容失败"+err.Error())
-		return
-	}
-
 	//TODO:若不存在相关目录，则创建一个
 	var b strings.Builder
 	b.WriteString(define.VideoSavePath)
-	b.WriteString(UserID)
+	b.WriteString(UserID + "/")
 	videoDirPath := b.String()
 	println(videoDirPath)
 	err = os.MkdirAll(videoDirPath, os.ModePerm)
@@ -75,10 +70,17 @@ func UploadVideo(c *gin.Context) {
 
 	//TODO:在对应目录下创建并写入文件
 	Time := time.Now().Format("2006-01-02T150405") //利用当前时间生成文件名，避免文件名重复的情况
-	b.WriteString("\\")
+	//b.WriteString("\\")
 	b.WriteString(Time)
 	b.WriteString(videoExt) //拼接路径、文件名以及文件后缀名
 	videoFilePath := b.String()
+	fmt.Println(videoFilePath)
+	//t, err := logic.GetVideoDuration(videoFilePath)
+	//if err != nil {
+	//	Utilities.SendJsonMsg(c, define.UploadVideoFailed, "上传视频失败:"+err.Error())
+	//	return
+	//}
+	//videoTime := Utilities.SecondToTime(t)
 	defer func() { //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
 		if err != nil {
 			e := os.Remove(videoFilePath)
@@ -94,7 +96,7 @@ func UploadVideo(c *gin.Context) {
 	defer vf.Close()
 	if err != nil {
 		println("err in Creating File", err.Error())
-		Utilities.SendJsonMsg(c, 5011, "创建文件失败"+err.Error())
+		Utilities.SendJsonMsg(c, define.UploadVideoFailed, "上传视频失败"+err.Error())
 		return
 	}
 
@@ -103,7 +105,12 @@ func UploadVideo(c *gin.Context) {
 		Utilities.SendJsonMsg(c, 5011, "写入文件失败"+err.Error())
 		return
 	}
-
+	t, err := logic.GetVideoDuration(videoFilePath)
+	if err != nil {
+		Utilities.SendJsonMsg(c, define.UploadVideoFailed, "上传视频失败:"+err.Error())
+		return
+	}
+	videoTime := Utilities.SecondToTime(t)
 	//将数据插入数据库
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -122,6 +129,8 @@ func UploadVideo(c *gin.Context) {
 		Description: Description,
 		Class:       Class,
 		Path:        videoFilePath,
+		Duration:    videoTime,
+		Size:        FH.Size,
 	}
 	err = tx.Model(&EntitySets.Video{}).Create(&video).Error
 	if err != nil {
@@ -147,9 +156,9 @@ func UploadVideo(c *gin.Context) {
 		}
 	}
 
-	//插入视频封面图片信息
+	/*插入视频封面图片信息*/
+	//检查封面后缀名
 	coverName := Cover.Filename
-	//TODO:检查封面后缀名
 	coverExt := path.Ext(coverName)
 	if _, ok := define.PicExtCheck[coverExt]; ok != true {
 		Utilities.SendJsonMsg(c, define.ImageFormatError, "图片格式错误或不支持此图片格式")
@@ -157,7 +166,8 @@ func UploadVideo(c *gin.Context) {
 		tx.Rollback()
 		return
 	}
-	//TODO:打开并读取文件
+
+	//打开并读取文件
 	coverFile, err := Cover.Open()
 	defer coverFile.Close()
 	if err != nil {
@@ -244,7 +254,7 @@ func DownloadVideo(c *gin.Context) {
 	videoInfo := new(EntitySets.Video)
 	err := DAO.DB.Where("videoID=?", VID).First(&videoInfo).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, 5017, "获取视频信息失败"+err.Error())
+		Utilities.SendJsonMsg(c, define.GetVideoInfoFailed, "获取视频信息失败"+err.Error())
 		return
 	}
 
@@ -261,12 +271,10 @@ func DownloadVideo(c *gin.Context) {
 	c.Header("Content-Disposition", "attachment; filename*=UTF-8''"+retFileName)
 	fmt.Println("file name:", videoInfo.Title+fileExt)
 	c.Header("Content-Type", "application/octet-stream")
-
-	c.Header("Transfer-Encoding", "chunked")
 	c.File(videoInfo.Path)
-
-	// 使用 http.ServeContent 来处理文件下载
-	//http.ServeContent(c.Writer, c.Request, "", time.Now(), file)
+	http.ServeFile(c.Writer, c.Request, videoInfo.Path)
+	c.Header("Content-Length", "")
+	c.Header("Transfer-Encoding", "chunked")
 	Utilities.SendJsonMsg(c, 200, "下载文件成功")
 }
 
@@ -281,20 +289,20 @@ func StreamTransmission(c *gin.Context) {
 	VID := c.Query("VideoID")
 	videoInfo, err := logic.GetVideoInfoByID(VID)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.GetVideoInfoFailed, "获取视频信息失败"+err.Error())
+		Utilities.SendJsonMsg(c, define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
 		return
 	}
 
 	file, err := os.Open(videoInfo.Path)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.OpenFileFailed, "打开文件失败"+err.Error())
+		Utilities.SendJsonMsg(c, define.OpenFileFailed, "打开文件失败:"+err.Error())
 		return
 	}
 	defer file.Close()
 
 	stat, err := file.Stat()
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.OpenFileFailed, "打开文件失败"+err.Error())
+		Utilities.SendJsonMsg(c, define.OpenFileFailed, "打开文件失败:"+err.Error())
 		return
 	}
 
@@ -306,20 +314,25 @@ func StreamTransmission(c *gin.Context) {
 	}
 	_, err = file.Seek(start, 0) //从第0个字节定位文件指针到第start个字节处
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.OpenFileFailed, "打开文件失败"+err.Error())
+		Utilities.SendJsonMsg(c, define.OpenFileFailed, "打开文件失败:"+err.Error())
 		return
 	}
 
 	c.Header("Accept-Ranges", "bytes")
-	c.Header("Content-Length", strconv.FormatInt(end-start+1, 10))
+	//c.Header("Content-Length", strconv.FormatInt(end-start+1, 10))
 	c.Header("Content-Range", "bytes "+rangeParts[1]+"/"+fmt.Sprintf("%d", stat.Size()))
+	c.Header("Transfer-Encoding", "chunked")
+
 	_, err = io.CopyN(c.Writer, file, end-start+1)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ReadFileFailed, "读取文件失败"+err.Error())
+		Utilities.SendJsonMsg(c, define.ReadFileFailed, "读取文件失败:"+err.Error())
 		return
 	}
-
-	Utilities.SendJsonMsg(c, 200, "流式传输视频成功")
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "流式传输视频成功",
+		"data": videoInfo,
+	})
 }
 
 // GetVideoInfo

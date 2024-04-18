@@ -5,7 +5,6 @@ import (
 	_ "VideoWeb/docs"
 	"VideoWeb/logic"
 	"VideoWeb/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	swaggoFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -16,7 +15,6 @@ func initWebSocket() {
 	go WebSocket.Hub.Run()
 	router := gin.Default()
 	router.GET("/ws/:UserID", logic.CreateWebSocket)
-	fmt.Println("Start Hub At localhost:51234!")
 	router.Run(":51234")
 }
 
@@ -63,6 +61,7 @@ func CollectRouter(r *gin.Engine) {
 		video.GET("/download", service.DownloadVideo)
 		video.GET("/StreamTransmission", service.StreamTransmission)
 		video.POST("/upload", service.UploadVideo)
+		video.POST("/:VideoID/AddBarrage", service.AddBarrage)
 		video.DELETE("/delete", service.DeleteVideo)
 	}
 

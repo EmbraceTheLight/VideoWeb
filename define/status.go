@@ -46,4 +46,5 @@ const (
 	CreateCommentToVideoFailed
 	CreateCommentToUserFailed
 	CreateMessageFailed
+	AddBarrageFailed
 )

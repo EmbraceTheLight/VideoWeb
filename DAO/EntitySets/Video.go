@@ -20,6 +20,8 @@ type Video struct {
 	Shells       uint32 `json:"Shells" gorm:"column:shells;type:int unsigned;default:0"`             //视频获得的贝壳数
 	CntFavorites uint32 `json:"CntFavorites" gorm:"column:cntFavorites;type:int unsigned;default:0"` //视频被收藏数,似乎可以通过联表计算出来
 	CntViews     uint32 `json:"CntViews" gorm:"column:cntViews;type:int unsigned;default:0"`         //视频播放量
+	Duration     string `json:"Duration" gorm:"column:duration;type:varchar(10);"`                   //视频时长,单位秒
+	Size         int64  `json:"Size" gorm:"column:size;type:int;"`                                   //视频大小,单位字节
 	//以下三项均为一对多
 	Comments []*Comments `gorm:"foreignKey:VID;references:videoID"` //视频评论
 	Tags     []*Tags     `gorm:"foreignKey:VID;references:VideoID"` //视频标签

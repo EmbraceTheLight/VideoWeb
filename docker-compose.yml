@@ -1,0 +1,59 @@
+#version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "videoweb"
+    container_name: "vw"
+    ports:
+      - "51233:51233"
+      - "51234:51234"
+    networks:
+      net1:
+        ipv4_address: 172.16.0.5
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: VideoWeb
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      TZ: Asia/Shanghai
+    depends_on:
+      - mysql
+      - redis
+    command: ["/VideoWeb/wait-for-it.sh", "mysql:3306", "--", "/VideoWeb/wait-for-it.sh", "redis:6379", "--", "./main"]
+
+
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 213103
+      MYSQL_DATABASE: VideoWeb
+      MYSQL_PASSWORD: 213103
+      TZ: Asia/Shanghai
+    volumes:
+      - /mnt/Docker/mysql:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      net1:
+        ipv4_address: 172.16.0.6
+  redis:
+    image: redis
+    restart: always
+    volumes:
+      - /mnt/Docker/redis:/data
+    ports:
+      - "6380:6379"
+    environment:
+      TZ: Asia/Shanghai
+    networks:
+      net1:
+        ipv4_address: 172.16.0.7
+networks:
+  net1:
+    ipam:
+      config:
+        - subnet: 172.16.0.0/16

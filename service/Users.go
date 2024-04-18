@@ -84,7 +84,7 @@ func Register(c *gin.Context) {
 	}
 
 	//设置用户默认头像
-	file, err := os.Open("D:\\Go\\WorkSpace\\src\\Go_Project\\VideoWeb\\resources\\pictures\\default.jpg")
+	file, err := os.Open("/home/zey/ZeyGO/project/VideoWeb/resources/Pictures/default.jpg")
 	defer file.Close()
 	if err != nil {
 		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
@@ -194,6 +194,7 @@ func SendCode(c *gin.Context) {
 		Utilities.SendJsonMsg(c, define.EmptyMail, "邮箱不能为空")
 		return
 	}
+	DAO.RDB.Del(c, userEmail) //之前的验证码可能没有过期，要先删除
 	code := logic.CreateVerificationCode()
 	err := logic.SendCode(userEmail, code)
 	fmt.Println(code)
@@ -350,7 +351,7 @@ func GetUserDetail(c *gin.Context) {
 	}
 
 	var userInfo = new(EntitySets.User)
-	err := DAO.DB.Debug().Omit("password").Where("UserID=?", userID).Preload("Videos").Preload("Favorites").
+	err := DAO.DB.Omit("password").Where("UserID=?", userID).Preload("Videos").Preload("Favorites").
 		Preload("Favorites.Videos").Preload("Comments").
 		Preload("MessageBox").Preload("Follows").Preload("UserLevel").
 		Preload("Followed").Preload("UserWatch").Preload("UserSearch").First(&userInfo).Error
@@ -497,7 +498,7 @@ func ForgetPassword(c *gin.Context) {
 		return
 	}
 	Utilities.SendJsonMsg(c, 200, "重置密码成功")
-
+	DAO.RDB.Del(c, userEmail)
 }
 
 // ModifyPassword

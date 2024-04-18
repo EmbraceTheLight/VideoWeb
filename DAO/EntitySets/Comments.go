@@ -16,3 +16,5 @@ type Comments struct {
 	UnLikes   uint32 `json:"UnLikes" gorm:"column:unlikes;type:int unsigned;default:0"`  //评论被点踩数
 	IPAddress string `json:"IPAddress" gorm:"column:IPAddress;type:varchar(15)"`         //评论者IP归属地
 }
+
+func (c *Comments) TableName() string { return "Comments" }

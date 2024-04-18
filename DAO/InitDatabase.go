@@ -1,6 +1,8 @@
 package DAO
 
 import (
+	EntitySets "VideoWeb/DAO/EntitySets"
+	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
@@ -12,12 +14,12 @@ var (
 	RDB *redis.Client
 )
 
-var userName = "root"
-var password = "213103"
-var ipPort = "127.0.0.1:3306"
-var dataBase = "VideoWeb"
-var charset = "utf8mb4"
-var redisIpPort = "127.0.0.1:6379"
+var UserName = "root"
+var Password = "213103"
+var IpPort = "172.16.0.6:3306"
+var DataBase = "VideoWeb"
+var Charset = "utf8mb4"
+var redisIpPort = "172.16.0.7:6379"
 
 func newClient() *redis.Client {
 	return redis.NewClient(
@@ -28,31 +30,106 @@ func newClient() *redis.Client {
 		})
 }
 
-func InitMySQL() (err error) {
-	dbc := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local&timeout=10s", userName, password, ipPort, dataBase, charset)
-	RDB = newClient()
+func CreatDatabase() {
+	dbConnection := fmt.Sprintf("%s:%s@(%s)/mysql?charset=%s&parseTime=True&loc=Local&timeout=10s",
+		UserName, Password, IpPort, Charset)
+	db, _ := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
+	db.Exec("CREATE DATABASE  IF NOT EXISTS VideoWeb")
+}
 
-	DB, err = gorm.Open(mysql.Open(dbc), &gorm.Config{})
+func InitDB() (err error) {
+	CreatDatabase()
+	DBConnection := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local&timeout=10s",
+		UserName, Password, IpPort, DataBase, Charset)
+	RDB = newClient()
+	DB, err = gorm.Open(mysql.Open(DBConnection), &gorm.Config{})
 	if err != nil {
 		fmt.Println("Open database failed: ", err)
 		return err
 	}
-	//
-	//if DB.Debug().AutoMigrate(&RelationshipSets.FavoriteVideo{}) != nil {
-	//	fmt.Println("err in AutoMigrate(&FavoriteVideo{}): ", err)
-	//}
-	//if DB.Debug().AutoMigrate(&DAO.Barrage{}) != nil {
-	//	fmt.Println("err int Barrage")
-	//}
-	//if DB.Debug().AutoMigrate(&DAO.Video{}) != nil {
-	//	fmt.Println("err in AutoMigrate(&Video{}): ", err)
-	//}
-	//
+
+	if exist := DB.Migrator().HasTable("Barrages"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.Barrage{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.Barrage{}):", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("FavoriteVideo"); !exist {
+		err = DB.Debug().AutoMigrate(&RelationshipSets.FavoriteVideo{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&RelationshipSets.FavoriteVideo{}):", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("Level"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.Level{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.Level{}):", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("Messages"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.Message{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.Message{}):", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("Tags"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.Tags{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.Tags{}):", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("Comments"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.Comments{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.Comments{}):", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("UserFollowed"); !exist {
+		err = DB.Debug().AutoMigrate(&RelationshipSets.UserFollowed{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&RelationshipSets.UserFollowed{}:", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("UserFollows"); !exist {
+		err = DB.Debug().AutoMigrate(&RelationshipSets.UserFollows{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&RelationshipSets.UserFollows{}:", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("Video"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.Video{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.Video{}:", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("Favorites"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.Favorites{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.Favorites{}:", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("Users"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.User{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.User{}:", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("VideoHistory"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.VideoHistory{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(EntitySets.VideoHistory{}:", err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("SearchHistory"); !exist {
+		err = DB.Debug().AutoMigrate(&EntitySets.SearchHistory{})
+		if err != nil {
+			fmt.Println("Err in AutoMigrate(&EntitySets.SearchHistory{}:", err)
+		}
+	}
 	//// 设置锁等待超时时间为 10 秒
 	if err := DB.Exec("SET innodb_lock_wait_timeout = 10").Error; err != nil {
 		fmt.Println("Failed to set innodb_lock_wait_timeout:", err)
 		return err
 	}
-
 	return err
 }

@@ -6,28 +6,30 @@ import (
 )
 
 var (
+	IPAddr  = "1.95.54.11"
+	AppPort = "51233"
+	WsPort  = "51234"
+)
+
+var (
 	DefaultPage       = "1"
 	DefaultSize       = "20"
 	Expired     int64 = 600 //过期时间。单位：秒。用于验证验证码是否过期
-	Level1      int   = 2   //从0级升到1级所需经验值,下同
-	Level2      int   = 4
-	Level3      int   = 8
-	Level4      int   = 16
-	Level5      int   = 32
-	Level6      int   = 64
-	Level7      int   = 128
-	Level8      int   = 256
-	Level9      int   = 512
-	Level10     int   = 1024
+
 )
 
-//type VerificationData struct {
-//	Code      string
-//	Timestamp int64
-//}
-
-// VerificationDataMap 与认证有关的Map
-//var VerificationDataMap = make(map[string]VerificationData)
+var (
+	Level1  int = 2 //从0级升到1级所需经验值,下同
+	Level2  int = 4
+	Level3  int = 8
+	Level4  int = 16
+	Level5  int = 32
+	Level6  int = 64
+	Level7  int = 128
+	Level8  int = 256
+	Level9  int = 512
+	Level10 int = 1024
+)
 
 type MyModel struct {
 	// 不包含 gorm.Model 中的默认字段
@@ -64,11 +66,12 @@ type IPInfo struct {
 
 // PicExtCheck 验证图片后缀名
 var PicExtCheck = make(map[string]struct{})
-var PictureSavePath = ".\\resources\\pictures\\"
+var PictureSavePath = "/home/zey/ZeyGO/project/VideoWeb/resources/Pictures/"
 
 // VideoExtCheck 验证视频后缀名
 var VideoExtCheck = make(map[string]struct{})
-var VideoSavePath = "D:\\Go\\WorkSpace\\src\\Go_Project\\VideoWeb\\resources\\Video\\"
+var VideoSavePath = "/home/zey/ZeyGO/project/VideoWeb/resources/Videos/"
+var FFProbe = "ffprobe"
 
 func init() {
 	//支持的图片的格式

@@ -545,6 +545,53 @@ paths:
       summary: 获取用户完整、详细的信息
       tags:
       - User API
+  /video/{VideoID}/AddBarrage:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 添加弹幕
+      parameters:
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 发送弹幕时的视频时间
+        in: query
+        name: Time
+        required: true
+        type: string
+      - description: 弹幕数据
+        in: formData
+        name: Content
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"添加弹幕成功"}'
+          schema:
+            type: string
+      summary: 添加弹幕
+      tags:
+      - Barrage API
+  /video/StreamTransmission:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要传输的视频ID
+        in: query
+        name: VideoID
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 流式传输视频
+      tags:
+      - Video API
   /video/delete:
     delete:
       consumes:
