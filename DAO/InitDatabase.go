@@ -3,6 +3,7 @@ package DAO
 import (
 	EntitySets "VideoWeb/DAO/EntitySets"
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
+	"VideoWeb/config"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
@@ -14,33 +15,29 @@ var (
 	RDB *redis.Client
 )
 
-var UserName = "root"
-var Password = "213103"
-var IpPort = "172.16.0.6:3306"
-var DataBase = "VideoWeb"
-var Charset = "utf8mb4"
-var redisIpPort = "172.16.0.7:6379"
-
 func newClient() *redis.Client {
+	RedisConf := config.GetConfig().DBConf.RedisConf
 	return redis.NewClient(
 		&redis.Options{
-			Addr:     redisIpPort,
-			Password: "",
+			Addr:     RedisConf.Port,
+			Password: RedisConf.Password,
 			DB:       0,
 		})
 }
 
 func CreatDatabase() {
-	dbConnection := fmt.Sprintf("%s:%s@(%s)/mysql?charset=%s&parseTime=True&loc=Local&timeout=10s",
-		UserName, Password, IpPort, Charset)
+	MySQLConf := config.GetConfig().DBConf.MySQLConf
+	dbConnection := fmt.Sprintf("%s:%s@(%s:%s)/mysql?charset=%s&parseTime=True&loc=Local&timeout=10s",
+		MySQLConf.User, MySQLConf.Password, MySQLConf.Host, MySQLConf.Port, MySQLConf.Charset)
 	db, _ := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
 	db.Exec("CREATE DATABASE  IF NOT EXISTS VideoWeb")
 }
 
 func InitDB() (err error) {
 	CreatDatabase()
-	DBConnection := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local&timeout=10s",
-		UserName, Password, IpPort, DataBase, Charset)
+	MySQLConf := config.GetConfig().DBConf.MySQLConf
+	DBConnection := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=True&loc=Local&timeout=10s",
+		MySQLConf.User, MySQLConf.Password, MySQLConf.Host, MySQLConf.Port, MySQLConf.Database, MySQLConf.Charset)
 	RDB = newClient()
 	DB, err = gorm.Open(mysql.Open(DBConnection), &gorm.Config{})
 	if err != nil {

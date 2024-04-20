@@ -3,6 +3,7 @@ package main
 import (
 	"VideoWeb/DAO"
 	"VideoWeb/Utilities"
+	"VideoWeb/config"
 	"VideoWeb/routers"
 	"fmt"
 	"github.com/gin-contrib/cors"
@@ -14,7 +15,7 @@ import (
 // @version         1.0
 // @description     This is a VideoWeb API
 func main() {
-	//time.Sleep(5 * time.Second)
+	config.InitConfig()
 	r := gin.Default()
 	err := DAO.InitDB()
 	defer DAO.RDB.Close()

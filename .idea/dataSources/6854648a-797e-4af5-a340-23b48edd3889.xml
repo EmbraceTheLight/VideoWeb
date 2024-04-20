@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="VideoWeb@localhost">
   <database-model serializer="dbm" dbms="MYSQL" family-id="MYSQL" format-version="4.52">
-    <root id="1"/>
+    <root id="1">
+      <DefaultEngine>InnoDB</DefaultEngine>
+      <DefaultTmpEngine>InnoDB</DefaultTmpEngine>
+      <ServerVersion>8.0.32</ServerVersion>
+    </root>
     <collation id="2" parent="1" name="armscii8_bin">
       <Charset>armscii8</Charset>
     </collation>
@@ -936,7 +940,7 @@
     </schema>
     <schema id="299" parent="1" name="videoweb">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-04-12.09:18:53</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-04-19.13:00:47</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <user id="300" parent="1" name="USER2"/>
@@ -1009,7 +1013,7 @@
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
     <column id="318" parent="305" name="id">
-      <AutoIncrement>12</AutoIncrement>
+      <AutoIncrement>11</AutoIncrement>
       <DasType>bigint unsigned|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -1447,7 +1451,7 @@ FID</ColNames>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
     <column id="415" parent="314" name="id">
-      <AutoIncrement>11</AutoIncrement>
+      <AutoIncrement>10</AutoIncrement>
       <DasType>bigint unsigned|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -1541,7 +1545,7 @@ FID</ColNames>
       <Position>9</Position>
     </column>
     <column id="437" parent="315" name="account">
-      <AutoIncrement>10</AutoIncrement>
+      <AutoIncrement>9</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>10</Position>

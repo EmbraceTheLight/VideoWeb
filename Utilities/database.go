@@ -1,9 +1,9 @@
 package Utilities
 
 import (
-	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
+	"VideoWeb/config"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -20,15 +20,18 @@ var idToFunc = make(map[int]string)
 var errChannel = make(chan *errInDelete, 11)
 var db *gorm.DB
 
-func init() {
-	DBConnection := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=True&loc=Local&timeout=10s", DAO.UserName, DAO.Password, DAO.IpPort, DAO.DataBase, DAO.Charset)
+func initNecessary() error {
 	var err error
+	MySQLConf := config.GetConfig().DBConf.MySQLConf
+	DBConnection := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=True&loc=Local&timeout=10s", MySQLConf.User, MySQLConf.Password, MySQLConf.Host, MySQLConf.Port, MySQLConf.Database, MySQLConf.Charset)
 	db, err = gorm.Open(mysql.Open(DBConnection), &gorm.Config{})
 	if err != nil {
 		fmt.Println("Open database failed: ", err)
+		return err
 	}
 	if err := db.Exec("SET innodb_lock_wait_timeout = 10").Error; err != nil {
 		fmt.Println("Failed to set innodb_lock_wait_timeout:", err)
+		return err
 	}
 	idToFunc[1] = "HDBarrage"
 	idToFunc[2] = "HDVideos"
@@ -41,10 +44,16 @@ func init() {
 	idToFunc[9] = "HDFavoriteVideo"
 	idToFunc[10] = "HDFollowed"
 	idToFunc[11] = "HDFollows"
+	return nil
 }
 
 // HardDelete 定时删除已经软删除的记录，节省空间
 func HardDelete() {
+	err := initNecessary()
+	if err != nil {
+		fmt.Println("[HardDelete] err:", err)
+		return
+	}
 	ticker := time.NewTicker(5 * time.Hour)
 	defer func() {
 		ticker.Stop()
