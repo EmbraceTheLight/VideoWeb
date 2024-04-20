@@ -365,30 +365,6 @@ func GetUserDetail(c *gin.Context) {
 	})
 }
 
-// TestGetUserIpInfo
-// @Tags private API
-// @Accept json
-// @Produce json
-// @Success 200
-// @Router /userInfo/user-IPInfo [get]
-//func TestGetUserIpInfo(c *gin.Context) {
-//	UserIP := c.ClientIP()
-//	fmt.Println(UserIP)
-//	info, err := Utilities.GetIPInfo(UserIP)
-//	if err != nil {
-//		c.JSON(http.StatusOK, gin.H{
-//			"code": 5005,
-//			"msg":  "获取用户IP信息失败",
-//		})
-//		fmt.Println(err)
-//		return
-//	}
-//	c.JSON(http.StatusOK, gin.H{
-//		"code": 200,
-//		"data": info,
-//	})
-//}
-
 // ModifyUserSignature
 // @Tags User API
 // @summary 用户信息修改-更新用户签名
