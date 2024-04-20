@@ -85,10 +85,13 @@ func CommentToVideo(c *gin.Context) {
 
 // CommentToOtherUser
 // @Tags Comment API
-// @summary 用户评论视频
+// @summary 用户评论其他用户
 // @Accept json
 // @Produce json
 // @Param VideoID query string true "用户要评论的视频ID"
+// @Param UserID query string true "用户ID"
+// @Param UserID query string true "用户要评论的评论ID"
+// @Param CommentContent formData string true "用户要评论的内容"
 // @Router /comment/ToUser [post]
 func CommentToOtherUser(c *gin.Context) {
 
