@@ -6,12 +6,6 @@ import (
 )
 
 var (
-	IPAddr  = "1.95.54.11"
-	AppPort = "51233"
-	WsPort  = "51234"
-)
-
-var (
 	DefaultPage       = "1"
 	DefaultSize       = "20"
 	Expired     int64 = 600 //过期时间。单位：秒。用于验证验证码是否过期
@@ -39,6 +33,11 @@ type MyModel struct {
 }
 
 type IPInfo struct {
+	Mobile        bool    `json:"mobile"`
+	Proxy         bool    `json:"proxy"`
+	Hosting       bool    `json:"hosting"`
+	Lat           float64 `json:"lat"`       //纬度
+	Lon           float64 `json:"lon"`       //经度
 	Query         string  `json:"query"`     //待查询的IP
 	Status        string  `json:"status"`    //查询状态，如success
 	Continent     string  `json:"continent"` //大洲
@@ -50,8 +49,6 @@ type IPInfo struct {
 	City          string  `json:"city"`
 	District      string  `json:"district"`
 	Zip           string  `json:"zip"`
-	Lat           float64 `json:"lat"` //纬度
-	Lon           float64 `json:"lon"` //经度
 	Timezone      string  `json:"timezone"`
 	Offset        string  `json:"offset"`
 	Currency      string  `json:"currency"`
@@ -59,9 +56,6 @@ type IPInfo struct {
 	Org           string  `json:"org"`
 	As            string  `json:"as"`
 	AsName        string  `json:"asName"`
-	Mobile        bool    `json:"mobile"`
-	Proxy         bool    `json:"proxy"`
-	Hosting       bool    `json:"hosting"`
 }
 
 // PicExtCheck 验证图片后缀名
@@ -72,6 +66,22 @@ var PictureSavePath = "/home/zey/ZeyGO/project/VideoWeb/resources/Pictures/"
 var VideoExtCheck = make(map[string]struct{})
 var VideoSavePath = "/home/zey/ZeyGO/project/VideoWeb/resources/Videos/"
 var FFProbe = "ffprobe"
+
+//const (
+//	Blue          = "\x1b[34m"
+//	Red           = "\x1b[31m"
+//	Green         = "\x1b[32m"
+//	White         = "\x1b[37m"
+//	Yellow        = "\x1b[33m"
+//	Reset         = "\x1b[0m"
+//	Bold          = "\x1b[1m"
+//	Underline     = "\x1b[4m"
+//	Reverse       = "\x1b[7m"
+//	Strikethrough = "\x1b[9m"
+//	Italic        = "\x1b[3m"
+//	BoldItalic    = "\x1b[3m"
+//	Black         = "\x1b[30m"
+//)
 
 func init() {
 	//支持的图片的格式

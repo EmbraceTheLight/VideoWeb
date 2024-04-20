@@ -1,7 +1,0 @@
-[info] 2024-04-20 17:16:02 Error in [%!s(<nil>)]: test log
-[warning] 2024-04-20 17:16:02 Error in [%!s(<nil>)]: test log
-[error] 2024-04-20 17:16:02 Error in [%!s(<nil>)]: test log
-[error] 2024-04-20 17:19:31 Error in [%!s(<nil>)]: This is a test log
-[error] 2024-04-20 17:36:33 Error in [%!s(<nil>)]: This is a test log
-[error] 2024-04-20 17:43:42 Error in [TestLog]: This is a test log
-[error] 2024-04-20 17:44:28 Error in [TestLog]: This is a test log
