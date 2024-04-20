@@ -1,5 +1,7 @@
 package Utilities
 
+// This file is used to delete soft deleted records from the database periodically.
+
 import (
 	EntitySets "VideoWeb/DAO/EntitySets"
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"

@@ -15,15 +15,18 @@ import (
 // @version         1.0
 // @description     This is a VideoWeb API
 func main() {
-	config.InitConfig()
+	config.InitConfig("")
 	r := gin.Default()
 	err := DAO.InitDB()
-	defer DAO.RDB.Close()
 	if err != nil {
 		fmt.Println("err in InitDB:", err)
+		return
 	}
+	defer DAO.RDB.Close()
 
+	//执行后台定时任务：删除软删除记录
 	go Utilities.HardDelete()
+
 	//解决跨域问题，注册全局中间件
 	r.Use(cors.Default())
 	routers.CollectRouter(r)

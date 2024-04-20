@@ -11,3 +11,8 @@ database:
     port: 6379
     password: ""
     database: 0
+log:
+  level: "InfoLevel"
+  path: "./logs/VideoWeb.log"
+  timeFormat: "2006-01-02 15:04:05"
+  forceColor: true
