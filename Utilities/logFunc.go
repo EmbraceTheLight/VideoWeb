@@ -4,7 +4,16 @@ import (
 	"VideoWeb/logrusLog"
 )
 
-func WriteLog(funcName, message string) {
-	logrusLog.Log.WithField("function", funcName).Errorf(message)
-	//fmt.Println(logrusLog.Log.WithField("funcName", funcName).Data)
+func WriteErrLog(funcName, message string) {
+	logrusLog.Log.WithFields(map[string]interface{}{
+		"type":     "Error",
+		"function": funcName,
+	}).Errorf(message)
+}
+
+func WriteInfoLog(funcName, message string) {
+	logrusLog.Log.WithFields(map[string]interface{}{
+		"type":     "Info",
+		"function": funcName,
+	}).Infof(message)
 }

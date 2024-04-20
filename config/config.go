@@ -4,6 +4,7 @@ import (
 	"VideoWeb/logrusLog"
 	"bufio"
 	"fmt"
+	"github.com/shiena/ansicolor"
 	"github.com/siruspen/logrus"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -32,11 +33,9 @@ type DBConfig struct {
 }
 
 type LogConfig struct {
-	logrus.TextFormatter
 	Level      string `yaml:"level"`
 	FilePath   string `yaml:"path"`
 	TimeFormat string `yaml:"timeFormat"`
-	ForceColor bool   `yaml:"forceColor"`
 }
 type LogFormat struct {
 	logConf *LogConfig
@@ -69,13 +68,11 @@ func parseConfig(path string) error {
 	if err := decoder.Decode(&cfg); err != nil {
 		return err
 	}
-	//fmt.Printf("MySQL %#v:", cfg.DBConf.MySQLConf)
-	//fmt.Printf("Redis %#v:", cfg.DBConf.RedisConf)
-	//fmt.Printf("Log %#v:", cfg.LogConf)
 	return nil
 }
 
 func (format *LogFormat) Format(entry *logrus.Entry) ([]byte, error) {
+	//设置时区、时间
 	tz, err := time.LoadLocation("Asia/Shanghai")
 	if err != nil {
 		fmt.Println("err in func Format:", err)
@@ -84,12 +81,27 @@ func (format *LogFormat) Format(entry *logrus.Entry) ([]byte, error) {
 	entry.Time = entry.Time.In(tz)
 	entry.Time.Format(format.logConf.TimeFormat)
 
+	//var color string
+	//switch entry.Level {
+	//case logrus.InfoLevel:
+	//	color = define.Blue
+	//case logrus.WarnLevel:
+	//	color = define.Yellow
+	//case logrus.ErrorLevel:
+	//	color = define.Red
+	//default:
+	//	color = define.Reset
+	//}
+
 	//自定义日志输出格式
-	formatted := fmt.Sprintf("[%s] %s Error in [%s]: %s\n",
+	formatted := fmt.Sprintf("[%s] %s %s in [%s]: %s\n",
+		//color,
 		entry.Level.String(),
 		entry.Time.Format("2006-01-02 15:04:05"),
+		entry.Data["type"],
 		entry.Data["function"],
 		entry.Message,
+		//define.Reset,
 	)
 	return []byte(formatted), nil
 }
@@ -107,11 +119,13 @@ func InitLog() error {
 	}
 
 	//设置多路输出
-	Output := io.MultiWriter(os.Stdout, file)
+	writer1 := ansicolor.NewAnsiColorWriter(os.Stdout)
+	writer2 := ansicolor.NewAnsiColorWriter(file)
+	Output := io.MultiWriter(writer1, writer2)
 	logrusLog.Log.SetOutput(Output)
 
-	//设置日志格式
 	logrusLog.Log.SetFormatter(&LogFormat{logConf: logConf})
+	fmt.Println("init Log Format,logConf is:", logConf)
 	fmt.Println("init Log Successfully.")
 	return nil
 }
