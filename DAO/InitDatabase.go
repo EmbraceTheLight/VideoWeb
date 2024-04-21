@@ -17,15 +17,16 @@ var (
 
 func newClient() *redis.Client {
 	RedisConf := config.GetConfig().DBConf.RedisConf
+	fmt.Println("REDISCONF:", RedisConf)
 	return redis.NewClient(
 		&redis.Options{
-			Addr:     RedisConf.Port,
+			Addr:     RedisConf.Host + ":" + RedisConf.Port,
 			Password: RedisConf.Password,
 			DB:       0,
 		})
 }
 
-func CreatDatabase() {
+func CreateDatabase() {
 	MySQLConf := config.GetConfig().DBConf.MySQLConf
 	dbConnection := fmt.Sprintf("%s:%s@(%s:%s)/mysql?charset=%s&parseTime=True&loc=Local&timeout=10s",
 		MySQLConf.User, MySQLConf.Password, MySQLConf.Host, MySQLConf.Port, MySQLConf.Charset)
@@ -34,7 +35,7 @@ func CreatDatabase() {
 }
 
 func InitDB() (err error) {
-	CreatDatabase()
+	CreateDatabase()
 	MySQLConf := config.GetConfig().DBConf.MySQLConf
 	DBConnection := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=True&loc=Local&timeout=10s",
 		MySQLConf.User, MySQLConf.Password, MySQLConf.Host, MySQLConf.Port, MySQLConf.Database, MySQLConf.Charset)

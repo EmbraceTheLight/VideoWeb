@@ -4,6 +4,7 @@ import (
 	"VideoWeb/logrusLog"
 	"bufio"
 	"fmt"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/shiena/ansicolor"
 	"github.com/siruspen/logrus"
 	"gopkg.in/yaml.v3"
@@ -81,27 +82,12 @@ func (format *LogFormat) Format(entry *logrus.Entry) ([]byte, error) {
 	entry.Time = entry.Time.In(tz)
 	entry.Time.Format(format.logConf.TimeFormat)
 
-	//var color string
-	//switch entry.Level {
-	//case logrus.InfoLevel:
-	//	color = define.Blue
-	//case logrus.WarnLevel:
-	//	color = define.Yellow
-	//case logrus.ErrorLevel:
-	//	color = define.Red
-	//default:
-	//	color = define.Reset
-	//}
-
 	//自定义日志输出格式
-	formatted := fmt.Sprintf("[%s] %s %s in [%s]: %s\n",
-		//color,
+	formatted := fmt.Sprintf("[%s] %s In Function [%s]: %s\n",
 		entry.Level.String(),
 		entry.Time.Format("2006-01-02 15:04:05"),
-		entry.Data["type"],
 		entry.Data["function"],
 		entry.Message,
-		//define.Reset,
 	)
 	return []byte(formatted), nil
 }
@@ -113,19 +99,19 @@ func InitLog() error {
 		return err
 	}
 
-	file, err := os.OpenFile(logConf.FilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		return err
-	}
-
 	//设置多路输出
 	writer1 := ansicolor.NewAnsiColorWriter(os.Stdout)
-	writer2 := ansicolor.NewAnsiColorWriter(file)
+	writer2, _ := rotatelogs.New(
+		logConf.FilePath+".%Y%m%d",
+		rotatelogs.WithLinkName(logConf.FilePath),
+		rotatelogs.WithRotationCount(10),
+		rotatelogs.WithRotationSize(20*1024*1024),
+	)
+
 	Output := io.MultiWriter(writer1, writer2)
 	logrusLog.Log.SetOutput(Output)
-
+	//设置日志级别
 	logrusLog.Log.SetFormatter(&LogFormat{logConf: logConf})
-	fmt.Println("init Log Format,logConf is:", logConf)
 	fmt.Println("init Log Successfully.")
 	return nil
 }

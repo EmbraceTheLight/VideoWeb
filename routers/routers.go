@@ -57,7 +57,7 @@ func CollectRouter(r *gin.Engine) {
 	//视频相关接口
 	video := r.Group("/video")
 	{
-		video.GET("getVideoDetail", service.GetVideoInfo)
+		video.GET("/getVideoDetail", service.GetVideoInfo)
 		video.GET("/download", service.DownloadVideo)
 		video.GET("/StreamTransmission", service.StreamTransmission)
 		video.POST("/upload", service.UploadVideo)

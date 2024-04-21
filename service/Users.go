@@ -48,6 +48,7 @@ func Register(c *gin.Context) {
 	switch {
 	case err != nil: //数据库查询错误
 		Utilities.SendJsonMsg(c, define.QueryUserError, "error while searching database:"+err.Error())
+
 		return
 	case countName > 0: //已有同名用户
 		Utilities.SendJsonMsg(c, define.ExistUserName, "用户名已存在，请重新输入待注册用户名")
@@ -84,7 +85,7 @@ func Register(c *gin.Context) {
 	}
 
 	//设置用户默认头像
-	file, err := os.Open("/home/zey/ZeyGO/project/VideoWeb/resources/Pictures/default.jpg")
+	file, err := os.Open("./resources/Pictures/default.jpg")
 	defer file.Close()
 	if err != nil {
 		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())

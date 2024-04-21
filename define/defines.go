@@ -60,28 +60,12 @@ type IPInfo struct {
 
 // PicExtCheck 验证图片后缀名
 var PicExtCheck = make(map[string]struct{})
-var PictureSavePath = "/home/zey/ZeyGO/project/VideoWeb/resources/Pictures/"
+var PictureSavePath = "./resources/Pictures/"
 
 // VideoExtCheck 验证视频后缀名
 var VideoExtCheck = make(map[string]struct{})
-var VideoSavePath = "/home/zey/ZeyGO/project/VideoWeb/resources/Videos/"
+var VideoSavePath = "./resources/Videos/"
 var FFProbe = "ffprobe"
-
-//const (
-//	Blue          = "\x1b[34m"
-//	Red           = "\x1b[31m"
-//	Green         = "\x1b[32m"
-//	White         = "\x1b[37m"
-//	Yellow        = "\x1b[33m"
-//	Reset         = "\x1b[0m"
-//	Bold          = "\x1b[1m"
-//	Underline     = "\x1b[4m"
-//	Reverse       = "\x1b[7m"
-//	Strikethrough = "\x1b[9m"
-//	Italic        = "\x1b[3m"
-//	BoldItalic    = "\x1b[3m"
-//	Black         = "\x1b[30m"
-//)
 
 func init() {
 	//支持的图片的格式

@@ -68,8 +68,10 @@ func HardDelete() {
 		case err1 := <-errChannel:
 			if err1.err != nil {
 				log.Printf("error in Function [%s]: %v\n", idToFunc[err1.id], err1.err)
+				WriteErrLog(idToFunc[err1.id], err1.err.Error())
 			} else {
 				log.Printf("Function [%s] deleted records successfully\n", idToFunc[err1.id])
+				WriteInfoLog(idToFunc[err1.id], "deleted records successfully.")
 			}
 		}
 	}
@@ -110,8 +112,8 @@ func HDUsers() {
 		id:  3,
 		err: err,
 	}
-}
 
+}
 func HDComments() {
 	err := db.Unscoped().Delete(&EntitySets.Comments{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{

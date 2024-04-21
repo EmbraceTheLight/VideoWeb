@@ -190,6 +190,8 @@ func UploadVideo(c *gin.Context) {
 		fmt.Println("err:", err.Error())
 		return
 	}
+	//TODO:更新用户经验值
+
 	tx.Commit()
 
 	Utilities.SendJsonMsg(c, 200, "上传视频成功")
@@ -348,7 +350,7 @@ func GetVideoInfo(c *gin.Context) {
 	err := DAO.DB.Where("VideoID=?", VID).Preload("Comments").
 		Preload("Tags").Preload("Barrages").First(&videoInfo).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, 5017, "获取视频信息失败")
+		Utilities.SendJsonMsg(c, define.GetVideoInfoFailed, "获取视频信息失败"+err.Error())
 		return
 	}
 
