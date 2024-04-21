@@ -47,20 +47,20 @@ func Register(c *gin.Context) {
 	err := DAO.DB.Model(&EntitySets.User{}).Where("userName=?", userName).Count(&countName).Error
 	switch {
 	case err != nil: //数据库查询错误
-		Utilities.SendJsonMsg(c, define.QueryUserError, "error while searching database:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.QueryUserError, "error while searching database:"+err.Error())
 
 		return
 	case countName > 0: //已有同名用户
-		Utilities.SendJsonMsg(c, define.ExistUserName, "用户名已存在，请重新输入待注册用户名")
+		Utilities.SendErrMsg(c, "service::Users::Register", define.ExistUserName, "用户名已存在，请重新输入待注册用户名")
 		return
 	case len(password) < 6: //密码长度小于6位
-		Utilities.SendJsonMsg(c, define.ShortPasswordLength, "密码长度不能小于6位，请重新输入密码")
+		Utilities.SendErrMsg(c, "service::Users::Register", define.ShortPasswordLength, "密码长度不能小于6位，请重新输入密码")
 		return
 	case password != repeatPassword: //第一次输入的密码与第二次输入的密码不一致
-		Utilities.SendJsonMsg(c, define.PasswordInconsistency, "第一次输入的密码与第二次输入的密码不一致，请重新输入")
+		Utilities.SendErrMsg(c, "service::Users::Register", define.PasswordInconsistency, "第一次输入的密码与第二次输入的密码不一致，请重新输入")
 		return
 	case utf8.RuneCountInString(Signature) > 25:
-		Utilities.SendJsonMsg(c, define.SignatureTooLong, "个性签名过长，请重新输入")
+		Utilities.SendErrMsg(c, "service::Users::Register", define.SignatureTooLong, "个性签名过长，请重新输入")
 		return
 	}
 
@@ -68,19 +68,18 @@ func Register(c *gin.Context) {
 	//code := define.VerificationDataMap[email].Code
 	code, err := DAO.RDB.Get(c, email).Result()
 	if err != nil {
-		fmt.Println("Redis Get Error:", err.Error())
-		Utilities.SendJsonMsg(c, define.CodeExpired, "验证码已过期，请重新获取验证码")
+		Utilities.SendErrMsg(c, "service::Users::Register::RedisGet", define.CodeExpired, "验证码已过期，请重新获取验证码")
 		return
 	}
 	if code != verify {
-		Utilities.SendJsonMsg(c, define.VerificationError, "验证码输入错误，请重新输入")
+		Utilities.SendErrMsg(c, "service::Users::Register", define.VerificationError, "验证码输入错误，请重新输入")
 		return
 	}
 
 	//加密密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.PasswordEncryptionError, "密码加密错误")
+		Utilities.SendErrMsg(c, "service::Users::Register::GenerateFromPassword", define.PasswordEncryptionError, "密码加密错误")
 		return
 	}
 
@@ -88,18 +87,18 @@ func Register(c *gin.Context) {
 	file, err := os.Open("./resources/Pictures/default.jpg")
 	defer file.Close()
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		return
 	}
 	fileInfo, err := file.Stat()
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		return
 	}
 	var avatar = make([]byte, fileInfo.Size())
 	_, err = file.Read(avatar)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		return
 	}
 
@@ -143,31 +142,31 @@ func Register(c *gin.Context) {
 	}
 	Account, err := newUser.Create(tx)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
 	err = defaultFavorites.Create(tx)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
 	err = privateFavorites.Create(tx)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
 	err = userLevel.Create(tx)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
 	token, err := logic.CreateToken(newUser.UserID, newUser.UserName, newUser.IsAdmin)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
@@ -192,7 +191,7 @@ func Register(c *gin.Context) {
 func SendCode(c *gin.Context) {
 	userEmail := c.Query("email") //从前端获取email信息
 	if userEmail == "" {
-		Utilities.SendJsonMsg(c, define.EmptyMail, "邮箱不能为空")
+		Utilities.SendErrMsg(c, "service::Users::SendCode", define.EmptyMail, "邮箱不能为空")
 		return
 	}
 	DAO.RDB.Del(c, userEmail) //之前的验证码可能没有过期，要先删除
@@ -200,7 +199,7 @@ func SendCode(c *gin.Context) {
 	err := logic.SendCode(userEmail, code)
 	fmt.Println(code)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CodeSendFailed, "验证码发送失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::SendCode", define.CodeSendFailed, "验证码发送失败:"+err.Error())
 		return
 	}
 
@@ -228,28 +227,28 @@ func Login(c *gin.Context) {
 	fmt.Println("Account:", AccountOrUserName)
 	fmt.Println("password:", password)
 	if AccountOrUserName == "" || password == "" {
-		Utilities.SendJsonMsg(c, define.EmptyAccountOrPassword, "账号或密码为空")
+		Utilities.SendErrMsg(c, "service::Users::Login", define.EmptyAccountOrPassword, "账号或密码为空")
 		return
 	}
 
 	err = DAO.DB.Where("Account=? OR userName=?", AccountOrUserName, AccountOrUserName).First(&userInfo).Error
 	if err != nil {
 		if gorm.ErrRecordNotFound != nil { //未找到用户信息记录
-			Utilities.SendJsonMsg(c, define.AccountNotFind, "账号不存在，请重新检查输入的账号")
+			Utilities.SendErrMsg(c, "service::Users::Login", define.AccountNotFind, "账号不存在，请重新检查输入的账号")
 			return
 		}
 		//其他错误
-		Utilities.SendJsonMsg(c, define.ObtainUserInformationFailed, "Get UserInfo failed:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Login", define.ObtainUserInformationFailed, "Get UserInfo failed:"+err.Error())
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(userInfo.Password), []byte(password)); err != nil {
-		Utilities.SendJsonMsg(c, define.ErrorPassword, "密码错误")
+		Utilities.SendErrMsg(c, "service::Users::Login", define.ErrorPassword, "密码错误")
 		return
 	}
 	token, err := logic.CreateToken(userInfo.UserID, userInfo.UserName, userInfo.IsAdmin)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateTokenError, "CreateToken error:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Login", define.CreateTokenError, "CreateToken error:"+err.Error())
 		return
 	}
 
@@ -274,7 +273,7 @@ func Logout(c *gin.Context) {
 	id := c.Query("UserID")
 	favorites, err := logic.GetFavoritesByID(id)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.LogoutUserFailed, "注销用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Login", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		fmt.Println("Err in Getting User Favorites:", err.Error())
 		return
 	}
@@ -289,7 +288,7 @@ func Logout(c *gin.Context) {
 	for _, favorite := range favorites {
 		err := favorite.Delete(DAO.DB)
 		if err != nil {
-			Utilities.SendJsonMsg(c, define.LogoutUserFailed, "注销用户失败:"+err.Error())
+			Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 			tx.Rollback()
 			fmt.Println("Err in Deleting Favorites:", err.Error())
 			return
@@ -299,7 +298,7 @@ func Logout(c *gin.Context) {
 	//TODO:删除用户的关注列表信息
 	err = DAO.DB.Where("UID=?", id).Delete(&RelationshipSets.UserFollows{}).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.LogoutUserFailed, "注销用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		tx.Rollback()
 		fmt.Println("Err in Deleting Follows:", err.Error())
 		return
@@ -307,7 +306,7 @@ func Logout(c *gin.Context) {
 	//TODO:删除被关注用户的对应粉丝列表信息
 	err = DAO.DB.Where("FID=?", id).Delete(&RelationshipSets.UserFollowed{}).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.LogoutUserFailed, "注销用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		tx.Rollback()
 		fmt.Println("Err in Deleting Followed:", err.Error())
 		return
@@ -315,7 +314,7 @@ func Logout(c *gin.Context) {
 	//TODO:删除用户对应等级信息
 	err = DAO.DB.Where("UID=?", id).Delete(&EntitySets.Level{}).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.LogoutUserFailed, "注销用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		tx.Rollback()
 		fmt.Println("Err in Deleting level:", err.Error())
 		return
@@ -324,13 +323,14 @@ func Logout(c *gin.Context) {
 	var user *EntitySets.User
 	err = DAO.DB.Debug().Where("UserID=?", id).Delete(&user).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.LogoutUserFailed, "注销用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		tx.Rollback()
 		fmt.Println("Err in Deleting User:", err.Error())
 		return
 	}
 	tx.Commit()
-	Utilities.SendJsonMsg(c, 200, "注销账户成功")
+	Utilities.SendSuccessMsg(c, 200, "注销账户成功")
+
 }
 
 // GetUserDetail
@@ -348,6 +348,7 @@ func GetUserDetail(c *gin.Context) {
 			"code": -1,
 			"msg":  "用户唯一标识不能为空",
 		})
+		Utilities.SendErrMsg(c, "service::Users::GetUserDetail", define.ObtainUserInformationFailed, "用户唯一标识不能为空")
 		return
 	}
 
@@ -357,7 +358,7 @@ func GetUserDetail(c *gin.Context) {
 		Preload("MessageBox").Preload("Follows").Preload("UserLevel").
 		Preload("Followed").Preload("UserWatch").Preload("UserSearch").First(&userInfo).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ObtainUserInformationFailed, "Get User Info failed:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::GetUserDetail", define.ObtainUserInformationFailed, "Get User Info failed:"+err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -380,17 +381,17 @@ func ModifyUserSignature(c *gin.Context) {
 	id := c.Query("userID")
 	signature := c.PostForm("userSignature")
 	if utf8.RuneCountInString(signature) > 25 {
-		Utilities.SendJsonMsg(c, define.SignatureTooLong, "个性签名过长，请重新输入")
+		Utilities.SendErrMsg(c, "service::Users::ModifySignature", define.SignatureTooLong, "个性签名过长，请重新输入")
 		return
 	}
 
 	err := DAO.DB.Model(&EntitySets.User{}).Debug().Where("UserID=?", id).Update("signature", signature).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ModifySignatureFailed, "修改用户签名失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::ModifySignature", define.ModifySignatureFailed, "修改用户签名失败:"+err.Error())
 		return
 	}
 
-	Utilities.SendJsonMsg(c, 200, "修改用户签名成功")
+	Utilities.SendSuccessMsg(c, 200, "修改用户签名成功")
 }
 
 // ModifyUserEmail
@@ -412,21 +413,21 @@ func ModifyUserEmail(c *gin.Context) {
 
 	code, err := DAO.RDB.Get(c, userEmail).Result()
 	if err != nil {
-		Utilities.SendJsonMsg(c, -1, "验证码已过期，请重新获取验证码")
+		Utilities.SendErrMsg(c, "service::Users::ModifyEmail", -1, "验证码已过期，请重新获取验证码")
 		return
 	}
 	if code != verify {
-		Utilities.SendJsonMsg(c, define.VerificationError, "验证码输入错误，请重新输入")
+		Utilities.SendErrMsg(c, "service::Users::ModifyEmail", define.VerificationError, "验证码输入错误，请重新输入")
 		return
 	}
 
 	//修改后存入数据库中
 	err = DAO.DB.Model(&EntitySets.User{}).Debug().Where("UserID=?", id).Update("Email", userEmail).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CodeSendFailed, "验证码发送失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::ModifyEmail", define.CodeSendFailed, "验证码发送失败"+err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, 200, "用户邮箱成功")
+	Utilities.SendSuccessMsg(c, 200, "用户邮箱成功")
 
 }
 
@@ -455,26 +456,26 @@ func ForgetPassword(c *gin.Context) {
 	err := DAO.DB.Where("Userid=?", id).First(&userInfo).Error
 	switch {
 	case err != nil:
-		Utilities.SendJsonMsg(c, define.ObtainUserInformationFailed, "获取用户信息失败")
+		Utilities.SendErrMsg(c, "service::Users::ForgetPassword", define.ObtainUserInformationFailed, "获取用户信息失败")
 		return
 	case userEmail != userInfo.Email:
-		Utilities.SendJsonMsg(c, define.NotMatchMail, "邮箱不匹配")
+		Utilities.SendErrMsg(c, "service::Users::ForgetPassword", define.NotMatchMail, "邮箱不匹配")
 		return
 	case RDBErr != nil:
-		Utilities.SendJsonMsg(c, define.CodeExpired, "验证码已过期，请重新获取验证码")
+		Utilities.SendErrMsg(c, "service::Users::ForgetPassword", define.CodeExpired, "验证码已过期，请重新获取验证码")
 		return
 	case Code != verify:
-		Utilities.SendJsonMsg(c, define.VerificationError, "验证码输入错误，请重新输入")
+		Utilities.SendErrMsg(c, "service::Users::ForgetPassword", define.VerificationError, "验证码输入错误，请重新输入")
 		return
 
 	}
 
 	status, err := logic.ModifyPassword(id, newPassword, repeatPassword)
 	if err != nil {
-		Utilities.SendJsonMsg(c, status, err.Error())
+		Utilities.SendErrMsg(c, "service::Users::ForgetPassword", status, err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, 200, "重置密码成功")
+	Utilities.SendSuccessMsg(c, 200, "重置密码成功")
 	DAO.RDB.Del(c, userEmail)
 }
 
@@ -499,22 +500,22 @@ func ModifyPassword(c *gin.Context) {
 	var userInfo = new(EntitySets.User)
 	err := DAO.DB.Where("Userid=?", id).First(&userInfo).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ObtainUserInformationFailed, "获取用户信息失败")
+		Utilities.SendErrMsg(c, "service::Users::ModifyPassword", define.ObtainUserInformationFailed, "获取用户信息失败")
 		return
 	}
 
 	err = logic.ComparePassword(userInfo.Password, password)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ErrorPassword, err.Error())
+		Utilities.SendErrMsg(c, "service::Users::ModifyPassword", define.ErrorPassword, err.Error())
 		return
 	}
 
 	code, err := logic.ModifyPassword(id, newPassword, repeatPassword)
 	if err != nil {
-		Utilities.SendJsonMsg(c, code, err.Error())
+		Utilities.SendErrMsg(c, "service::Users::ModifyPassword", code, err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, code, "修改密码成功")
+	Utilities.SendSuccessMsg(c, code, "修改密码成功")
 }
 
 // ModifyUserName
@@ -534,7 +535,7 @@ func ModifyUserName(c *gin.Context) {
 	var userInfo = new(EntitySets.User)
 	err := DAO.DB.Where("Userid=?", id).First(&userInfo).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ObtainUserInformationFailed, "获取用户信息失败")
+		Utilities.SendErrMsg(c, "service::Users::ModifyUserName", define.ObtainUserInformationFailed, "获取用户信息失败")
 		return
 	}
 
@@ -542,24 +543,20 @@ func ModifyUserName(c *gin.Context) {
 	err = DAO.DB.Model(&EntitySets.User{}).Where("userName=?", userName).Count(&countName).Error
 	switch {
 	case err != nil: //数据库查询错误
-		Utilities.SendJsonMsg(c, define.QueryUserError, "error while searching database:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::ModifyUserName", define.QueryUserError, "error while searching database:"+err.Error())
 		return
 	case countName > 0: //已有同名用户
-		Utilities.SendJsonMsg(c, define.ExistUserName, "用户名已存在，请重新输入用户名")
+		Utilities.SendErrMsg(c, "service::Users::ModifyUserName", define.ExistUserName, "用户名已存在，请重新输入用户名")
 		return
 	}
 
 	err = DAO.DB.Model(&EntitySets.User{}).Debug().Where("UserID=?", id).Update("userName", userName).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ModifyUserNameFailed, "修改用户名失败")
+		Utilities.SendErrMsg(c, "service::Users::ModifyUserName", define.ModifyUserNameFailed, "修改用户名失败")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code": 200,
-		"msg":  "修改用户名成功",
-	})
-
+	Utilities.SendSuccessMsg(c, 200, "修改用户名成功")
 }
 
 // UploadUserAvatar
@@ -580,32 +577,32 @@ func UploadUserAvatar(c *gin.Context) {
 	extension := path.Ext(fname)
 	println("ext:", extension)
 	if _, ok := define.PicExtCheck[extension]; ok != true {
-		Utilities.SendJsonMsg(c, define.ImageFormatError, "图片格式错误或不支持此图片格式")
+		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ImageFormatError, "图片格式错误或不支持此图片格式")
 		return
 	}
 
 	//TODO:打开并读取文件
 	file, err := FH.Open()
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.OpenFileFailed, "打开文件失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.OpenFileFailed, "打开文件失败"+err.Error())
 		return
 	}
 	defer file.Close()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ReadFileFailed, "读取文件内容失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ReadFileFailed, "读取文件内容失败"+err.Error())
 		return
 	}
 
 	err = DAO.DB.Model(&EntitySets.User{}).Where("userID=?", userID).Update("Avatar", data).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.UploadUserAvatarFailed, "上传用户头像失败")
+		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.UploadUserAvatarFailed, "上传用户头像失败")
 		fmt.Println("err:", err.Error())
 		return
 	}
 
-	Utilities.SendJsonMsg(c, 200, "上传用户头像成功")
+	Utilities.SendSuccessMsg(c, 200, "上传用户头像成功")
 }
 
 // AddSearchHistory
@@ -626,10 +623,10 @@ func AddSearchHistory(c *gin.Context) {
 	}
 	err := SearchHistory.Create(DAO.DB)
 	if err != nil {
-		Utilities.SendJsonMsg(c, 5019, "创建搜索历史失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::AddSearchHistory", 5019, "创建搜索历史失败:"+err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, http.StatusOK, "创建搜索历史成功")
+	Utilities.SendSuccessMsg(c, http.StatusOK, "创建搜索历史成功")
 
 }
 
@@ -651,8 +648,8 @@ func AddVideoHistory(c *gin.Context) {
 	}
 	err := VideoHistory.Create(DAO.DB)
 	if err != nil {
-		Utilities.SendJsonMsg(c, 5020, "创建视频历史记录失败")
+		Utilities.SendErrMsg(c, "service::Users::AddVideoHistory", 5020, "创建视频历史记录失败")
 		return
 	}
-	Utilities.SendJsonMsg(c, http.StatusOK, "创建视频历史记录成功")
+	Utilities.SendSuccessMsg(c, http.StatusOK, "创建视频历史记录成功")
 }

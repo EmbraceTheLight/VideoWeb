@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"log"
 	"time"
 )
 
@@ -67,10 +66,8 @@ func HardDelete() {
 			HDHelper()
 		case err1 := <-errChannel:
 			if err1.err != nil {
-				log.Printf("error in Function [%s]: %v\n", idToFunc[err1.id], err1.err)
 				WriteErrLog(idToFunc[err1.id], err1.err.Error())
 			} else {
-				log.Printf("Function [%s] deleted records successfully\n", idToFunc[err1.id])
 				WriteInfoLog(idToFunc[err1.id], "deleted records successfully.")
 			}
 		}

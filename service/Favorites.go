@@ -39,19 +39,19 @@ func CreateFavorites(c *gin.Context) {
 	var count int64
 	err := DAO.DB.Model(&EntitySets.Favorites{}).Where("FName", FName).Count(&count).Error
 	if count != 0 {
-		Utilities.SendJsonMsg(c, define.SameNameFavorite, "已有同名收藏夹")
+		Utilities.SendErrMsg(c, "service::Favorites::CreateFavorites", define.SameNameFavorite, "已有同名收藏夹")
 		return
 	}
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateFavoriteFailed, "创建收藏夹失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Favorites::CreateFavorites", define.CreateFavoriteFailed, "创建收藏夹失败:"+err.Error())
 		return
 	}
 	err = Favorite.Create(DAO.DB)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateFavoriteFailed, "创建收藏夹失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Favorites::CreateFavorites", define.CreateFavoriteFailed, "创建收藏夹失败:"+err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, 200, "创建收藏夹成功")
+	Utilities.SendSuccessMsg(c, 200, "创建收藏夹成功")
 }
 
 // DeleteFavorites
@@ -69,10 +69,10 @@ func DeleteFavorites(c *gin.Context) {
 	var del *EntitySets.Favorites
 	err := DAO.DB.Model(&EntitySets.Favorites{}).Debug().Where("UID=? AND FName=?", UID, FName).Delete(&del).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.DeleteFavoriteFailed, "删除收藏夹失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Favorites::DeleteFavorites", define.DeleteFavoriteFailed, "删除收藏夹失败:"+err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, 200, "删除收藏夹"+FName+"成功")
+	Utilities.SendSuccessMsg(c, 200, "删除收藏夹"+FName+"成功")
 }
 
 // ModifyFavorites
@@ -102,7 +102,7 @@ func ModifyFavorites(c *gin.Context) {
 	err := DAO.DB.Debug().Model(&EntitySets.Favorites{}).Where("UID=? AND FName=?", UID, newName).Count(&count).Error
 
 	if newName == "" {
-		Utilities.SendJsonMsg(c, define.ProhibitFavoritesNameEmpty, "收藏夹名称不能为空")
+		Utilities.SendErrMsg(c, "service::Favorites::ModifyFavorites", define.ProhibitFavoritesNameEmpty, "收藏夹名称不能为空")
 		return
 	}
 
@@ -120,9 +120,9 @@ func ModifyFavorites(c *gin.Context) {
 		err = DAO.DB.Model(EntitySets.Favorites{}).Where("FavoriteID=?", FavoriteID).Updates(&newFavorite).Error
 	}
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.ModifyFavoriteFailed, "修改收藏夹失败："+err.Error())
+		Utilities.SendErrMsg(c, "service::Favorites::ModifyFavorites", define.ModifyFavoriteFailed, "修改收藏夹失败："+err.Error())
 		return
 	}
 
-	Utilities.SendJsonMsg(c, 200, "修改收藏夹成功")
+	Utilities.SendSuccessMsg(c, 200, "修改收藏夹成功")
 }

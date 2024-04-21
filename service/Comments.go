@@ -41,7 +41,7 @@ func CommentToVideo(c *gin.Context) {
 	}
 	err := DAO.DB.Create(&comment).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateCommentToVideoFailed, "创建用户评论（To视频）记录失败")
+		Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.CreateCommentToVideoFailed, "创建用户评论（To视频）记录失败")
 		return
 	}
 
@@ -57,30 +57,30 @@ func CommentToVideo(c *gin.Context) {
 	var VideoUpID string
 	err = tx.Model(&EntitySets.Video{}).Where("videoID=?", VID).Pluck("UID", &VideoUpID).Error
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.QueryUserError, "获取用户信息失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.QueryUserError, "获取用户信息失败"+err.Error())
 		tx.Rollback()
 		return
 	}
-	//TODO:使用websocket通知被评论的视频up主(如果该用户在线)，并把“被评论”这一事件作为msg写入数据库，
-	//TODO:这样即使视频up主当时未在线，也能通过检索数据库的方式得知自己有新消息
+	//使用websocket通知被评论的视频up主(如果该用户在线)，并把“被评论”这一事件作为msg写入数据库，
+	//这样即使视频up主当时未在线，也能通过检索数据库的方式得知自己有新消息
 	conn, ok := WebSocket.Hub.UserConnections[UID]
 	liker, _ := logic.GetUserNameByID(UID)
 	msg := &define.Message{
 		Title: liker + "点赞了你的视频",
 		Body:  "",
 	}
-	if ok { //Up主当前在线
+	if ok { //TODO:Up主当前在线,待完善
 		conn = conn
 
 	}
 
 	err = logic.CreateMessage(msg)
 	if err != nil {
-		Utilities.SendJsonMsg(c, define.CreateMessageFailed, "创建Message失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.CreateMessageFailed, "创建Message失败:"+err.Error())
 	}
 	tx.Commit()
 
-	Utilities.SendJsonMsg(c, 200, "发送评论成功")
+	Utilities.SendSuccessMsg(c, 200, "发送评论成功")
 }
 
 // CommentToOtherUser

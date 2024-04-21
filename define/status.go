@@ -41,6 +41,7 @@ const (
 	ModifyFavoriteFailed
 	UploadVideoFailed
 	GetVideoInfoFailed
+	DeleteVideoFailed
 	SendVideoFailed
 	CreateSearchRecordFailed
 	CreateCommentToVideoFailed

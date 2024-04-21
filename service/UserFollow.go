@@ -38,7 +38,7 @@ func FollowOtherUser(c *gin.Context) {
 	err := followsRecord.Create(tx)
 	if err != nil {
 		tx.Rollback()
-		Utilities.SendJsonMsg(c, define.FollowUserFailed, "关注用户失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::UserFollow::FollowOtherUser", define.FollowUserFailed, "关注用户失败"+err.Error())
 		return
 	}
 
@@ -51,12 +51,12 @@ func FollowOtherUser(c *gin.Context) {
 	err = followedRecord.Create(tx)
 	if err != nil {
 		tx.Rollback()
-		Utilities.SendJsonMsg(c, define.FollowUserFailed, "关注用户失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::UserFollow::FollowOtherUser", define.FollowUserFailed, "关注用户失败"+err.Error())
 		return
 	}
 	tx.Commit()
 
-	Utilities.SendJsonMsg(c, 200, "关注成功")
+	Utilities.SendSuccessMsg(c, 200, "关注成功")
 }
 
 // UnFollowOtherUser
@@ -86,7 +86,7 @@ func UnFollowOtherUser(c *gin.Context) {
 	err := followsRecord.Delete(tx)
 	if err != nil {
 		tx.Rollback()
-		Utilities.SendJsonMsg(c, define.UnfollowUserFailed, "取消关注用户失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::UserFollow::UnFollowOtherUser", define.UnfollowUserFailed, "取消关注用户失败"+err.Error())
 		return
 	}
 
@@ -98,10 +98,10 @@ func UnFollowOtherUser(c *gin.Context) {
 	err = followedRecord.Delete(tx)
 	if err != nil {
 		tx.Rollback()
-		Utilities.SendJsonMsg(c, define.UnfollowUserFailed, "取消关注用户失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::UserFollow::UnFollowOtherUser", define.UnfollowUserFailed, "取消关注用户失败"+err.Error())
 		return
 	}
 	tx.Commit()
 	// TODO:
-	Utilities.SendJsonMsg(c, 200, "取消关注成功")
+	Utilities.SendSuccessMsg(c, 200, "取消关注成功")
 }

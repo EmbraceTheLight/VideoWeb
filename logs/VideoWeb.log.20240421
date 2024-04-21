@@ -20,3 +20,4 @@
 [info] 2024-04-21 17:04:09 In Function [HDFollowed]: deleted records successfully.
 [info] 2024-04-21 17:04:09 In Function [HDMessages]: deleted records successfully.
 [info] 2024-04-21 17:04:09 In Function [HDUserHistory]: deleted records successfully.
+[error] 2024-04-21 17:42:38 In Function [service::Users::Register]: 用户名已存在，请重新输入待注册用户名
