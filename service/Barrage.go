@@ -40,7 +40,6 @@ func AddBarrage(c *gin.Context) {
 	err := barrage.Create(DAO.DB)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Barrage::AddBarrage", define.AddBarrageFailed, "添加弹幕失败:"+err.Error())
-		Utilities.WriteErrLog("AddBarrage", "添加弹幕失败:"+err.Error())
 		return
 	}
 	Utilities.SendSuccessMsg(c, 200, "添加弹幕成功")

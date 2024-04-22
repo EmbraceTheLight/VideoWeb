@@ -12,5 +12,7 @@ FROM centos
 WORKDIR /VideoWeb
 
 COPY --from=builder /VideoWeb/main /VideoWeb/main
+COPY --from=builder /VideoWeb/resources /VideoWeb/resources
+COPY --from=builder /VideoWeb/config /VideoWeb/config
 COPY --from=builder /VideoWeb/wait-for-it.sh /VideoWeb/wait-for-it.sh
 #CMD ["./main"]
