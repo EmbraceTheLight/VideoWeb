@@ -41,5 +41,6 @@ services:
       - "6380:6379"
     environment:
       TZ: Asia/Shanghai
+
 #  ffmpeg:
 #    image: jrottenberg/ffmpeg:centos
