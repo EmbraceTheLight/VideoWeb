@@ -84,7 +84,7 @@ func Register(c *gin.Context) {
 	}
 
 	//设置用户默认头像
-	file, err := os.Open("./resources/Pictures/default.jpg")
+	file, err := os.Open(define.PictureSavePath + "default.jpg")
 	defer file.Close()
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
