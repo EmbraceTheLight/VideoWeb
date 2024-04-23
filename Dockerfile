@@ -13,6 +13,7 @@ WORKDIR /VideoWeb
 
 # 设置非交互式环境
 ENV DEBIAN_FRONTEND=noninteractive
+#更新软件源并安装ffmpeg工具集
 RUN yes|apt-get update && yes|apt-get upgrade && yes|apt-get install ffmpeg
 
 COPY --from=builder /VideoWeb/main /VideoWeb/main
