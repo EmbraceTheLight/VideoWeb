@@ -8,7 +8,7 @@ ADD go.sum .
 COPY . .
 RUN  chmod 777 ./wait-for-it.sh && go mod download && go mod tidy && go build -o main  main.go
 
-FROM centos
+FROM centos:7.0
 WORKDIR /VideoWeb
 
 COPY --from=builder /VideoWeb/main /VideoWeb/main
