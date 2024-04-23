@@ -60,11 +60,11 @@ type IPInfo struct {
 
 // PicExtCheck 验证图片后缀名
 var PicExtCheck = make(map[string]struct{})
-var PictureSavePath = "./resources/Pictures/"
+var PictureSavePath = "./resources/pictures/"
 
 // VideoExtCheck 验证视频后缀名
 var VideoExtCheck = make(map[string]struct{})
-var VideoSavePath = "./resources/Videos/"
+var VideoSavePath = "./resources/videos/"
 var FFProbe = "ffprobe"
 
 func init() {
