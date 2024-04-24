@@ -2,11 +2,15 @@ database:
   mysql:
     user: root
     password: 213103
+#    host: "1.95.54.11"
+#    port: 3307
     host: "mysql"
     port: 3306
     database: VideoWeb
     charset: utf8mb4
   redis:
+#    host: "1.95.54.11"
+#    port: 6380
     host: "redis"
     port: 6379
     password: ""

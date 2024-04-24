@@ -28,17 +28,18 @@ func CollectRouter(r *gin.Engine) {
 	//路由规则
 	//公有方法
 	r.POST("/send-code", service.SendCode)
-	r.POST("/user/login", service.Login)
-	r.POST("/user/register", service.Register)
 
 	//用户相关接口
 	userInfo := r.Group("/user")
 	{
+
 		userInfo.GET("/user-detail", service.GetUserDetail)
 		userInfo.POST("/fans/follows", service.FollowOtherUser)
 		userInfo.POST("/face/upload/Avatar", service.UploadUserAvatar)
 		userInfo.POST("/AddSearchHistory", service.AddSearchHistory)
 		userInfo.POST("/AddVideoHistory", service.AddVideoHistory)
+		userInfo.POST("/login", service.Login)
+		userInfo.POST("/register", service.Register)
 		userInfo.PUT("/ModifySignature", service.ModifyUserSignature)
 		userInfo.PUT("/ModifyEmail", service.ModifyUserEmail)
 		userInfo.PUT("/ModifyPassword", service.ModifyPassword)
