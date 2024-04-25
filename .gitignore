@@ -1,5 +1,5 @@
 resources/Video/*
 main
-main.exe
+./main.exe
 vw
 vw.exe
