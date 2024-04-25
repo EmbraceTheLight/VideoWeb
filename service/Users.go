@@ -344,10 +344,6 @@ func Logout(c *gin.Context) {
 func GetUserDetail(c *gin.Context) {
 	userID := c.Query("UserID")
 	if userID == "" {
-		c.JSON(http.StatusOK, gin.H{
-			"code": -1,
-			"msg":  "用户唯一标识不能为空",
-		})
 		Utilities.SendErrMsg(c, "service::Users::GetUserDetail", define.ObtainUserInformationFailed, "用户唯一标识不能为空")
 		return
 	}
