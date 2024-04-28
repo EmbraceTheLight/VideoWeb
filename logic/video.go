@@ -5,6 +5,7 @@ import (
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
+	"VideoWeb/helper"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -79,6 +80,27 @@ func CreateVideoRecord(tx *gorm.DB, c *gin.Context, videoFilePath string, fileSi
 	}
 	err = tx.Model(&EntitySets.Video{}).Create(&video).Error
 	return VID, err
+}
+
+func MakeDASHSegments(videoFilePath string) error {
+	ext := path.Ext(videoFilePath)
+	if ext != ".mp4" {
+		err := helper.Other2MP4(videoFilePath)
+		if err != nil {
+			return err
+		}
+	}
+	outPutFilePath := path.Dir(videoFilePath)
+	ffmpegArgs := []string{
+		"-i", outPutFilePath + "/converted.mp4",
+		"-c", "copy",
+		"-f", "dash",
+		"-segment_time", "5",
+		outPutFilePath + "/output.mpd", // 分段文件名模板
+	}
+	cmd := exec.Command("ffmpeg", ffmpegArgs...)
+	err := cmd.Run()
+	return err
 }
 
 // DeleteVideo 删除视频辅助函数

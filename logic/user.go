@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 // GetUserIpInfo 获取并返回用户所在国家和地区
@@ -124,5 +125,5 @@ func ModifyPassword(id, newPassword, repeatPassword string) (int, error) {
 		return define.ModifyPasswordFailed, errors.New("修改密码失败")
 	}
 
-	return 200, nil
+	return http.StatusOK, nil
 }

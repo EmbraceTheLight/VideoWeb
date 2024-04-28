@@ -69,7 +69,11 @@ func UploadVideo(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 		return
 	}
-
+	err = logic.MakeDASHSegments(videoFileName)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "创建DASH视频切片失败:"+err.Error())
+		return
+	}
 	/*将对应数据插入数据库*/
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -180,7 +184,6 @@ func DownloadVideo(c *gin.Context) {
 	}
 
 	fileExt := path.Ext(videoInfo.Path)
-
 	/*
 		NOTE:要使用PathEscape而非QueryEscape
 		因为PathEscape会将空格‘ ’转义为%20，加号‘+’不变，能被浏览器正确识别原文件名称
@@ -265,7 +268,7 @@ func GetVideoInfo(c *gin.Context) {
 	err := DAO.DB.Where("VideoID=?", VID).Preload("Comments").
 		Preload("Tags").Preload("Barrages").First(&videoInfo).Error
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
 		return
 	}
 

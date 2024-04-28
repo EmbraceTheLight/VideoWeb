@@ -274,7 +274,12 @@ func Logout(c *gin.Context) {
 	favorites, err := logic.GetFavoritesByID(id)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Login", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-		fmt.Println("Err in Getting User Favorites:", err.Error())
+		return
+	}
+	/*删除用户上传的视频信息*/
+	err = os.RemoveAll(path.Join(define.VideoSavePath, id))
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		return
 	}
 
@@ -284,52 +289,47 @@ func Logout(c *gin.Context) {
 			tx.Rollback()
 		}
 	}()
-	//TODO:删除用户的收藏夹信息
+	/*删除用户的收藏夹信息*/
 	for _, favorite := range favorites {
 		err := favorite.Delete(DAO.DB)
 		if err != nil {
 			Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 			tx.Rollback()
-			fmt.Println("Err in Deleting Favorites:", err.Error())
 			return
 		}
 	}
 
-	//TODO:删除用户的关注列表信息
+	/*删除用户的关注列表信息*/
 	err = DAO.DB.Where("UID=?", id).Delete(&RelationshipSets.UserFollows{}).Error
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		tx.Rollback()
-		fmt.Println("Err in Deleting Follows:", err.Error())
 		return
 	}
-	//TODO:删除被关注用户的对应粉丝列表信息
+	/*删除被关注用户的对应粉丝列表信息*/
 	err = DAO.DB.Where("FID=?", id).Delete(&RelationshipSets.UserFollowed{}).Error
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		tx.Rollback()
-		fmt.Println("Err in Deleting Followed:", err.Error())
 		return
 	}
-	//TODO:删除用户对应等级信息
+	/*删除用户对应等级信息*/
 	err = DAO.DB.Where("UID=?", id).Delete(&EntitySets.Level{}).Error
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		tx.Rollback()
-		fmt.Println("Err in Deleting level:", err.Error())
 		return
 	}
-	//TODO:删除用户信息
+	/*删除用户信息*/
 	var user *EntitySets.User
 	err = DAO.DB.Debug().Where("UserID=?", id).Delete(&user).Error
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
 		tx.Rollback()
-		fmt.Println("Err in Deleting User:", err.Error())
 		return
 	}
 	tx.Commit()
-	Utilities.SendJsonMsg(c, 200, "注销账户成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "注销账户成功")
 
 }
 
@@ -358,7 +358,7 @@ func GetUserDetail(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"code": 200,
+		"code": http.StatusOK,
 		"data": userInfo,
 	})
 }
@@ -387,7 +387,7 @@ func ModifyUserSignature(c *gin.Context) {
 		return
 	}
 
-	Utilities.SendJsonMsg(c, 200, "修改用户签名成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "修改用户签名成功")
 }
 
 // ModifyUserEmail
@@ -423,7 +423,7 @@ func ModifyUserEmail(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::ModifyEmail", define.CodeSendFailed, "验证码发送失败"+err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, 200, "用户邮箱成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "用户邮箱成功")
 
 }
 
@@ -471,7 +471,7 @@ func ForgetPassword(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::ForgetPassword", status, err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, 200, "重置密码成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "重置密码成功")
 	DAO.RDB.Del(c, userEmail)
 }
 
@@ -577,14 +577,12 @@ func UploadUserAvatar(c *gin.Context) {
 		return
 	}
 
-	//TODO:打开并读取文件
 	file, err := FH.Open()
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.OpenFileFailed, "打开文件失败"+err.Error())
 		return
 	}
 	defer file.Close()
-
 	data, err := io.ReadAll(file)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ReadFileFailed, "读取文件内容失败"+err.Error())
