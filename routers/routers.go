@@ -61,6 +61,7 @@ func CollectRouter(r *gin.Engine) {
 		video.GET("/getVideoDetail", service.GetVideoInfo)
 		video.GET("/download", service.DownloadVideo)
 		video.GET("/StreamTransmission", service.StreamTransmission)
+		video.GET("/DASHStreamTransmission/:filename", service.DASHStreamTransmission)
 		video.POST("/upload", service.UploadVideo)
 		video.POST("/:VideoID/AddBarrage", service.AddBarrage)
 		video.DELETE("/delete", service.DeleteVideo)

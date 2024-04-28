@@ -255,6 +255,18 @@ func StreamTransmission(c *gin.Context) {
 	Utilities.SendJsonMsg(c, 200, "流式传输视频成功")
 }
 
+// DASHStreamTransmission
+// @Tags Video API
+// @summary DASH流式传输视频
+// @Accept json
+// @Produce octet-stream
+// @Router /video/DASHStreamTransmission/{filename} [get]
+func DASHStreamTransmission(c *gin.Context) {
+	filename := c.Param("filename")
+	c.File(filename)
+	Utilities.SendJsonMsg(c, http.StatusOK, "流式传输视频成功")
+}
+
 // GetVideoInfo
 // @Tags Video API
 // @summary 获取对应视频信息

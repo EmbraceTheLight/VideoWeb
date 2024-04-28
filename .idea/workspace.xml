@@ -5,13 +5,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b03ac556-b29e-4ae2-8b6e-8a7be861813c" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/VideoWeb.log.20240428" beforeDir="false" afterPath="$PROJECT_DIR$/logs/VideoWeb.log.20240428" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/Users.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00001.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00002.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00003.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00004.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00005.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00006.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00007.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00008.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00009.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00010.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00011.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00012.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00013.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00001.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00002.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00003.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00004.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00005.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00006.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00007.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00008.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00009.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00010.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00011.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00012.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00013.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00014.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00015.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00016.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00017.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00018.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00019.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/init-stream0.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/init-stream1.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/routers.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/routers.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/video_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/video_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
