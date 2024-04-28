@@ -329,7 +329,7 @@ func Logout(c *gin.Context) {
 		return
 	}
 	tx.Commit()
-	Utilities.SendSuccessMsg(c, 200, "注销账户成功")
+	Utilities.SendJsonMsg(c, 200, "注销账户成功")
 
 }
 
@@ -387,7 +387,7 @@ func ModifyUserSignature(c *gin.Context) {
 		return
 	}
 
-	Utilities.SendSuccessMsg(c, 200, "修改用户签名成功")
+	Utilities.SendJsonMsg(c, 200, "修改用户签名成功")
 }
 
 // ModifyUserEmail
@@ -423,7 +423,7 @@ func ModifyUserEmail(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::ModifyEmail", define.CodeSendFailed, "验证码发送失败"+err.Error())
 		return
 	}
-	Utilities.SendSuccessMsg(c, 200, "用户邮箱成功")
+	Utilities.SendJsonMsg(c, 200, "用户邮箱成功")
 
 }
 
@@ -471,7 +471,7 @@ func ForgetPassword(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::ForgetPassword", status, err.Error())
 		return
 	}
-	Utilities.SendSuccessMsg(c, 200, "重置密码成功")
+	Utilities.SendJsonMsg(c, 200, "重置密码成功")
 	DAO.RDB.Del(c, userEmail)
 }
 
@@ -511,7 +511,7 @@ func ModifyPassword(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::ModifyPassword", code, err.Error())
 		return
 	}
-	Utilities.SendSuccessMsg(c, code, "修改密码成功")
+	Utilities.SendJsonMsg(c, code, "修改密码成功")
 }
 
 // ModifyUserName
@@ -552,7 +552,7 @@ func ModifyUserName(c *gin.Context) {
 		return
 	}
 
-	Utilities.SendSuccessMsg(c, 200, "修改用户名成功")
+	Utilities.SendJsonMsg(c, 200, "修改用户名成功")
 }
 
 // UploadUserAvatar
@@ -598,7 +598,7 @@ func UploadUserAvatar(c *gin.Context) {
 		return
 	}
 
-	Utilities.SendSuccessMsg(c, 200, "上传用户头像成功")
+	Utilities.SendJsonMsg(c, 200, "上传用户头像成功")
 }
 
 // AddSearchHistory
@@ -622,7 +622,7 @@ func AddSearchHistory(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::AddSearchHistory", 5019, "创建搜索历史失败:"+err.Error())
 		return
 	}
-	Utilities.SendSuccessMsg(c, http.StatusOK, "创建搜索历史成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "创建搜索历史成功")
 
 }
 
@@ -647,5 +647,5 @@ func AddVideoHistory(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::AddVideoHistory", 5020, "创建视频历史记录失败")
 		return
 	}
-	Utilities.SendSuccessMsg(c, http.StatusOK, "创建视频历史记录成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "创建视频历史记录成功")
 }

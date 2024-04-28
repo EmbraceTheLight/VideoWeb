@@ -1,6 +1,12 @@
 package Utilities
 
-import "fmt"
+import (
+	"VideoWeb/define"
+	"fmt"
+	"os"
+	"strings"
+	"time"
+)
 
 // RoundOff 四舍五入函数
 func RoundOff(f float64) int64 {
@@ -11,9 +17,25 @@ func RoundOff(f float64) int64 {
 	return int64(f)
 }
 
+// SecondToTime 秒数转时间字符串
 func SecondToTime(second int64) string {
 	hour := second / 3600
 	minute := (second % 3600) / 60
 	second = second % 60
 	return fmt.Sprintf("%02d:%02d:%02d", hour, minute, second)
+}
+
+// Mkdir 利用用户ID和当前时间来创建视频对应目录
+func Mkdir(uid string) (path string, err error) {
+	var b strings.Builder
+	curTime := time.Now().Format("2006-01-02T150405")
+	b.WriteString(define.VideoSavePath)
+	b.WriteString(uid)
+	b.WriteString("/")
+	b.WriteString(curTime)
+	b.WriteString("/")
+	videoDirPath := b.String()
+	err = os.MkdirAll(videoDirPath, os.ModePerm)
+	path = b.String()
+	return path, err
 }

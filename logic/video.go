@@ -6,20 +6,14 @@ import (
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+	"os"
 	"os/exec"
+	"path"
 	"strconv"
 	"strings"
 )
-
-// GetVideoInfoByID 根据视频ID获得视频信息
-func GetVideoInfoByID(VID string) (*EntitySets.Video, error) {
-	var info = new(EntitySets.Video)
-	err := DAO.DB.Where("videoID=?", VID).First(&info).Error
-	if err != nil {
-		return nil, err
-	}
-	return info, nil
-}
 
 // ParseRange 解析range头的start和end位置，若start或end不存在，则返回对应值为-1
 func ParseRange(StartEnd string) (start, end int64) {
@@ -58,4 +52,63 @@ func GetVideoDuration(VideoPath string) (duration int64, err error) {
 	tmp, _ := strconv.ParseFloat(strings.TrimRight(string(outStr), "\r\n"), 64) //注意去除字符串末尾的\r\n
 	duration = Utilities.RoundOff(tmp)
 	return
+}
+
+// CreateVideoRecord 创建视频记录
+func CreateVideoRecord(tx *gorm.DB, c *gin.Context, videoFilePath string, fileSize int64) (VID string, err error) {
+	t, err := GetVideoDuration(videoFilePath)
+	if err != nil {
+		return VID, err
+	}
+	UserID := c.Query("userID")
+	videoTime := Utilities.SecondToTime(t)
+	Title := c.PostForm("title")
+	Description := c.PostForm("description")
+	Class := c.PostForm("class")
+	VID = GetUUID()
+	video := &EntitySets.Video{
+		MyModel:     define.MyModel{},
+		VideoID:     VID,
+		UID:         UserID,
+		Title:       Title,
+		Description: Description,
+		Class:       Class,
+		Path:        videoFilePath,
+		Duration:    videoTime,
+		Size:        fileSize,
+	}
+	err = tx.Model(&EntitySets.Video{}).Create(&video).Error
+	return VID, err
+}
+
+// DeleteVideo 删除视频辅助函数
+func DeleteVideo(del *EntitySets.Video) error {
+	/*从硬盘中删除对应视频信息*/
+	err := os.RemoveAll(path.Dir(del.Path))
+	if err != nil {
+		return err
+	}
+
+	tx := DAO.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	/*从数据库中删除视频信息*/
+	err = tx.Where("VideoID=?", del.VideoID).Delete(&EntitySets.Video{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	/*从数据库中删除与视频绑定的Tag信息*/
+	err = tx.Delete(&EntitySets.Tags{}, "VID=?", del.VideoID).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }

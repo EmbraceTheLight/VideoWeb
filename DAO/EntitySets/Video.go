@@ -2,6 +2,7 @@ package DAO
 
 import (
 	"VideoWeb/define"
+	"gorm.io/gorm"
 )
 
 type Video struct {
@@ -32,4 +33,15 @@ type Video struct {
 
 func (f *Video) TableName() string {
 	return "Video"
+}
+
+// GetVideoInfoByID 根据视频ID获得视频信息
+func GetVideoInfoByID(VID string) (*Video, error) {
+	var info = new(Video)
+	db := gorm.DB{}
+	err := db.Where("videoID=?", VID).First(&info).Error
+	if err != nil {
+		return nil, err
+	}
+	return info, nil
 }

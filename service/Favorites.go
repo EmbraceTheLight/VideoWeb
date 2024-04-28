@@ -51,7 +51,7 @@ func CreateFavorites(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Favorites::CreateFavorites", define.CreateFavoriteFailed, "创建收藏夹失败:"+err.Error())
 		return
 	}
-	Utilities.SendSuccessMsg(c, 200, "创建收藏夹成功")
+	Utilities.SendJsonMsg(c, 200, "创建收藏夹成功")
 }
 
 // DeleteFavorites
@@ -72,7 +72,7 @@ func DeleteFavorites(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Favorites::DeleteFavorites", define.DeleteFavoriteFailed, "删除收藏夹失败:"+err.Error())
 		return
 	}
-	Utilities.SendSuccessMsg(c, 200, "删除收藏夹"+FName+"成功")
+	Utilities.SendJsonMsg(c, 200, "删除收藏夹"+FName+"成功")
 }
 
 // ModifyFavorites
@@ -124,5 +124,5 @@ func ModifyFavorites(c *gin.Context) {
 		return
 	}
 
-	Utilities.SendSuccessMsg(c, 200, "修改收藏夹成功")
+	Utilities.SendJsonMsg(c, 200, "修改收藏夹成功")
 }

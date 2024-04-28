@@ -15,7 +15,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"time"
 )
 
 // UploadVideo
@@ -33,85 +32,45 @@ import (
 // @Router /video/upload [post]
 func UploadVideo(c *gin.Context) {
 	UserID := c.Query("userID")
-	FH, _ := c.FormFile("uploadVideo")
-	Title := c.PostForm("title")
-	Tags := c.PostFormArray("tags")
-	Description := c.PostForm("description")
-	Class := c.PostForm("class")
-	Cover, _ := c.FormFile("videoCover")
-	fmt.Println("CoverName:", Cover.Filename)
-	fname := FH.Filename
 
-	//TODO:检查视频后缀名
-	videoExt := path.Ext(fname)
-	if _, ok := define.VideoExtCheck[videoExt]; !ok {
+	/*检查视频后缀名*/
+	FH, _ := c.FormFile("uploadVideo")
+	if Utilities.CheckVideoExt(FH.Filename) != true {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ErrorVideoFormat, "视频格式错误或不支持此视频格式")
 		return
 	}
 
-	uploadFile, err := FH.Open()
+	/*创建对应目录*/
+	videoPath, err := Utilities.Mkdir(UserID)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.OpenFileFailed, "打开文件失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ReadFileFailed, "创建视频目录失败:"+err.Error())
 		return
 	}
-	defer uploadFile.Close()
+	fmt.Println("videoPath:", videoPath)
 
-	//TODO:若不存在相关目录，则创建一个
-	var b strings.Builder
-	b.WriteString(define.VideoSavePath)
-	b.WriteString(UserID + "/")
-	videoDirPath := b.String()
-	println(videoDirPath)
-	err = os.MkdirAll(videoDirPath, os.ModePerm)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ReadFileFailed, "读取文件内容失败"+err.Error())
-		return
-	}
-
-	//TODO:在对应目录下创建并写入文件
-	Time := time.Now().Format("2006-01-02T150405") //利用当前时间生成文件名，避免文件名重复的情况
-	//b.WriteString("\\")
-	b.WriteString(Time)
-	b.WriteString(videoExt) //拼接路径、文件名以及文件后缀名
-	videoFilePath := b.String()
-	fmt.Println(videoFilePath)
-	//t, err := logic.GetVideoDuration(videoFilePath)
-	//if err != nil {
-	//	Utilities.SendErrMsg(c, define.UploadVideoFailed, "上传视频失败:"+err.Error())
-	//	return
-	//}
-	//videoTime := Utilities.SecondToTime(t)
+	/*在对应目录下创建并写入文件*/
+	baseVideoName := path.Base(videoPath)
+	videoFileName := videoPath + baseVideoName + path.Ext(FH.Filename)
+	fmt.Println("videoFileName:", videoFileName)
 	defer func() { //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
 		if err != nil {
-			e := os.Remove(videoFilePath)
+			e := os.RemoveAll(videoPath)
 			if e == nil {
 				fmt.Println("删除视频成功！")
 			} else {
-				fmt.Println("删除视频失败:", e.Error())
+				Utilities.SendErrMsg(c, "service::Videos::DeleteVideo", define.DeleteVideoFailed, "删除视频失败:"+e.Error())
 			}
 		}
 	}()
 
-	vf, err := os.Create(videoFilePath) //创建文件
-	defer vf.Close()
-	if err != nil {
-		println("err in Creating File", err.Error())
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败"+err.Error())
-		return
-	}
-
-	_, err = io.Copy(vf, uploadFile)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", 5011, "写入文件失败"+err.Error())
-		return
-	}
-	t, err := logic.GetVideoDuration(videoFilePath)
+	/*创建文件并将视频数据写入文件*/
+	err = Utilities.WriteToNewFile(FH, videoFileName)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 		return
 	}
-	videoTime := Utilities.SecondToTime(t)
-	//将数据插入数据库
+
+	/*将对应数据插入数据库*/
 	tx := DAO.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -119,27 +78,16 @@ func UploadVideo(c *gin.Context) {
 		}
 	}()
 
-	//将视频数据插入数据库
-	VID := logic.GetUUID()
-	video := &EntitySets.Video{
-		MyModel:     define.MyModel{},
-		VideoID:     VID,
-		UID:         UserID,
-		Title:       Title,
-		Description: Description,
-		Class:       Class,
-		Path:        videoFilePath,
-		Duration:    videoTime,
-		Size:        FH.Size,
-	}
-	err = tx.Model(&EntitySets.Video{}).Create(&video).Error
+	/*将视频数据插入数据库*/
+	VID, err := logic.CreateVideoRecord(tx, c, videoFileName, FH.Size)
 	if err != nil {
 		tx.Rollback()
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 		return
 	}
 
-	//将视频标签数据插入数据库
+	/*将视频标签数据插入数据库*/
+	Tags := c.PostFormArray("tags")
 	if len(Tags) != 0 {
 		tags := make([]*EntitySets.Tags, len(Tags))
 		for i, tag := range Tags {
@@ -151,51 +99,45 @@ func UploadVideo(c *gin.Context) {
 		err = tx.Model(&EntitySets.Tags{}).Create(&tags).Error
 		if err != nil {
 			tx.Rollback()
-			Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败"+err.Error())
+			Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 			return
 		}
 	}
 
 	/*插入视频封面图片信息*/
 	//检查封面后缀名
-	coverName := Cover.Filename
-	coverExt := path.Ext(coverName)
-	if _, ok := define.PicExtCheck[coverExt]; ok != true {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ImageFormatError, "图片格式错误或不支持此图片格式")
-		err = errors.New("图片格式错误或不支持此图片格式")
+	Cover, _ := c.FormFile("videoCover")
+	if Utilities.CheckPicExt(Cover.Filename) != true {
+		err = errors.New("图片格式错误或不支持此图片格式") //便于上面的defer捕获错误
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ImageFormatError, err.Error())
 		tx.Rollback()
 		return
 	}
-
-	//打开并读取文件
+	//打开并读取视频封面文件
 	coverFile, err := Cover.Open()
 	defer coverFile.Close()
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.OpenFileFailed, "打开文件失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.OpenFileFailed, "打开文件失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
 	coverData, err := io.ReadAll(coverFile)
-	fmt.Println("coverData size:", Cover.Size)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ReadFileFailed, "读取文件内容失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ReadFileFailed, "读取文件内容失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
-
+	/*将视频封面图片信息插入数据库*/
 	err = tx.Model(&EntitySets.Video{}).Where("videoID=?", VID).Update("VideoCover", coverData).Error
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.CreateVideoCoverFailed, "上传视频封面失败")
 		tx.Rollback()
-		fmt.Println("err:", err.Error())
 		return
 	}
 	//TODO:更新用户经验值
 
 	tx.Commit()
-
-	Utilities.SendSuccessMsg(c, 200, "上传视频成功")
-
+	Utilities.SendJsonMsg(c, 200, "上传视频成功")
 }
 
 // DeleteVideo
@@ -213,35 +155,12 @@ func DeleteVideo(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Videos::DeleteVideo", define.GetVideoInfoFailed, "获取视频信息失败")
 		return
 	}
-	//TODO:从硬盘中删除对应视频信息
-	err = os.RemoveAll(del.Path)
+	err = logic.DeleteVideo(del)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::DeleteVideo", define.DeleteVideoFailed, "删除用户视频失败:"+err.Error())
 		return
 	}
-
-	tx := DAO.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-	//TODO:从数据库中删除视频信息
-	err = tx.Where("VideoID=?", del.VideoID).Delete(&EntitySets.Video{}).Error
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::DeleteVideo", define.DeleteVideoFailed, "删除用户视频失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-	//TODO:从数据库中删除与视频绑定的Tag信息
-	err = tx.Delete(&EntitySets.Tags{}, "VID=?", del.VideoID).Error
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::DeleteVideo", define.DeleteVideoFailed, "删除用户视频失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-	tx.Commit()
-	Utilities.SendSuccessMsg(c, 200, "删除用户视频成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "删除用户视频成功")
 }
 
 // DownloadVideo
@@ -277,7 +196,7 @@ func DownloadVideo(c *gin.Context) {
 	http.ServeFile(c.Writer, c.Request, videoInfo.Path)
 	c.Header("Content-Length", "")
 	c.Header("Transfer-Encoding", "chunked")
-	Utilities.SendSuccessMsg(c, 200, "下载文件成功")
+	Utilities.SendJsonMsg(c, 200, "下载文件成功")
 }
 
 // StreamTransmission
@@ -289,7 +208,7 @@ func DownloadVideo(c *gin.Context) {
 // @Router /video/StreamTransmission [get]
 func StreamTransmission(c *gin.Context) {
 	VID := c.Query("VideoID")
-	videoInfo, err := logic.GetVideoInfoByID(VID)
+	videoInfo, err := EntitySets.GetVideoInfoByID(VID)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
 		return
@@ -330,7 +249,7 @@ func StreamTransmission(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.ReadFileFailed, "读取文件失败:"+err.Error())
 		return
 	}
-	Utilities.SendSuccessMsg(c, 200, "流式传输视频成功")
+	Utilities.SendJsonMsg(c, 200, "流式传输视频成功")
 }
 
 // GetVideoInfo

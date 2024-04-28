@@ -56,7 +56,7 @@ func FollowOtherUser(c *gin.Context) {
 	}
 	tx.Commit()
 
-	Utilities.SendSuccessMsg(c, 200, "关注成功")
+	Utilities.SendJsonMsg(c, 200, "关注成功")
 }
 
 // UnFollowOtherUser
@@ -103,5 +103,5 @@ func UnFollowOtherUser(c *gin.Context) {
 	}
 	tx.Commit()
 	// TODO:
-	Utilities.SendSuccessMsg(c, 200, "取消关注成功")
+	Utilities.SendJsonMsg(c, 200, "取消关注成功")
 }

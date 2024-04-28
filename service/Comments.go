@@ -80,7 +80,7 @@ func CommentToVideo(c *gin.Context) {
 	}
 	tx.Commit()
 
-	Utilities.SendSuccessMsg(c, 200, "发送评论成功")
+	Utilities.SendJsonMsg(c, 200, "发送评论成功")
 }
 
 // CommentToOtherUser

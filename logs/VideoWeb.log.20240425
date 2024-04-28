@@ -1,0 +1,11 @@
+[info] 2024-04-25 23:48:00 In Function [HDVideos]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDUsers]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDVideoHistory]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDFollows]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDUserHistory]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDMessages]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDComments]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDFollowed]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDFavoriteVideo]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDBarrage]: deleted records successfully.
+[info] 2024-04-25 23:48:00 In Function [HDFavorites]: deleted records successfully.
