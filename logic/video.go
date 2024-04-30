@@ -91,6 +91,7 @@ func MakeDASHSegments(videoFilePath string) error {
 		}
 	}
 	outPutFilePath := path.Dir(videoFilePath)
+	fmt.Println("outPutFilePath:", outPutFilePath)
 	ffmpegArgs := []string{
 		"-i", outPutFilePath + "/converted.mp4",
 		"-c", "copy",
@@ -133,4 +134,10 @@ func DeleteVideo(del *EntitySets.Video) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+// CheckFileIsExist 检查视频文件是否存在
+func CheckFileIsExist(filePath string) bool {
+	_, err := os.Stat(filePath)
+	return err == nil || os.IsExist(err)
 }

@@ -196,10 +196,6 @@ func DownloadVideo(c *gin.Context) {
 	fmt.Println("file name:", videoInfo.Title+fileExt)
 	c.Header("Content-Type", "application/octet-stream")
 	c.File(videoInfo.Path)
-	http.ServeFile(c.Writer, c.Request, videoInfo.Path)
-	c.Header("Content-Length", "")
-	c.Header("Transfer-Encoding", "chunked")
-	Utilities.SendJsonMsg(c, 200, "下载文件成功")
 }
 
 // StreamTransmission
@@ -260,19 +256,37 @@ func StreamTransmission(c *gin.Context) {
 // @summary DASH流式传输视频
 // @Accept json
 // @Produce octet-stream
-// @Router /video/DASHStreamTransmission/{filename} [get]
+// @Param filePath query string true "要传输的视频路径"
+// @Router /video/DASHStreamTransmission [get]
 func DASHStreamTransmission(c *gin.Context) {
-	filename := c.Param("filename")
-	c.File(filename)
-	Utilities.SendJsonMsg(c, http.StatusOK, "流式传输视频成功")
+	filePath := c.Query("filePath")
+	fmt.Println("filePath:", filePath)
+	exist := logic.CheckFileIsExist(filePath)
+	if !exist {
+		Utilities.SendErrMsg(c, "service::Videos::DASHStreamTransmission", define.GetVideoInfoFailed, "请求的文件不存在")
+		return
+	}
+	c.File(filePath)
+}
+
+// OfferMpd
+// @Tags Video API
+// @summary 提供DASH所需的.mpd文件
+// @Accept json
+// @Produce octet-stream
+// @Param filePath query string true "要传输的视频ID"
+// @Router /video/OfferMpd [get]
+func OfferMpd(c *gin.Context) {
+	basePath := c.Query("filePath")
+	c.File(basePath + "/output.mpd")
 }
 
 // GetVideoInfo
 // @Tags Video API
-// @summary 获取对应视频信息
+// @summary 提供视频信息详情
 // @Accept json
-// @Produce json
-// @Param VideoID query string true "视频ID"
+// @Produce octet-stream
+// @Param VideoID query string true "要获取的视频ID"
 // @Router /video/getVideoDetail [get]
 func GetVideoInfo(c *gin.Context) {
 	VID := c.Query("VideoID")
@@ -285,7 +299,8 @@ func GetVideoInfo(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"code": 200,
-		"data": videoInfo,
+		"code":     http.StatusOK,
+		"data":     videoInfo,
+		"basePath": "./" + path.Dir(videoInfo.Path),
 	})
 }

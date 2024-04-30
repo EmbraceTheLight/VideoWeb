@@ -1,0 +1,69 @@
+[error] 2024-04-29 00:36:04 In Function [service::Videos::GetVideoInfo]: 获取视频信息失败:invalid syntax
+[error] 2024-04-29 00:40:31 In Function [service::Videos::GetVideoInfo]: 获取视频信息失败:invalid syntax
+[error] 2024-04-29 00:42:21 In Function [service::Videos::GetVideoInfo]: 获取视频信息失败:invalid syntax
+[error] 2024-04-29 00:43:06 In Function [service::Videos::GetVideoInfo]: 获取视频信息失败:invalid syntax
+[error] 2024-04-29 00:49:55 In Function [service::Videos::GetVideoInfo]: 获取视频信息失败:invalid syntax
+[error] 2024-04-29 01:22:57 In Function [service::Videos::GetVideoInfo]: 获取视频信息失败:invalid syntax
+[error] 2024-04-29 01:23:37 In Function [service::Videos::GetVideoInfo]: 获取视频信息失败:invalid syntax
+[info] 2024-04-29 09:51:09 In Function [HDBarrage]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDMessages]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDUserHistory]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDVideoHistory]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDComments]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDFavorites]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDFollowed]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDFollows]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDVideos]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDUsers]: deleted records successfully.
+[info] 2024-04-29 09:51:09 In Function [HDFavoriteVideo]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDUserHistory]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDMessages]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDBarrage]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDComments]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDVideos]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDFollowed]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDUsers]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDFollows]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDVideoHistory]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDFavoriteVideo]: deleted records successfully.
+[info] 2024-04-29 14:54:55 In Function [HDFavorites]: deleted records successfully.
+[error] 2024-04-29 20:19:40 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 20:53:57 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:51 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:52 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:52 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:52 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:52 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:53 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:53 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:53 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:53 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:53 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:54 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:54 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:54 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:54 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:55 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:55 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:55 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:55 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:55 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:56 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:56 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:56 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:56 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:56 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:57 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:57 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:57 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:58 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:58 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:58 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:59 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:19:59 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:20:00 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 21:20:00 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 22:57:12 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 22:59:08 In Function [service::Videos::DASHStreamTransmission]: 请求的文件不存在
+[error] 2024-04-29 23:07:03 In Function [service::Videos::DeleteVideo]: 获取视频信息失败
+[error] 2024-04-29 23:08:40 In Function [service::Videos::UploadVideo]: 创建DASH视频切片失败:exit status 0xfffffff3

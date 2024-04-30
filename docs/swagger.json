@@ -18,13 +18,34 @@
                 "tags": [
                     "Comment API"
                 ],
-                "summary": "用户评论视频",
+                "summary": "用户评论其他用户",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "用户要评论的视频ID",
                         "name": "VideoID",
                         "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户要评论的评论ID",
+                        "name": "UserID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户要评论的内容",
+                        "name": "CommentContent",
+                        "in": "formData",
                         "required": true
                     }
                 ],
@@ -816,6 +837,54 @@
                 }
             }
         },
+        "/video/DASHStreamTransmission": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "DASH流式传输视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要传输的视频ID",
+                        "name": "filePath",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/OfferMpd": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "提供DASH所需的.mpd文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要传输的视频ID",
+                        "name": "filePath",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/video/StreamTransmission": {
             "get": {
                 "consumes": [
@@ -894,16 +963,16 @@
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/octet-stream"
                 ],
                 "tags": [
                     "Video API"
                 ],
-                "summary": "获取对应视频信息",
+                "summary": "提供视频信息详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "视频ID",
+                        "description": "要获取的视频ID",
                         "name": "VideoID",
                         "in": "query",
                         "required": true

@@ -5,44 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b03ac556-b29e-4ae2-8b6e-8a7be861813c" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00001.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00002.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00003.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00004.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00005.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00006.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00007.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00008.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00009.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00010.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00011.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00012.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream0-00013.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00001.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00002.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00003.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00004.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00005.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00006.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00007.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00008.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00009.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00010.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00011.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00012.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00013.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00014.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00015.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00016.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00017.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00018.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/chunk-stream1-00019.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/init-stream0.m4s" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/videos/084ae0f3-4133-4d5e-b9db-c5dc51da21f4/2024-04-28T201000/init-stream1.m4s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/VideoWeb.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/VideoWeb.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/routers.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/routers.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/video_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/video_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,6 +58,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "DefaultGoTemplateProperty": "Go File",
+    "Go 测试.TestPath in VideoWeb/test (1).executor": "Run",
     "Go 测试.TestPath in VideoWeb/test.executor": "Run",
     "Go 测试.VideoWeb/test 中的 TestHardDelete.executor": "Run",
     "Go 测试.VideoWeb/test 中的 TestLog.executor": "Run",
@@ -123,7 +95,19 @@
       <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\service\Video" />
     </key>
   </component>
-  <component name="RunManager" selected="Go 测试.TestPath in VideoWeb/test">
+  <component name="RunManager" selected="Go 测试.TestPath in VideoWeb/test (1)">
+    <configuration name="TestPath in VideoWeb/test (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="VideoWeb" />
+      <working_directory value="$PROJECT_DIR$/test" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="VideoWeb/test" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestPath\E$" />
+      <method v="2" />
+    </configuration>
     <configuration name="TestPath in VideoWeb/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="VideoWeb" />
       <working_directory value="$PROJECT_DIR$/test" />
@@ -160,16 +144,6 @@
       <pattern value="^\QTestSendEmail\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="config_test.go" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="VideoWeb" />
-      <working_directory value="$PROJECT_DIR$/test" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/test/config_test.go" />
-      <framework value="gotest" />
-      <method v="2" />
-    </configuration>
     <configuration name="gobench VideoWeb/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="VideoWeb" />
       <working_directory value="$PROJECT_DIR$/test" />
@@ -183,11 +157,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go 测试.TestPath in VideoWeb/test (1)" />
         <item itemvalue="Go 测试.TestPath in VideoWeb/test" />
         <item itemvalue="Go 测试.VideoWeb/test 中的 TestLog" />
         <item itemvalue="Go 测试.gobench VideoWeb/test" />
         <item itemvalue="Go 测试.VideoWeb/test 中的 TestSendEmail" />
-        <item itemvalue="Go 测试.config_test.go" />
       </list>
     </recent_temporary>
   </component>

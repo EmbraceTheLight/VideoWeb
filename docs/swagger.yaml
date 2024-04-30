@@ -14,10 +14,25 @@ paths:
         name: VideoID
         required: true
         type: string
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 用户要评论的评论ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 用户要评论的内容
+        in: formData
+        name: CommentContent
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
-      summary: 用户评论视频
+      summary: 用户评论其他用户
       tags:
       - Comment API
   /comment/ToVideo:
@@ -576,6 +591,38 @@ paths:
       summary: 添加弹幕
       tags:
       - Barrage API
+  /video/DASHStreamTransmission:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要传输的视频ID
+        in: query
+        name: filePath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: DASH流式传输视频
+      tags:
+      - Video API
+  /video/OfferMpd:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要传输的视频ID
+        in: query
+        name: filePath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 提供DASH所需的.mpd文件
+      tags:
+      - Video API
   /video/StreamTransmission:
     get:
       consumes:
@@ -629,15 +676,15 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 视频ID
+      - description: 要获取的视频ID
         in: query
         name: VideoID
         required: true
         type: string
       produces:
-      - application/json
+      - application/octet-stream
       responses: {}
-      summary: 获取对应视频信息
+      summary: 提供视频信息详情
       tags:
       - Video API
   /video/upload:
