@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	DefaultPage       = "1"
-	DefaultSize       = "20"
-	Expired     int64 = 600 //过期时间。单位：秒。用于验证验证码是否过期
+	DefaultPage = "1"
+	DefaultSize = "20"
+	Expired     = time.Minute * 10 //过期时间。单位：秒。用于验证验证码是否过期
 
 )
 

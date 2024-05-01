@@ -1,0 +1,1 @@
+[error] 2024-05-01 18:50:02 In Function [service::Users::Register::CheckRegisterInfoFailed]: 密码长度小于6位

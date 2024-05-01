@@ -16,7 +16,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"time"
 	"unicode/utf8"
 )
 
@@ -42,30 +41,21 @@ func Register(c *gin.Context) {
 	verify := c.PostForm("Code")
 	UUID := logic.GetUUID()
 
-	var countName int64
-	//var countEmail int64
-	err := DAO.DB.Model(&EntitySets.User{}).Where("userName=?", userName).Count(&countName).Error
-	switch {
-	case err != nil: //数据库查询错误
-		Utilities.SendErrMsg(c, "service::Users::Register", define.QueryUserError, "error while searching database:"+err.Error())
-
-		return
-	case countName > 0: //已有同名用户
-		Utilities.SendErrMsg(c, "service::Users::Register", define.ExistUserName, "用户名已存在，请重新输入待注册用户名")
-		return
-	case len(password) < 6: //密码长度小于6位
-		Utilities.SendErrMsg(c, "service::Users::Register", define.ShortPasswordLength, "密码长度不能小于6位，请重新输入密码")
-		return
-	case password != repeatPassword: //第一次输入的密码与第二次输入的密码不一致
-		Utilities.SendErrMsg(c, "service::Users::Register", define.PasswordInconsistency, "第一次输入的密码与第二次输入的密码不一致，请重新输入")
-		return
-	case utf8.RuneCountInString(Signature) > 25:
-		Utilities.SendErrMsg(c, "service::Users::Register", define.SignatureTooLong, "个性签名过长，请重新输入")
+	newUser := EntitySets.User{
+		MyModel:   define.MyModel{},
+		UserID:    UUID,
+		UserName:  userName,
+		Password:  password,
+		Email:     email,
+		Signature: Signature,
+	}
+	err := logic.CheckRegisterInfo(&newUser, repeatPassword)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Users::Register::CheckRegisterInfoFailed", define.CheckRegisterInfoFailed, err.Error())
 		return
 	}
 
 	//验证码获取及验证
-	//code := define.VerificationDataMap[email].Code
 	code, err := DAO.RDB.Get(c, email).Result()
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register::RedisGet", define.CodeExpired, "验证码已过期，请重新获取验证码")
@@ -82,35 +72,16 @@ func Register(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::Register::GenerateFromPassword", define.PasswordEncryptionError, "密码加密错误")
 		return
 	}
+	newUser.Password = string(hashedPassword)
 
 	//设置用户默认头像
-	file, err := os.Open(define.PictureSavePath + "default.jpg")
-	defer file.Close()
+	avatar, err := Utilities.ReadFileContent(define.PictureSavePath + "default.jpg")
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::Register-->Utilities.ReadFileContent", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		return
 	}
-	fileInfo, err := file.Stat()
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
-		return
-	}
-	var avatar = make([]byte, fileInfo.Size())
-	_, err = file.Read(avatar)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
-		return
-	}
+	newUser.Avatar = avatar
 
-	newUser := EntitySets.User{
-		MyModel:   define.MyModel{},
-		UserID:    UUID,
-		UserName:  userName,
-		Password:  string(hashedPassword),
-		Email:     email,
-		Signature: Signature,
-		Avatar:    avatar,
-	}
 	tx := DAO.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -203,7 +174,7 @@ func SendCode(c *gin.Context) {
 		return
 	}
 
-	DAO.RDB.Set(c, userEmail, code, time.Duration(define.Expired)*time.Second)
+	DAO.RDB.Set(c, userEmail, code, define.Expired)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "验证码发送成功！",

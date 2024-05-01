@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"unicode/utf8"
 )
 
 // GetUserIpInfo 获取并返回用户所在国家和地区
@@ -126,4 +127,24 @@ func ModifyPassword(id, newPassword, repeatPassword string) (int, error) {
 	}
 
 	return http.StatusOK, nil
+}
+
+// CheckRegisterInfo 检查注册信息是否正确。
+func CheckRegisterInfo(checkInfo *EntitySets.User, repeatPassword string) error {
+	var countName int64
+	err := DAO.DB.Model(&EntitySets.User{}).Where("userName=?", checkInfo.UserName).Count(&countName).Error
+	if err != nil {
+		return errors.New("查询用户信息失败")
+	}
+	switch {
+	case countName > 0: //已有同名用户
+		return errors.New("用户名已存在")
+	case len(checkInfo.Password) < 6: //密码长度小于6位
+		return errors.New("密码长度小于6位")
+	case checkInfo.Password != repeatPassword: //第一次输入的密码与第二次输入的密码不一致
+		return errors.New("第一次输入的密码与第二次输入的密码不一致")
+	case utf8.RuneCountInString(checkInfo.Signature) > 25:
+		return errors.New("个性签名过长")
+	}
+	return nil
 }

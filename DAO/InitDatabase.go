@@ -17,7 +17,6 @@ var (
 
 func newClient() *redis.Client {
 	RedisConf := config.GetConfig().DBConf.RedisConf
-	fmt.Println("REDISCONF:", RedisConf)
 	return redis.NewClient(
 		&redis.Options{
 			Addr:     RedisConf.Host + ":" + RedisConf.Port,

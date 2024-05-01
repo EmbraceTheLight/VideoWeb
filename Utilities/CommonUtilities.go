@@ -2,6 +2,7 @@ package Utilities
 
 import (
 	"VideoWeb/define"
+	"errors"
 	"io"
 	"mime/multipart"
 	"os"
@@ -30,13 +31,30 @@ func WriteToNewFile(src *multipart.FileHeader, dst string) error {
 }
 
 // CheckPicExt 检查图片扩展名
-func CheckPicExt(filename string) bool {
-	_, ok := define.PicExtCheck[path.Ext(filename)]
-	return ok
+func CheckPicExt(filename string) error {
+	if _, ok := define.PicExtCheck[path.Ext(filename)]; !ok {
+		return errors.New("图片格式错误或不支持此图片格式")
+	}
+	return nil
 }
 
 // CheckVideoExt 检查视频扩展名
-func CheckVideoExt(filename string) bool {
-	_, ok := define.VideoExtCheck[path.Ext(filename)]
-	return ok
+func CheckVideoExt(filename string) error {
+	if _, ok := define.VideoExtCheck[path.Ext(filename)]; !ok {
+		return errors.New("视频格式错误或不支持此图片格式")
+	}
+	return nil
+}
+
+func ReadFileContent(filename string) ([]byte, error) {
+	f, err := os.Open(filename)
+	defer f.Close()
+	if err != nil {
+		return nil, err
+	}
+	ret, err := io.ReadAll(f)
+	if err != nil {
+		return nil, err
+	}
+	return ret, nil
 }

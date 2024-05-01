@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"io"
+	"mime/multipart"
 	"os"
 	"os/exec"
 	"path"
@@ -91,7 +93,7 @@ func MakeDASHSegments(videoFilePath string) error {
 		}
 	}
 	outPutFilePath := path.Dir(videoFilePath)
-	fmt.Println("outPutFilePath:", outPutFilePath)
+	//fmt.Println("outPutFilePath:", outPutFilePath)
 	ffmpegArgs := []string{
 		"-i", outPutFilePath + "/converted.mp4",
 		"-c", "copy",
@@ -140,4 +142,15 @@ func DeleteVideo(del *EntitySets.Video) error {
 func CheckFileIsExist(filePath string) bool {
 	_, err := os.Stat(filePath)
 	return err == nil || os.IsExist(err)
+}
+
+// OpenAndReadFile 打开并读取文件,返回读取到的文件内容
+func OpenAndReadFile(file *multipart.FileHeader) ([]byte, error) {
+	f, err := file.Open()
+	defer f.Close()
+	if err != nil {
+		return nil, err
+	}
+	data, err := io.ReadAll(f)
+	return data, err
 }

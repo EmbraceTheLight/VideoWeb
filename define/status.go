@@ -3,6 +3,7 @@ package define
 const (
 	ExistUserName = iota + 4001
 	ShortPasswordLength
+	CheckRegisterInfoFailed
 	PasswordInconsistency
 	VerificationError
 	EmptyMail

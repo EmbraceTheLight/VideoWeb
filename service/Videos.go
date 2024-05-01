@@ -6,7 +6,6 @@ import (
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
 	"VideoWeb/logic"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -35,8 +34,8 @@ func UploadVideo(c *gin.Context) {
 
 	/*检查视频后缀名*/
 	FH, _ := c.FormFile("uploadVideo")
-	if Utilities.CheckVideoExt(FH.Filename) != true {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ErrorVideoFormat, "视频格式错误或不支持此视频格式")
+	if err := Utilities.CheckVideoExt(FH.Filename); err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ErrorVideoFormat, err.Error())
 		return
 	}
 
@@ -74,6 +73,7 @@ func UploadVideo(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "创建DASH视频切片失败:"+err.Error())
 		return
 	}
+
 	/*将对应数据插入数据库*/
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -111,27 +111,19 @@ func UploadVideo(c *gin.Context) {
 	/*插入视频封面图片信息*/
 	//检查封面后缀名
 	Cover, _ := c.FormFile("videoCover")
-	if Utilities.CheckPicExt(Cover.Filename) != true {
-		err = errors.New("图片格式错误或不支持此图片格式") //便于上面的defer捕获错误
+	if err = Utilities.CheckPicExt(Cover.Filename); err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ImageFormatError, err.Error())
 		tx.Rollback()
 		return
 	}
 	//打开并读取视频封面文件
-	coverFile, err := Cover.Open()
-	defer coverFile.Close()
+	coverData, err := logic.OpenAndReadFile(Cover)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.OpenFileFailed, "打开文件失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo::Utilities.OpenAndReadFile", define.OpenFileFailed, "打开或读取文件失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
-	coverData, err := io.ReadAll(coverFile)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ReadFileFailed, "读取文件内容失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-	/*将视频封面图片信息插入数据库*/
+	//将视频封面图片信息插入数据库
 	err = tx.Model(&EntitySets.Video{}).Where("videoID=?", VID).Update("VideoCover", coverData).Error
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.CreateVideoCoverFailed, "上传视频封面失败")
@@ -301,6 +293,6 @@ func GetVideoInfo(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code":     http.StatusOK,
 		"data":     videoInfo,
-		"basePath": "./" + path.Dir(videoInfo.Path),
+		"basePath": path.Dir(videoInfo.Path),
 	})
 }
