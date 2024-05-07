@@ -14,15 +14,26 @@ type UserFollowed struct {
 	//Fans *EntitySets.User `gorm:"foreignKey:UserID;references:FID"`                           //粉丝详细信息
 }
 
-func (ufd *UserFollowed) Create(DB *gorm.DB) error {
+func InsertFollowedRecord(DB *gorm.DB, ufd *UserFollowed) error {
 	result := DB.Create(&ufd)
 	return result.Error
 }
-func (ufd *UserFollowed) Delete(DB *gorm.DB) error {
+
+func DeleteFollowedRecord(DB *gorm.DB, ufd *UserFollowed) error {
 	result := DB.Where("UID=? AND FID=?", ufd.UID, ufd.FID).Delete(&ufd)
 	return result.Error
 }
 
 func (ufd *UserFollowed) TableName() string {
 	return "UserFollowed"
+}
+
+// GetFollowedByFollowedID 通过用户ID来获取该用户的粉丝列表
+func GetFollowedByFollowedID(DB *gorm.DB, id string) ([]*UserFollowed, error) {
+	var followed []*UserFollowed
+	err := DB.Where("UID = ?", id).Find(&followed).Error
+	if err != nil {
+		return nil, err
+	}
+	return followed, nil
 }

@@ -1,6 +1,0 @@
-[error] 2024-04-28 12:14:30 In Function [service::Videos::DeleteVideo]: 删除用户视频失败:RemoveAll .: invalid argument
-[error] 2024-04-28 12:22:07 In Function [service::Videos::DeleteVideo]: 获取视频信息失败
-[error] 2024-04-28 18:03:56 In Function [service::Videos::UploadVideo]: 创建DASH视频切片失败:exit status 0xbebbb1b7
-[error] 2024-04-28 18:06:57 In Function [service::Videos::UploadVideo]: 创建DASH视频切片失败:exit status 0xbebbb1b7
-[error] 2024-04-28 20:01:58 In Function [service::Videos::UploadVideo]: 创建DASH视频切片失败:exit status 0xbebbb1b7
-[error] 2024-04-28 20:09:06 In Function [service::Videos::UploadVideo]: 图片格式错误或不支持此图片格式

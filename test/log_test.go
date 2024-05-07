@@ -1,7 +1,7 @@
 package test
 
 import (
-	"VideoWeb/Utilities"
+	"VideoWeb/Utilities/logf"
 	"VideoWeb/config"
 	"testing"
 )
@@ -12,7 +12,7 @@ func TestLog(t *testing.T) {
 		t.Log("err:", err)
 		return
 	}
-	Utilities.WriteErrLog("TestLog", "This is a test log")
-	Utilities.WriteInfoLog("TestLog", "This is a test log")
+	logf.WriteErrLog("TestLog", "This is a test log")
+	logf.WriteInfoLog("TestLog", "This is a test log")
 
 }

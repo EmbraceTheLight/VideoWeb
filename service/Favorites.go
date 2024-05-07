@@ -27,7 +27,7 @@ func CreateFavorites(c *gin.Context) {
 	FavoriteID := logic.GetUUID()
 	FName := c.PostForm("FName")
 	Description := c.PostForm("Description")
-	Favorite := EntitySets.Favorites{
+	Favorite := &EntitySets.Favorites{
 		MyModel:     define.MyModel{},
 		FavoriteID:  FavoriteID,
 		UID:         UID,
@@ -46,7 +46,7 @@ func CreateFavorites(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Favorites::CreateFavorites", define.CreateFavoriteFailed, "创建收藏夹失败:"+err.Error())
 		return
 	}
-	err = Favorite.Create(DAO.DB)
+	err = EntitySets.InsertFavoritesRecords(DAO.DB, Favorite)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Favorites::CreateFavorites", define.CreateFavoriteFailed, "创建收藏夹失败:"+err.Error())
 		return

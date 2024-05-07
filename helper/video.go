@@ -10,8 +10,10 @@ import (
 func Other2MP4(videoPath string) error {
 	outputPath := path.Dir(videoPath)
 	ffmpegArgs := []string{
+		"-hwaccel_output_format", "cuda", //设置Nvidia GPU硬件加速
+		"-c:v", "h264_cuvid", //设置解码器
 		"-i", videoPath,
-		"-c:v", "libx264",
+		"-c:v", "h264_nvenc", //设置编码器
 		"-c:a", "aac",
 		"-strict", "normal",
 		outputPath + "/converted.mp4",

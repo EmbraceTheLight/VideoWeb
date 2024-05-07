@@ -16,11 +16,22 @@ func (ufs *UserFollows) TableName() string {
 	return "UserFollows"
 }
 
-func (ufs *UserFollows) Create(DB *gorm.DB) error {
+func InsertFollowsRecord(DB *gorm.DB, ufs *UserFollows) error {
 	result := DB.Create(&ufs)
 	return result.Error
 }
-func (ufs *UserFollows) Delete(DB *gorm.DB) error {
-	result := DB.Debug().Where("UID=? AND FID=?", ufs.UID, ufs.FID).Delete(&ufs)
+
+func DeleteFollowsRecord(DB *gorm.DB, ufs *UserFollows) error {
+	result := DB.Where("UID=? AND FID=?", ufs.UID, ufs.FID).Delete(&ufs)
 	return result.Error
+}
+
+// GetFollowsByUserID 通过用户ID来获取该用户的关注列表
+func GetFollowsByUserID(DB *gorm.DB, id string) ([]*UserFollows, error) {
+	var follows = make([]*UserFollows, 0)
+	err := DB.Where("UID = ?", id).Find(&follows).Error
+	if err != nil {
+		return nil, err
+	}
+	return follows, nil
 }

@@ -3,7 +3,6 @@ package WebSocket
 import (
 	"fmt"
 	"log"
-	"sync"
 )
 
 type ServerHub struct {
@@ -11,27 +10,23 @@ type ServerHub struct {
 	UserConnections map[string]map[uint64]*ClientConnection
 	register        chan *ClientConnection //注册新的webSocket
 	unregister      chan *ClientConnection //注销新的webSocket
-	mu              sync.Mutex
 }
 
-var Hub *ServerHub
+var hub *ServerHub
 
 // NewServerHub 生成新的ServerHub来管理全部WebSocket连接ClientConnection
 func NewServerHub() *ServerHub {
-	return &ServerHub{
+	hub = &ServerHub{
 		UserConnections: make(map[string]map[uint64]*ClientConnection),
 		register:        make(chan *ClientConnection),
 		unregister:      make(chan *ClientConnection),
-		mu:              sync.Mutex{},
 	}
+	return hub
 }
 
 // RegisterConnections 向ServerHub中添加新的client
 func (s *ServerHub) RegisterConnections(client *ClientConnection) {
 	fmt.Println("[RegisterConnections] starting registering......")
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	//map没有初始化，则初始化一个空的map
 	if _, ok := s.UserConnections[client.UserID]; !ok {
 		s.UserConnections[client.UserID] = make(map[uint64]*ClientConnection)
@@ -44,25 +39,35 @@ func (s *ServerHub) RegisterConnections(client *ClientConnection) {
 	fmt.Println("[RegisterConnections] Create connection Successfully!")
 }
 
-// UnRegisterConnections 向ServerHub减小对应连接的引用计数，若计数为0，删除连接
+func cleanConn(client *ClientConnection) error {
+	if _, ok := hub.UserConnections[client.UserID][client.CreateTime]; !ok {
+		fmt.Println("[CleanConn] User ", client.UserID, " has already been cleaned.")
+		return nil
+	}
+	close(hub.UserConnections[client.UserID][client.CreateTime].Send)
+	err := hub.UserConnections[client.UserID][client.CreateTime].Conn.Close()
+	if err != nil {
+		return err
+	}
+	//err = DAO.DeleteUserRoomDocumentByUserID(client.UserID)
+	//if err != nil {
+	//	return err
+	//}
+	delete(hub.UserConnections[client.UserID], client.CreateTime)
+	if len(hub.UserConnections[client.UserID]) == 0 {
+		delete(hub.UserConnections, client.UserID)
+	}
+	return nil
+}
+
+// UnRegisterConnections 删除指定的client
 func (s *ServerHub) UnRegisterConnections(client *ClientConnection) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	close(s.UserConnections[client.UserID][client.CreateTime].Recv)
-	close(s.UserConnections[client.UserID][client.CreateTime].Send)
-	err := s.UserConnections[client.UserID][client.CreateTime].Conn.Close()
+	//清除该链接的一切有关记录
+	err := cleanConn(client)
 	if err != nil {
 		log.Println("[UnregisterConnections] err at closing Conn:", err)
 	}
-	delete(s.UserConnections[client.UserID], client.CreateTime)
-	for k, v := range s.UserConnections[client.UserID] {
-		fmt.Println(k, "--->", v.Conn.RemoteAddr().String())
-	}
-	if len(s.UserConnections[client.UserID]) == 0 {
-		delete(s.UserConnections, client.UserID)
-	}
 	fmt.Println("[UnregisterConnections] delete successfully.")
-
 }
 
 func (s *ServerHub) Run() {

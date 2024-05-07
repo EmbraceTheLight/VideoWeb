@@ -3,7 +3,6 @@ package logic
 import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
-	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
 	"errors"
@@ -44,58 +43,6 @@ func GetFavoritesByID(id string) ([]*EntitySets.Favorites, error) {
 		return nil, err
 	}
 	return favorites, nil
-}
-
-// GetUserVideosByID 通过用户ID来获取该用户的发送视频的列表
-func GetUserVideosByID(id string) ([]*EntitySets.Video, error) {
-	var videos []*EntitySets.Video
-	err := DAO.DB.Where("UID = ?", id).Find(&videos).Error
-	if err != nil {
-		return nil, err
-	}
-	return videos, nil
-
-}
-
-// GetFollowsByUserID 通过用户ID来获取该用户的关注列表
-func GetFollowsByUserID(id string) ([]*RelationshipSets.UserFollows, error) {
-	var follows []*RelationshipSets.UserFollows
-	err := DAO.DB.Where("UID = ?", id).Find(&follows).Error
-	if err != nil {
-		return nil, err
-	}
-	return follows, nil
-}
-
-// GetFollowedByFollowedID 通过用户ID来获取该用户的粉丝列表
-func GetFollowedByFollowedID(id string) ([]*RelationshipSets.UserFollowed, error) {
-	var followed []*RelationshipSets.UserFollowed
-	err := DAO.DB.Where("UID = ?", id).Find(&followed).Error
-	if err != nil {
-		return nil, err
-	}
-	return followed, nil
-}
-
-// GetUserCommentsByID 通过用户ID来获取该用户的评论列表
-func GetUserCommentsByID(id string) ([]*EntitySets.Comments, error) {
-	var comments []*EntitySets.Comments
-	err := DAO.DB.Where("UID = ?", id).Find(&comments).Error
-	if err != nil {
-		return comments, nil
-	}
-	return comments, nil
-
-}
-
-// GetMsgBoxByID 通过用户ID来获取该用户的未读消息列表
-func GetMsgBoxByID(id string) ([]*EntitySets.Message, error) {
-	var message []*EntitySets.Message
-	err := DAO.DB.Where("UID = ? AND BeRead = ?", id, 1).Find(&message).Error
-	if err != nil {
-		return message, nil
-	}
-	return message, nil
 }
 
 // ComparePassword  比较用户输入的密码与数据库中的密码

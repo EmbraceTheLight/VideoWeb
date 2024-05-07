@@ -4,6 +4,45 @@ info:
   title: VideoWeb
   version: "1.0"
 paths:
+  /CheckGraphicCaptcha:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 验证图形验证码并返回给客户端
+      parameters:
+      - description: 验证码ID
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 用户输入的验证码
+        in: formData
+        name: input
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'captcha_result": CaptchaResult}'
+          schema:
+            type: string
+      summary: 验证图形验证码
+      tags:
+      - Captcha API
+  /GenerateGraphicCaptcha:
+    get:
+      description: 生成图形验证码并返回给客户端
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'captcha_result": CaptchaResult}'
+          schema:
+            type: string
+      summary: 生成图形验证码
+      tags:
+      - Captcha API
   /comment/ToUser:
     post:
       consumes:
@@ -62,7 +101,7 @@ paths:
       tags:
       - Comment API
   /send-code:
-    post:
+    get:
       consumes:
       - application/json
       parameters:
@@ -80,7 +119,7 @@ paths:
             type: string
       summary: 发送验证码
       tags:
-      - User API
+      - Captcha API
   /user/AddSearchHistory:
     post:
       consumes:
@@ -298,7 +337,7 @@ paths:
       tags:
       - User API
   /user/face/upload/Avatar:
-    post:
+    put:
       consumes:
       - multipart/form-data
       parameters:
@@ -571,6 +610,11 @@ paths:
         name: UserID
         required: true
         type: string
+      - description: 弹幕颜色
+        in: query
+        name: Color
+        required: true
+        type: string
       - description: 发送弹幕时的视频时间
         in: query
         name: Time
@@ -596,7 +640,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 要传输的视频ID
+      - description: 要传输的视频路径
         in: query
         name: filePath
         required: true

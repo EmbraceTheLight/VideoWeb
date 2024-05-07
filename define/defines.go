@@ -1,15 +1,20 @@
 package define
 
 import (
+	"github.com/mojocn/base64Captcha"
 	"gorm.io/gorm"
 	"time"
 )
 
 var (
+	Store = base64Captcha.NewMemoryStore(base64Captcha.GCLimitNumber, Expired)
+
 	DefaultPage = "1"
 	DefaultSize = "20"
 	Expired     = time.Minute * 10 //过期时间。单位：秒。用于验证验证码是否过期
-
+	KiB         = 1024
+	MiB         = int64(1024 * KiB)
+	GiB         = int64(1024 * MiB)
 )
 
 var (
@@ -26,12 +31,17 @@ var (
 )
 
 type MyModel struct {
-	// 不包含 gorm.Model 中的默认字段
+	// 不包含 gorm.Model 中的默认id字段
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
+type GraphicCaptcha struct {
+	ID     string `json:"ID"`
+	B64lob string `json:"b64lob"`
+	Answer string `json:"answer"`
+}
 type IPInfo struct {
 	Mobile        bool    `json:"mobile"`
 	Proxy         bool    `json:"proxy"`

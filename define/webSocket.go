@@ -8,8 +8,8 @@ import (
 
 // Message -- WebSocket消息结构
 type Message struct {
-	Title string
-	Body  string
+	Title string `json:"Title"`
+	Body  string `json:"Body"`
 }
 
 var Upgrader = websocket.Upgrader{

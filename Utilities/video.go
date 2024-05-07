@@ -17,12 +17,12 @@ func RoundOff(f float64) int64 {
 	return int64(f)
 }
 
-// SecondToTime 秒数转时间字符串
-func SecondToTime(second int64) string {
+// SecondToTime 秒数转时间字符串以及时分秒数组，可以按需取用两个返回值中的任何一个
+func SecondToTime(second int64) (string, []int64) {
 	hour := second / 3600
 	minute := (second % 3600) / 60
 	second = second % 60
-	return fmt.Sprintf("%02d:%02d:%02d", hour, minute, second)
+	return fmt.Sprintf("%02d:%02d:%02d", hour, minute, second), []int64{hour, minute, second}
 }
 
 // Mkdir 利用用户ID和当前时间来创建视频对应目录

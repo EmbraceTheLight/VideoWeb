@@ -5,6 +5,7 @@ package Utilities
 import (
 	EntitySets "VideoWeb/DAO/EntitySets"
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
+	"VideoWeb/Utilities/logf"
 	"VideoWeb/config"
 	"fmt"
 	"gorm.io/driver/mysql"
@@ -16,6 +17,19 @@ type errInDelete struct {
 	id  int
 	err error
 }
+
+const (
+	barrage = iota + 1
+	videos
+	users
+	comments
+	favorite
+	videoHistory
+	userHistory
+	favoriteVideo
+	followed
+	follows
+)
 
 var idToFunc = make(map[int]string)
 var errChannel = make(chan *errInDelete, 11)
@@ -34,17 +48,16 @@ func initNecessary() error {
 		fmt.Println("Failed to set innodb_lock_wait_timeout:", err)
 		return err
 	}
-	idToFunc[1] = "HDBarrage"
-	idToFunc[2] = "HDVideos"
-	idToFunc[3] = "HDUsers"
-	idToFunc[4] = "HDComments"
-	idToFunc[5] = "HDFavorites"
-	idToFunc[6] = "HDMessages"
-	idToFunc[7] = "HDVideoHistory"
-	idToFunc[8] = "HDUserHistory"
-	idToFunc[9] = "HDFavoriteVideo"
-	idToFunc[10] = "HDFollowed"
-	idToFunc[11] = "HDFollows"
+	idToFunc[barrage] = "HDBarrage"
+	idToFunc[videos] = "HDVideos"
+	idToFunc[users] = "HDUsers"
+	idToFunc[comments] = "HDComments"
+	idToFunc[favorite] = "HDFavorites"
+	idToFunc[videoHistory] = "HDVideoHistory"
+	idToFunc[userHistory] = "HDUserHistory"
+	idToFunc[favoriteVideo] = "HDFavoriteVideo"
+	idToFunc[followed] = "HDFollowed"
+	idToFunc[follows] = "HDFollows"
 	return nil
 }
 
@@ -66,9 +79,9 @@ func HardDelete() {
 			HDHelper()
 		case err1 := <-errChannel:
 			if err1.err != nil {
-				WriteErrLog(idToFunc[err1.id], err1.err.Error())
+				logf.WriteErrLog(idToFunc[err1.id], err1.err.Error())
 			} else {
-				WriteInfoLog(idToFunc[err1.id], "deleted records successfully.")
+				logf.WriteInfoLog(idToFunc[err1.id], "deleted records successfully.")
 			}
 		}
 	}
@@ -79,7 +92,6 @@ func HDHelper() {
 	go HDUsers()
 	go HDComments()
 	go HDFavorites()
-	go HDMessages()
 	go HDVideoHistory()
 	go HDUserHistory()
 	go HDFavoriteVideo()
@@ -90,7 +102,7 @@ func HDHelper() {
 func HDBarrage() {
 	err := db.Unscoped().Delete(&EntitySets.Barrage{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  1,
+		id:  barrage,
 		err: err,
 	}
 }
@@ -98,7 +110,7 @@ func HDBarrage() {
 func HDVideos() {
 	err := db.Unscoped().Delete(&EntitySets.Video{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  2,
+		id:  videos,
 		err: err,
 	}
 }
@@ -106,7 +118,7 @@ func HDVideos() {
 func HDUsers() {
 	err := db.Unscoped().Delete(&EntitySets.User{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  3,
+		id:  users,
 		err: err,
 	}
 
@@ -114,7 +126,7 @@ func HDUsers() {
 func HDComments() {
 	err := db.Unscoped().Delete(&EntitySets.Comments{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  4,
+		id:  comments,
 		err: err,
 	}
 }
@@ -122,15 +134,7 @@ func HDComments() {
 func HDFavorites() {
 	err := db.Unscoped().Delete(&EntitySets.Favorites{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  5,
-		err: err,
-	}
-}
-
-func HDMessages() {
-	err := db.Unscoped().Delete(&EntitySets.Message{}, "deleted_at IS NOT NULL").Error
-	errChannel <- &errInDelete{
-		id:  6,
+		id:  favorite,
 		err: err,
 	}
 }
@@ -138,7 +142,7 @@ func HDMessages() {
 func HDVideoHistory() {
 	err := db.Unscoped().Delete(&EntitySets.VideoHistory{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  7,
+		id:  videoHistory,
 		err: err,
 	}
 }
@@ -146,7 +150,7 @@ func HDVideoHistory() {
 func HDUserHistory() {
 	err := db.Unscoped().Delete(&EntitySets.SearchHistory{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  8,
+		id:  userHistory,
 		err: err,
 	}
 }
@@ -154,7 +158,7 @@ func HDUserHistory() {
 func HDFavoriteVideo() {
 	err := db.Unscoped().Delete(&RelationshipSets.FavoriteVideo{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  9,
+		id:  favoriteVideo,
 		err: err,
 	}
 }
@@ -162,7 +166,7 @@ func HDFavoriteVideo() {
 func HDFollowed() {
 	err := db.Unscoped().Delete(&RelationshipSets.UserFollowed{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  10,
+		id:  followed,
 		err: err,
 	}
 }
@@ -170,7 +174,7 @@ func HDFollowed() {
 func HDFollows() {
 	err := db.Unscoped().Delete(&RelationshipSets.UserFollows{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  11,
+		id:  follows,
 		err: err,
 	}
 }

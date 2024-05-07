@@ -1,6 +1,8 @@
 package config
 
 import (
+	"VideoWeb/Utilities/logf"
+	"VideoWeb/define"
 	"VideoWeb/logrusLog"
 	"bufio"
 	"fmt"
@@ -21,23 +23,23 @@ type MySQLConfig struct {
 	Database string `yaml:"database"`
 	Charset  string `yaml:"charset"`
 }
-
 type RedisConfig struct {
 	Host     string `yaml:"host"`
 	Port     string `yaml:"port"`
 	Password string `yaml:"password"`
 	Database string `yaml:"database"`
 }
+
 type DBConfig struct {
 	MySQLConf *MySQLConfig `yaml:"mysql"`
 	RedisConf *RedisConfig `yaml:"redis"`
 }
-
 type LogConfig struct {
 	Level      string `yaml:"level"`
 	FilePath   string `yaml:"path"`
 	TimeFormat string `yaml:"timeFormat"`
 }
+
 type LogFormat struct {
 	logConf *LogConfig
 }
@@ -104,27 +106,25 @@ func InitLog() error {
 	writer2, _ := rotatelogs.New(
 		logConf.FilePath+".%Y%m%d",
 		rotatelogs.WithLinkName(logConf.FilePath),
-		rotatelogs.WithRotationCount(10),
-		rotatelogs.WithRotationSize(20*1024*1024),
+		rotatelogs.WithRotationCount(5),
+		rotatelogs.WithRotationSize(300*define.MiB),
 	)
 
 	Output := io.MultiWriter(writer1, writer2)
 	logrusLog.Log.SetOutput(Output)
-	//设置日志级别
+	//设置日志格式
 	logrusLog.Log.SetFormatter(&LogFormat{logConf: logConf})
-	fmt.Println("init Log Successfully.")
+	logf.WriteInfoLog("InitConfig", "Init Config Successfully.")
 	return nil
 }
 
-func InitConfig(configPath string) error {
+func InitConfig(configPath string) {
 	err := parseConfig(configPath)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	err = InitLog()
 	if err != nil {
-		return err
+		panic(err)
 	}
-	fmt.Println("init config success.")
-	return nil
 }

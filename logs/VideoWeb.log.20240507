@@ -1,0 +1,40 @@
+[info] 2024-05-07 15:17:06 In Function [InitConfig]: Init Config Successfully.
+[info] 2024-05-07 15:17:06 In Function [initMysql]: Mysql init success
+[info] 2024-05-07 15:17:06 In Function [initRedisClient]: init redis client success
+[info] 2024-05-07 15:17:06 In Function [initMongo]: Mongo init success
+[info] 2024-05-07 15:17:06 In Function [InitDBs]: All DBs init success
+[info] 2024-05-07 15:20:31 In Function [InitConfig]: Init Config Successfully.
+[info] 2024-05-07 15:20:31 In Function [initMysql]: Mysql init success
+[info] 2024-05-07 15:20:31 In Function [initRedisClient]: init redis client success
+[info] 2024-05-07 15:20:31 In Function [initMongo]: Mongo init success
+[info] 2024-05-07 15:20:31 In Function [InitDBs]: All DBs init success
+[info] 2024-05-07 15:21:08 In Function [InitConfig]: Init Config Successfully.
+[info] 2024-05-07 15:21:08 In Function [initMysql]: Mysql init success
+[info] 2024-05-07 15:21:08 In Function [initRedisClient]: init redis client success
+[info] 2024-05-07 15:21:08 In Function [initMongo]: Mongo init success
+[info] 2024-05-07 15:21:08 In Function [InitDBs]: All DBs init success
+[info] 2024-05-07 15:22:18 In Function [InitConfig]: Init Config Successfully.
+[info] 2024-05-07 15:22:18 In Function [initMysql]: Mysql init success
+[info] 2024-05-07 15:22:18 In Function [initRedisClient]: init redis client success
+[info] 2024-05-07 15:22:18 In Function [initMongo]: Mongo init success
+[info] 2024-05-07 15:22:18 In Function [InitDBs]: All DBs init success
+[info] 2024-05-07 15:23:53 In Function [InitConfig]: Init Config Successfully.
+[info] 2024-05-07 15:23:53 In Function [initMysql]: Mysql init success
+[info] 2024-05-07 15:23:53 In Function [initRedisClient]: init redis client success
+[info] 2024-05-07 15:23:53 In Function [initMongo]: Mongo init success
+[info] 2024-05-07 15:23:53 In Function [InitDBs]: All DBs init success
+[info] 2024-05-07 15:25:42 In Function [InitConfig]: Init Config Successfully.
+[info] 2024-05-07 15:25:42 In Function [initMysql]: Mysql init success
+[info] 2024-05-07 15:25:42 In Function [initRedisClient]: init redis client success
+[info] 2024-05-07 15:25:42 In Function [initMongo]: Mongo init success
+[info] 2024-05-07 15:25:42 In Function [InitDBs]: All DBs init success
+[info] 2024-05-07 15:28:37 In Function [InitConfig]: Init Config Successfully.
+[info] 2024-05-07 15:28:38 In Function [initMysql]: Mysql init success
+[info] 2024-05-07 15:28:38 In Function [initRedisClient]: init redis client success
+[info] 2024-05-07 15:28:38 In Function [initMongo]: Mongo init success
+[info] 2024-05-07 15:28:38 In Function [InitDBs]: All DBs init success
+[info] 2024-05-07 15:34:05 In Function [InitConfig]: Init Config Successfully.
+[info] 2024-05-07 15:34:05 In Function [initMysql]: Mysql init success
+[info] 2024-05-07 15:34:05 In Function [initRedisClient]: init redis client success
+[info] 2024-05-07 15:34:05 In Function [initMongo]: Mongo init success
+[info] 2024-05-07 15:34:05 In Function [InitDBs]: All DBs init success

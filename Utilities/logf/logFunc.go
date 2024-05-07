@@ -1,4 +1,4 @@
-package Utilities
+package logf
 
 import (
 	"VideoWeb/logrusLog"

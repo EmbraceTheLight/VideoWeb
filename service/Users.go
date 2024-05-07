@@ -7,8 +7,10 @@ import (
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
 	"VideoWeb/logic"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"io"
@@ -57,7 +59,7 @@ func Register(c *gin.Context) {
 
 	//验证码获取及验证
 	code, err := DAO.RDB.Get(c, email).Result()
-	if err != nil {
+	if errors.Is(err, redis.Nil) {
 		Utilities.SendErrMsg(c, "service::Users::Register::RedisGet", define.CodeExpired, "验证码已过期，请重新获取验证码")
 		return
 	}
@@ -111,36 +113,42 @@ func Register(c *gin.Context) {
 	userLevel := EntitySets.Level{
 		UID: newUser.UserID,
 	}
-	Account, err := newUser.Create(tx)
+
+	Account, err := EntitySets.InsertUserRecord(tx, &newUser)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
-	err = defaultFavorites.Create(tx)
+
+	err = EntitySets.InsertFavoritesRecords(tx, &defaultFavorites)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
-	err = privateFavorites.Create(tx)
+
+	err = EntitySets.InsertFavoritesRecords(tx, &privateFavorites)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
-	err = userLevel.Create(tx)
+
+	err = EntitySets.InsertLevelRecords(tx, &userLevel)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
+
 	token, err := logic.CreateToken(newUser.UserID, newUser.UserName, newUser.IsAdmin)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		tx.Rollback()
 		return
 	}
+
 	tx.Commit()
 
 	c.JSON(http.StatusOK, gin.H{
@@ -148,36 +156,6 @@ func Register(c *gin.Context) {
 		"msg":     "注册成功",
 		"Account": Account, //返回创建好的账号
 		"token":   token,
-	})
-}
-
-// SendCode
-// @Tags User API
-// @summary 发送验证码
-// @Accept json
-// @Produce json
-// @Param email query string true "用户邮箱"
-// @Success 200 {string}  json "{"code":"200","data":"data"}"
-// @Router /send-code [post]
-func SendCode(c *gin.Context) {
-	userEmail := c.Query("email") //从前端获取email信息
-	if userEmail == "" {
-		Utilities.SendErrMsg(c, "service::Users::SendCode", define.EmptyMail, "邮箱不能为空")
-		return
-	}
-	DAO.RDB.Del(c, userEmail) //之前的验证码可能没有过期，要先删除
-	code := logic.CreateVerificationCode()
-	err := logic.SendCode(userEmail, code)
-	fmt.Println(code)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::SendCode", define.CodeSendFailed, "验证码发送失败:"+err.Error())
-		return
-	}
-
-	DAO.RDB.Set(c, userEmail, code, define.Expired)
-	c.JSON(http.StatusOK, gin.H{
-		"code": 200,
-		"msg":  "验证码发送成功！",
 	})
 }
 
@@ -535,13 +513,14 @@ func ModifyUserName(c *gin.Context) {
 // @Param userID query string true "用户ID"
 // @Param file formData file true "头像"
 // @Success 200 {string}  json "{"code":"200","msg":"上传头像成功"}"
-// @Router /user/face/upload/Avatar [post]
+// @Router /user/face/upload/Avatar [put]
 func UploadUserAvatar(c *gin.Context) {
 	userID := c.Query("userID")
 	FH, _ := c.FormFile("file") //FH=FileHeader
 	//TODO:检查文件后缀名是否为 .jpg/.jpeg/.png/.jfif
 	fname := FH.Filename
 	extension := path.Ext(fname)
+
 	println("ext:", extension)
 	if _, ok := define.PicExtCheck[extension]; ok != true {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ImageFormatError, "图片格式错误或不支持此图片格式")

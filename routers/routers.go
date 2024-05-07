@@ -3,7 +3,6 @@ package routers
 import (
 	"VideoWeb/Utilities/WebSocket"
 	_ "VideoWeb/docs"
-	"VideoWeb/logic"
 	"VideoWeb/service"
 	"github.com/gin-gonic/gin"
 	swaggoFiles "github.com/swaggo/files"
@@ -11,10 +10,10 @@ import (
 )
 
 func initWebSocket() {
-	WebSocket.Hub = WebSocket.NewServerHub()
-	go WebSocket.Hub.Run()
+	hub := WebSocket.NewServerHub()
+	go hub.Run()
 	router := gin.Default()
-	router.GET("/ws/:UserID", logic.CreateWebSocket)
+	router.GET("/ws/:UserID", service.CreateWebSocket)
 	router.Run(":51234")
 }
 
@@ -24,23 +23,23 @@ func CollectRouter(r *gin.Engine) {
 
 	//swagger配置
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggoFiles.Handler))
-
 	//路由规则
-	//公有方法
-	r.POST("/send-code", service.SendCode)
+	/*公有方法*/
+	r.GET("/send-code", service.SendCode)
+	r.GET("/GenerateGraphicCaptcha", service.GenerateGraphicCaptcha)
+	r.POST("/CheckGraphicCaptcha", service.CheckGraphicCaptcha)
 
 	//用户相关接口
 	userInfo := r.Group("/user")
 	{
-
 		userInfo.GET("/user-detail", service.GetUserDetail)
 		userInfo.POST("/fans/follows", service.FollowOtherUser)
-		userInfo.POST("/face/upload/Avatar", service.UploadUserAvatar)
 		userInfo.POST("/AddSearchHistory", service.AddSearchHistory)
 		userInfo.POST("/AddVideoHistory", service.AddVideoHistory)
 		userInfo.POST("/login", service.Login)
 		userInfo.POST("/register", service.Register)
 		userInfo.PUT("/ModifySignature", service.ModifyUserSignature)
+		userInfo.PUT("/face/upload/Avatar", service.UploadUserAvatar)
 		userInfo.PUT("/ModifyEmail", service.ModifyUserEmail)
 		userInfo.PUT("/ModifyPassword", service.ModifyPassword)
 		userInfo.PUT("/ModifyUserName", service.ModifyUserName)

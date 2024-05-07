@@ -15,7 +15,7 @@ func (l *Level) TableName() string {
 	return "Level"
 }
 
-func (l *Level) Create(DB *gorm.DB) error {
-	result := DB.Create(&l)
+func InsertLevelRecords(tx *gorm.DB, l *Level) error {
+	result := tx.Create(&l)
 	return result.Error
 }

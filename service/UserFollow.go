@@ -29,13 +29,13 @@ func FollowOtherUser(c *gin.Context) {
 		}
 	}()
 	//TODO:更新关注用户的关注列表
-	followsRecord := RelationshipSets.UserFollows{
+	followsRecord := &RelationshipSets.UserFollows{
 		Model:     gorm.Model{},
 		GroupName: "默认关注分组",
 		UID:       UID,
 		FID:       FID,
 	}
-	err := followsRecord.Create(tx)
+	err := RelationshipSets.InsertFollowsRecord(tx, followsRecord)
 	if err != nil {
 		tx.Rollback()
 		Utilities.SendErrMsg(c, "service::UserFollow::FollowOtherUser", define.FollowUserFailed, "关注用户失败"+err.Error())
@@ -43,12 +43,13 @@ func FollowOtherUser(c *gin.Context) {
 	}
 
 	//TODO:更新被关注用户的被关注（粉丝）列表
-	followedRecord := RelationshipSets.UserFollowed{
+	followedRecord := &RelationshipSets.UserFollowed{
 		MyModel: define.MyModel{},
 		UID:     FID,
 		FID:     UID,
 	}
-	err = followedRecord.Create(tx)
+
+	err = RelationshipSets.InsertFollowedRecord(tx, followedRecord)
 	if err != nil {
 		tx.Rollback()
 		Utilities.SendErrMsg(c, "service::UserFollow::FollowOtherUser", define.FollowUserFailed, "关注用户失败"+err.Error())
@@ -79,11 +80,11 @@ func UnFollowOtherUser(c *gin.Context) {
 		}
 	}()
 	//TODO:更新用户的关注列表
-	followsRecord := RelationshipSets.UserFollows{
+	followsRecord := &RelationshipSets.UserFollows{
 		UID: UID,
 		FID: FID,
 	}
-	err := followsRecord.Delete(tx)
+	err := RelationshipSets.DeleteFollowsRecord(tx, followsRecord)
 	if err != nil {
 		tx.Rollback()
 		Utilities.SendErrMsg(c, "service::UserFollow::UnFollowOtherUser", define.UnfollowUserFailed, "取消关注用户失败"+err.Error())
@@ -91,11 +92,11 @@ func UnFollowOtherUser(c *gin.Context) {
 	}
 
 	//TODO:更新被关注用户的被关注（粉丝）列表
-	followedRecord := RelationshipSets.UserFollowed{
+	followedRecord := &RelationshipSets.UserFollowed{
 		UID: FID,
 		FID: UID,
 	}
-	err = followedRecord.Delete(tx)
+	err = RelationshipSets.DeleteFollowedRecord(tx, followedRecord)
 	if err != nil {
 		tx.Rollback()
 		Utilities.SendErrMsg(c, "service::UserFollow::UnFollowOtherUser", define.UnfollowUserFailed, "取消关注用户失败"+err.Error())

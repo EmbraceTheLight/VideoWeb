@@ -1,6 +1,7 @@
 package WebSocket
 
 import (
+	DAO "VideoWeb/DAO/EntitySets"
 	"VideoWeb/define"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -10,16 +11,16 @@ import (
 )
 
 type ClientConnection struct {
+	hub1       *ServerHub
 	UserID     string
 	Conn       *websocket.Conn
-	Recv       chan *define.Message //暂存消息
-	Send       chan *define.Message //发送消息
+	Send       chan *define.Message //向客户端发送消息
 	CreateTime uint64
-	//CntConn int
 }
 
 func NewConnection(UserID string, ctx *gin.Context) (*ClientConnection, error) {
-	conn, err := define.Upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+	up := define.Upgrader
+	conn, err := up.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		fmt.Println("[NewConnection] Error in NewConnection!")
 		log.Println(err)
@@ -30,42 +31,44 @@ func NewConnection(UserID string, ctx *gin.Context) (*ClientConnection, error) {
 	newConn = &ClientConnection{
 		UserID:     UserID,
 		Conn:       conn,
-		Recv:       make(chan *define.Message, 99),
-		Send:       make(chan *define.Message, 10),
+		Send:       make(chan *define.Message),
 		CreateTime: uint64(time.Now().Unix()),
 	}
-	Hub.register <- newConn
+	newConn.hub1.register <- newConn
 	return newConn, nil
 }
 
-func (c *ClientConnection) ReadFromConn() {
+func (c *ClientConnection) ReadFromClient() {
 	defer func() {
-		Hub.unregister <- c
+		c.hub1.unregister <- c
 	}()
-	fmt.Println("[ReadFromConn] Starting read......")
+	//设置读取Pong消息的超时时间以及设置Pong消息的处理函数
 	c.Conn.SetReadDeadline(time.Now().Add(define.PongWait))
 	c.Conn.SetPongHandler(func(string) error { c.Conn.SetReadDeadline(time.Now().Add(define.PongWait)); return nil })
 	for {
-		messageType, message, err := c.Conn.ReadMessage()
+		var msg = new(DAO.Message)
+		err := c.Conn.ReadJSON(&msg)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("[ReadFromConn] IsUnexpectedCloseError error: %v", err)
+				log.Printf("[ReadFromClient] IsUnexpectedCloseError error: %v", err)
 			} else if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-				log.Println("[ReadFromConn] Client closed the connection.")
+				log.Println("[ReadFromClient] Client closed the connection.")
 			} else {
-				log.Printf("[ReadFromConn] error: %v", err)
+				log.Printf("[ReadFromClient] error: %v", err)
 			}
 			break
 		}
-		fmt.Println("[ReadFromConn] Get Message: ", string(message), "messageType: ", messageType)
-		c.Conn.WriteMessage(1, []byte("111111"))
+		fmt.Printf("[ReadFromClient] Get Message: Title: %s, Body: %s\n", msg.MessageContent.Title, msg.MessageContent.Body)
+
 	}
 }
 
-func (c *ClientConnection) WriteToConn() {
+func (c *ClientConnection) WriteToClient() {
 	ticker := time.NewTicker(define.PingPeriod)
 	defer func() {
 		ticker.Stop()
+		c.hub1.unregister <- c
+
 	}()
 	for {
 		select {
@@ -73,30 +76,29 @@ func (c *ClientConnection) WriteToConn() {
 			//设置写操作的超时时间，若过期，则 c.Conn.WriteMessage 会返回一个错误
 			c.Conn.SetWriteDeadline(time.Now().Add(define.WriteWait))
 			err := c.Conn.WriteMessage(websocket.PingMessage, nil)
-			fmt.Printf("[WriteToConn] Tick-tick:")
 			if err != nil {
-				log.Println("[WriteToConn] error:", err)
+				log.Println("[WriteToClient] error:", err)
 				return
 			}
-			fmt.Println("[WriteToConn] Send PingMessage success!", time.Now().Format("2006-01-02T15:04:05"))
+			fmt.Println("[WriteToClient] Send PingMessage success!", time.Now().Format("2006-01-02T15:04:05"))
 		case msg, ok := <-c.Send:
 			if !ok {
-				fmt.Println("[WriteToConn] Client is Closed.")
+				fmt.Println("[WriteToClient] Client is Closed.")
 				return
 			}
 			c.Conn.SetWriteDeadline(time.Now().Add(define.WriteWait))
-			w, err := c.Conn.NextWriter(websocket.TextMessage)
+			fmt.Printf("[WriteToClient] msg from %v:%v:%s\n", c.UserID, c.CreateTime, msg)
+			//if msg != nil {
+			//	w.Write([]byte(msg.Title + " " + msg.Body))
+			//}
+			//if err := w.Close(); err != nil {
+			//	return
+			//}
+			err := c.Conn.WriteJSON(msg)
 			if err != nil {
+				log.Printf("[WriteToClient] error at WriteMessage from %v:%v:%s\n", c.UserID, c.CreateTime, err)
 				return
 			}
-			fmt.Println("[WriteToConn] msg:", msg)
-			if msg != nil {
-				w.Write([]byte(msg.Title + " " + msg.Body))
-			}
-			if err := w.Close(); err != nil {
-				return
-			}
-			//c.Conn.WriteMessage(websocket.TextMessage, []byte(msg.Title+" "+msg.Body))
 		}
 	}
 }

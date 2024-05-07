@@ -48,5 +48,6 @@ const (
 	CreateCommentToVideoFailed
 	CreateCommentToUserFailed
 	CreateMessageFailed
+	CaptchaGenerateFailed
 	AddBarrageFailed
 )

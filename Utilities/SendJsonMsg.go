@@ -1,6 +1,7 @@
 package Utilities
 
 import (
+	"VideoWeb/Utilities/logf"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -14,5 +15,5 @@ func SendJsonMsg(c *gin.Context, code int, msg string) {
 
 func SendErrMsg(c *gin.Context, funcName string, code int, msg string) {
 	SendJsonMsg(c, code, msg)
-	WriteErrLog(funcName, msg)
+	logf.WriteErrLog(funcName, msg)
 }

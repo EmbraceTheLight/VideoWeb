@@ -5,7 +5,6 @@ import (
 	"VideoWeb/Utilities"
 	"VideoWeb/config"
 	"VideoWeb/routers"
-	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -16,17 +15,14 @@ import (
 // @description     This is a VideoWeb API
 func main() {
 	config.InitConfig("")
-	r := gin.Default()
-	err := DAO.InitDB()
-	if err != nil {
-		fmt.Println("err in InitDB:", err)
-		return
-	}
+
+	DAO.InitDBs()
 	defer DAO.RDB.Close()
 
 	//执行后台定时任务：删除软删除记录
 	go Utilities.HardDelete()
 
+	r := gin.Default()
 	//解决跨域问题，注册全局中间件
 	r.Use(cors.Default())
 	routers.CollectRouter(r)

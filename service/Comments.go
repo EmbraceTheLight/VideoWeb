@@ -4,7 +4,6 @@ import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
-	"VideoWeb/Utilities/WebSocket"
 	"VideoWeb/define"
 	"VideoWeb/logic"
 	"github.com/gin-gonic/gin"
@@ -61,17 +60,13 @@ func CommentToVideo(c *gin.Context) {
 		tx.Rollback()
 		return
 	}
-	//使用websocket通知被评论的视频up主(如果该用户在线)，并把“被评论”这一事件作为msg写入数据库，
+	//TODO:使用websocket通知被评论的视频up主(如果该用户在线)，并把“被评论”这一事件作为msg写入数据库，
 	//这样即使视频up主当时未在线，也能通过检索数据库的方式得知自己有新消息
-	conn, ok := WebSocket.Hub.UserConnections[UID]
+	//conn, ok := WebSocket.Hub.UserConnections[UID]
 	liker, _ := logic.GetUserNameByID(UID)
 	msg := &define.Message{
 		Title: liker + "点赞了你的视频",
 		Body:  "",
-	}
-	if ok { //TODO:Up主当前在线,待完善
-		conn = conn
-
 	}
 
 	err = logic.CreateMessage(msg)

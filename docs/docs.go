@@ -15,6 +15,65 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/CheckGraphicCaptcha": {
+            "post": {
+                "description": "验证图形验证码并返回给客户端",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Captcha API"
+                ],
+                "summary": "验证图形验证码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "验证码ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户输入的验证码",
+                        "name": "input",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "captcha_result\": CaptchaResult}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/GenerateGraphicCaptcha": {
+            "get": {
+                "description": "生成图形验证码并返回给客户端",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Captcha API"
+                ],
+                "summary": "生成图形验证码",
+                "responses": {
+                    "200": {
+                        "description": "captcha_result\": CaptchaResult}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/comment/ToUser": {
             "post": {
                 "consumes": [
@@ -99,7 +158,7 @@ const docTemplate = `{
             }
         },
         "/send-code": {
-            "post": {
+            "get": {
                 "consumes": [
                     "application/json"
                 ],
@@ -107,7 +166,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User API"
+                    "Captcha API"
                 ],
                 "summary": "发送验证码",
                 "parameters": [
@@ -454,7 +513,7 @@ const docTemplate = `{
             }
         },
         "/user/face/upload/Avatar": {
-            "post": {
+            "put": {
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -860,7 +919,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "要传输的视频ID",
+                        "description": "要传输的视频路径",
                         "name": "filePath",
                         "in": "query",
                         "required": true
@@ -1096,6 +1155,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "用户ID",
                         "name": "UserID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "弹幕颜色",
+                        "name": "Color",
                         "in": "query",
                         "required": true
                     },

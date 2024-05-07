@@ -21,7 +21,7 @@ func (f *Favorites) TableName() string {
 	return "Favorites"
 }
 
-func (f *Favorites) Create(DB *gorm.DB) error {
+func InsertFavoritesRecords(DB *gorm.DB, f *Favorites) error {
 	result := DB.Create(&f)
 	return result.Error
 }
