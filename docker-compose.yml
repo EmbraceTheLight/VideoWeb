@@ -10,14 +10,14 @@ services:
       - "51233:51233"
       - "51234:51234"
     environment:
-      - MYSQL_HOST: mysql
-      - MYSQL_PORT: 3306
-      - MYSQL_DB: VideoWeb
-      - REDIS_HOST: redis
-      - REDIS_PORT: 6379
-      - MONGO_HOST: mongo
-      - MONGO_PORT: 27017
-      - TZ: Asia/Shanghai
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: VideoWeb
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      TZ: Asia/Shanghai
     depends_on:
       - mysql
       - redis
@@ -28,10 +28,10 @@ services:
     container_name: "mysql"
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD: 213103
-      - MYSQL_DATABASE: VideoWeb
-      - MYSQL_PASSWORD: 213103
-      - TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: 213103
+      MYSQL_DATABASE: VideoWeb
+      MYSQL_PASSWORD: 213103
+      TZ: Asia/Shanghai
     volumes:
       - /mnt/Docker/mysql:/var/lib/mysql
       - /mnt/Docker/mysql/conf.d:/etc/mysql/conf.d
@@ -46,7 +46,7 @@ services:
       - /mnt/Docker/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
       - /mnt/Docker/redis/logs:/var/log/redis
     environment:
-      - TZ: Asia/Shanghai
+      TZ: Asia/Shanghai
     ports:
       - "6380:6379"
 
@@ -59,9 +59,9 @@ services:
       - /mnt/Docker/mongo/config:/data/configdb
       - /mnt/Docker/mongo/logs:/data/logs
     environment:
-      - MONGO_INITDB_DATABASE: VideoWeb
-      - MONGO_INITDB_ROOT_USERNAME: root
-      - MONGO_INITDB_ROOT_PASSWORD: 213103
-      - TZ: Asia/Shanghai
+      MONGO_INITDB_DATABASE: VideoWeb
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 213103
+      TZ: Asia/Shanghai
     ports:
       - "27018:27017"
