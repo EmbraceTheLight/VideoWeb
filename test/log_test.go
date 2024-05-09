@@ -7,11 +7,8 @@ import (
 )
 
 func TestLog(t *testing.T) {
-	err := config.InitConfig("D:\\Go\\WorkSpace\\src\\Go_Project\\VideoWebFromUbuntu-22.04LTS\\VideoWeb\\config\\config.yaml")
-	if err != nil {
-		t.Log("err:", err)
-		return
-	}
+	config.InitConfig("D:\\Go\\WorkSpace\\src\\Go_Project\\VideoWeb\\VideoWeb\\config\\config.yaml")
+
 	logf.WriteErrLog("TestLog", "This is a test log")
 	logf.WriteInfoLog("TestLog", "This is a test log")
 

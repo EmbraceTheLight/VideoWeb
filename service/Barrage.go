@@ -6,7 +6,6 @@ import (
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -16,14 +15,15 @@ import (
 // @Tags Barrage API
 // @Accept  multipart/form-data
 // @Produce  json
+// @Param ID path string true "视频ID"
 // @param UserID query string true "用户ID"
 // @param Color query string true "弹幕颜色"
 // @param Time query string true "发送弹幕时的视频时间"
 // @Param Content formData string true "弹幕数据"
 // @Success 200 {string}  json "{"code":"200","msg":"添加弹幕成功"}"
-// @Router /video/{VideoID}/AddBarrage [post]
+// @Router /video/{ID}/AddBarrage [post]
 func AddBarrage(c *gin.Context) {
-	VID := c.Param("VideoID")
+	VID := c.Param("ID")
 	UID := c.Query("UserID")
 	color := c.Query("Color")
 	seconds := c.Query("Time")
@@ -32,9 +32,9 @@ func AddBarrage(c *gin.Context) {
 	second, _ := strconv.Atoi(seconds)
 	_, t := Utilities.SecondToTime(int64(second))
 	barrage := &EntitySets.Barrage{
-		Model:   gorm.Model{},
-		UID:     UID,
-		VID:     VID,
+		MyModel: define.MyModel{},
+		UID:     Utilities.String2Int64(UID),
+		VID:     Utilities.String2Int64(VID),
 		Content: content,
 		Hour:    uint8(t[0]),
 		Minute:  uint8(t[1]),

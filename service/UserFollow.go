@@ -7,6 +7,7 @@ import (
 	"VideoWeb/define"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 // FollowOtherUser
@@ -15,12 +16,12 @@ import (
 // @Accept json
 // @Produce json
 // // @Param Authorization header string true "token"
-// @Param userID query string true "用户ID"
+// @Param UserID path string true "用户ID"
 // @Param FID query string true "要关注的用户ID"
-// @Router /user/fans/follows [post]
+// @Router /user/{UserID}/fans/follows [post]
 func FollowOtherUser(c *gin.Context) {
-	UID := c.Query("userID")
-	FID := c.Query("FID")
+	tmpUID := c.Param("UserID")
+	tmpFID := c.Query("FID")
 
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -28,7 +29,9 @@ func FollowOtherUser(c *gin.Context) {
 			tx.Rollback()
 		}
 	}()
-	//TODO:更新关注用户的关注列表
+	/*更新关注用户的关注列表*/
+	UID := Utilities.String2Int64(tmpUID)
+	FID := Utilities.String2Int64(tmpFID)
 	followsRecord := &RelationshipSets.UserFollows{
 		Model:     gorm.Model{},
 		GroupName: "默认关注分组",
@@ -42,7 +45,7 @@ func FollowOtherUser(c *gin.Context) {
 		return
 	}
 
-	//TODO:更新被关注用户的被关注（粉丝）列表
+	/*更新被关注用户的被关注（粉丝）列表*/
 	followedRecord := &RelationshipSets.UserFollowed{
 		MyModel: define.MyModel{},
 		UID:     FID,
@@ -66,12 +69,12 @@ func FollowOtherUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // // @Param Authorization header string true "token"
-// @Param userID query string true "用户ID"
+// @Param UserID path string true "用户ID"
 // @Param FID query string true "要取消关注的用户ID"
-// @Router /user/fans/unfollows [delete]
+// @Router /user/{UserID}/fans/unfollows [delete]
 func UnFollowOtherUser(c *gin.Context) {
-	UID := c.Query("userID")
-	FID := c.Query("FID")
+	tmpUID := c.Param("UserID")
+	tmpFID := c.Query("FID")
 
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -79,7 +82,10 @@ func UnFollowOtherUser(c *gin.Context) {
 			tx.Rollback()
 		}
 	}()
-	//TODO:更新用户的关注列表
+
+	UID := Utilities.String2Int64(tmpUID)
+	FID := Utilities.String2Int64(tmpFID)
+	/*更新用户的关注列表*/
 	followsRecord := &RelationshipSets.UserFollows{
 		UID: UID,
 		FID: FID,
@@ -91,7 +97,7 @@ func UnFollowOtherUser(c *gin.Context) {
 		return
 	}
 
-	//TODO:更新被关注用户的被关注（粉丝）列表
+	/*更新被关注用户的被关注（粉丝）列表*/
 	followedRecord := &RelationshipSets.UserFollowed{
 		UID: FID,
 		FID: UID,
@@ -103,6 +109,6 @@ func UnFollowOtherUser(c *gin.Context) {
 		return
 	}
 	tx.Commit()
-	// TODO:
-	Utilities.SendJsonMsg(c, 200, "取消关注成功")
+
+	Utilities.SendJsonMsg(c, http.StatusOK, "取消关注成功")
 }

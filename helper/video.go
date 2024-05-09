@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"fmt"
 	"os/exec"
 	"path"
 )
@@ -20,7 +19,6 @@ func Other2MP4(videoPath string) error {
 	}
 	cmd := exec.Command("ffmpeg", ffmpegArgs...)
 	err := cmd.Run()
-	fmt.Println("转换MP4成功！")
 
 	return err
 }

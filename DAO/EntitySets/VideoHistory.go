@@ -7,8 +7,8 @@ import (
 
 type VideoHistory struct {
 	define.MyModel
-	UID string `json:"UID" gorm:"column:UID;type:char(36);primaryKey"`
-	VID string `json:"VID" gorm:"column:VID;type:char(36);primaryKey"`
+	UID int64 `json:"UID" gorm:"column:UID;type:bigint;primaryKey"`
+	VID int64 `json:"VID" gorm:"column:VID;type:bigint;primaryKey"`
 }
 
 func (v *VideoHistory) TableName() string {

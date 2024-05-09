@@ -1,7 +1,7 @@
 package logic
 
-func String2Int(IsPrivate string) int {
-	var ret int
+func String2Int8(IsPrivate string) int8 {
+	var ret int8
 	if IsPrivate == "公开" {
 		ret = 1
 	} else if IsPrivate == "私密" {

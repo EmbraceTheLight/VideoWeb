@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// GetIPInfo 获得用户的IP信息
 func GetIPInfo(IP string) (*define.IPInfo, error) {
 	searchURL := "http://ip-api.com/json/" + IP + "?lang=zh-CN"
 	resp, err := http.Get(searchURL)

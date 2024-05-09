@@ -4,7 +4,7 @@ info:
   title: VideoWeb
   version: "1.0"
 paths:
-  /CheckGraphicCaptcha:
+  /captcha/CheckGraphicCaptcha:
     post:
       consumes:
       - multipart/form-data
@@ -30,7 +30,7 @@ paths:
       summary: 验证图形验证码
       tags:
       - Captcha API
-  /GenerateGraphicCaptcha:
+  /captcha/GenerateGraphicCaptcha:
     get:
       description: 生成图形验证码并返回给客户端
       produces:
@@ -41,6 +41,26 @@ paths:
           schema:
             type: string
       summary: 生成图形验证码
+      tags:
+      - Captcha API
+  /captcha/send-code:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户邮箱
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 发送验证码
       tags:
       - Captcha API
   /comment/ToUser:
@@ -100,34 +120,14 @@ paths:
       summary: 用户评论视频
       tags:
       - Comment API
-  /send-code:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户邮箱
-        in: query
-        name: email
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","data":"data"}'
-          schema:
-            type: string
-      summary: 发送验证码
-      tags:
-      - Captcha API
-  /user/AddSearchHistory:
+  /user/{UserID}/AddSearchHistory:
     post:
       consumes:
       - application/json
       parameters:
       - description: 用户ID
-        in: query
-        name: UID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 搜索记录
@@ -141,14 +141,14 @@ paths:
       summary: 增加搜索历史记录
       tags:
       - User API
-  /user/AddVideoHistory:
+  /user/{UserID}/AddVideoHistory:
     post:
       consumes:
       - application/json
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 视频ID
@@ -162,14 +162,14 @@ paths:
       summary: 增加视频历史记录
       tags:
       - User API
-  /user/ForgetPassword:
+  /user/{UserID}/ForgetPassword:
     put:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 用户邮箱
@@ -202,13 +202,13 @@ paths:
       summary: 重置用户密码
       tags:
       - User API
-  /user/Logout:
+  /user/{UserID}/Logout:
     delete:
       consumes:
       - application/json
       parameters:
       - description: 用户ID
-        in: query
+        in: path
         name: UserID
         required: true
         type: string
@@ -222,14 +222,14 @@ paths:
       summary: 用户注销
       tags:
       - User API
-  /user/ModifyEmail:
+  /user/{UserID}/ModifyEmail:
     put:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 用户新邮箱
@@ -252,14 +252,14 @@ paths:
       summary: 用户信息修改-更新用户邮箱
       tags:
       - User API
-  /user/ModifyPassword:
+  /user/{UserID}/ModifyPassword:
     put:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 用户密码
@@ -287,14 +287,14 @@ paths:
       summary: 用户信息修改-修改用户密码
       tags:
       - User API
-  /user/ModifySignature:
+  /user/{UserID}/ModifySignature:
     put:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 用户签名,为空表示没有签名
@@ -311,14 +311,14 @@ paths:
       summary: 用户信息修改-更新用户签名
       tags:
       - User API
-  /user/ModifyUserName:
+  /user/{UserID}/ModifyUserName:
     put:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 用户名
@@ -336,14 +336,14 @@ paths:
       summary: 用户信息修改-修改用户名
       tags:
       - User API
-  /user/face/upload/Avatar:
+  /user/{UserID}/face/upload/Avatar:
     put:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 头像
@@ -361,14 +361,14 @@ paths:
       summary: 用户信息修改-上传头像
       tags:
       - User API
-  /user/fans/follows:
+  /user/{UserID}/fans/follows:
     post:
       consumes:
       - application/json
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 要关注的用户ID
@@ -382,14 +382,14 @@ paths:
       summary: 关注其他用户
       tags:
       - User API
-  /user/fans/unfollows:
+  /user/{UserID}/fans/unfollows:
     delete:
       consumes:
       - application/json
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: UserID
         required: true
         type: string
       - description: 要取消关注的用户ID
@@ -403,13 +403,13 @@ paths:
       summary: 取消关注其他用户
       tags:
       - User API
-  /user/favorites/create:
+  /user/{UserID}/favorites/create:
     post:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
+        in: path
         name: UserID
         required: true
         type: string
@@ -441,13 +441,13 @@ paths:
       summary: 创建收藏夹
       tags:
       - User API
-  /user/favorites/delete:
+  /user/{UserID}/favorites/delete:
     delete:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
+        in: path
         name: UserID
         required: true
         type: string
@@ -467,13 +467,13 @@ paths:
       summary: 删除收藏夹
       tags:
       - User API
-  /user/favorites/modify:
+  /user/{UserID}/favorites/modify:
     put:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
+        in: path
         name: UserID
         required: true
         type: string
@@ -508,14 +508,34 @@ paths:
       summary: 修改收藏夹
       tags:
       - User API
+  /user/{UserID}/user-detail:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户标识
+        in: path
+        name: UserID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","data":userInfo}'
+          schema:
+            type: string
+      summary: 获取用户完整、详细的信息
+      tags:
+      - User API
   /user/login:
     post:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户账号
+      - description: 用户名
         in: formData
-        name: Account
+        name: Username
         required: true
         type: string
       - description: 用户密码
@@ -579,102 +599,14 @@ paths:
       summary: 用户注册
       tags:
       - User API
-  /user/user-detail:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户标识
-        in: query
-        name: UserID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","data":userInfo}'
-          schema:
-            type: string
-      summary: 获取用户完整、详细的信息
-      tags:
-      - User API
-  /video/{VideoID}/AddBarrage:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 添加弹幕
-      parameters:
-      - description: 用户ID
-        in: query
-        name: UserID
-        required: true
-        type: string
-      - description: 弹幕颜色
-        in: query
-        name: Color
-        required: true
-        type: string
-      - description: 发送弹幕时的视频时间
-        in: query
-        name: Time
-        required: true
-        type: string
-      - description: 弹幕数据
-        in: formData
-        name: Content
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","msg":"添加弹幕成功"}'
-          schema:
-            type: string
-      summary: 添加弹幕
-      tags:
-      - Barrage API
-  /video/DASHStreamTransmission:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 要传输的视频路径
-        in: query
-        name: filePath
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses: {}
-      summary: DASH流式传输视频
-      tags:
-      - Video API
-  /video/OfferMpd:
+  /video/{ID}/StreamTransmission:
     get:
       consumes:
       - application/json
       parameters:
       - description: 要传输的视频ID
-        in: query
-        name: filePath
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses: {}
-      summary: 提供DASH所需的.mpd文件
-      tags:
-      - Video API
-  /video/StreamTransmission:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 要传输的视频ID
-        in: query
-        name: VideoID
+        in: path
+        name: ID
         required: true
         type: string
       produces:
@@ -683,14 +615,14 @@ paths:
       summary: 流式传输视频
       tags:
       - Video API
-  /video/delete:
+  /video/{ID}/delete:
     delete:
       consumes:
       - multipart/form-data
       parameters:
       - description: 视频ID
-        in: query
-        name: VideoID
+        in: path
+        name: ID
         required: true
         type: string
       produces:
@@ -699,14 +631,14 @@ paths:
       summary: 用户删除视频
       tags:
       - Video API
-  /video/download:
+  /video/{ID}/download:
     get:
       consumes:
       - application/json
       parameters:
       - description: 用户要下载的视频ID
-        in: query
-        name: VideoID
+        in: path
+        name: ID
         required: true
         type: string
       produces:
@@ -715,14 +647,14 @@ paths:
       summary: 用户下载视频(根据视频ID下载视频)
       tags:
       - Video API
-  /video/getVideoDetail:
+  /video/{ID}/getVideoDetail:
     get:
       consumes:
       - application/json
       parameters:
       - description: 要获取的视频ID
-        in: query
-        name: VideoID
+        in: path
+        name: ID
         required: true
         type: string
       produces:
@@ -731,14 +663,14 @@ paths:
       summary: 提供视频信息详情
       tags:
       - Video API
-  /video/upload:
+  /video/{ID}/upload:
     post:
       consumes:
       - multipart/form-data
       parameters:
       - description: 用户ID
-        in: query
-        name: userID
+        in: path
+        name: ID
         required: true
         type: string
       - description: 视频标题
@@ -796,6 +728,79 @@ paths:
       - application/json
       responses: {}
       summary: 用户上传视频
+      tags:
+      - Video API
+  /video/{VideoID}/AddBarrage:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 添加弹幕
+      parameters:
+      - description: 视频ID
+        in: path
+        name: VideoID
+        required: true
+        type: string
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 弹幕颜色
+        in: query
+        name: Color
+        required: true
+        type: string
+      - description: 发送弹幕时的视频时间
+        in: query
+        name: Time
+        required: true
+        type: string
+      - description: 弹幕数据
+        in: formData
+        name: Content
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"添加弹幕成功"}'
+          schema:
+            type: string
+      summary: 添加弹幕
+      tags:
+      - Barrage API
+  /video/DASHStreamTransmission:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要传输的视频路径
+        in: query
+        name: filePath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: DASH流式传输视频
+      tags:
+      - Video API
+  /video/OfferMpd:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 视频所在路径
+        in: query
+        name: filePath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 提供DASH所需的.mpd文件
       tags:
       - Video API
 swagger: "2.0"

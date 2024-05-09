@@ -4,6 +4,7 @@ import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
+	"VideoWeb/Utilities/logf"
 	"VideoWeb/define"
 	"VideoWeb/helper"
 	"fmt"
@@ -50,21 +51,23 @@ func GetVideoDuration(VideoPath string) (duration int64, err error) {
 }
 
 // CreateVideoRecord 创建视频记录
-func CreateVideoRecord(tx *gorm.DB, c *gin.Context, videoFilePath string, fileSize int64) (VID string, err error) {
+func CreateVideoRecord(tx *gorm.DB, c *gin.Context, videoFilePath string, fileSize int64) (VID int64, err error) {
 	t, err := GetVideoDuration(videoFilePath)
 	if err != nil {
 		return VID, err
 	}
-	UserID := c.Query("userID")
+	UserID := c.Param("ID")
 	videoTime, _ := Utilities.SecondToTime(t)
 	Title := c.PostForm("title")
 	Description := c.PostForm("description")
 	Class := c.PostForm("class")
+
 	VID = GetUUID()
+	UID := Utilities.String2Int64(UserID)
 	video := &EntitySets.Video{
 		MyModel:     define.MyModel{},
 		VideoID:     VID,
-		UID:         UserID,
+		UID:         UID,
 		Title:       Title,
 		Description: Description,
 		Class:       Class,
@@ -78,20 +81,32 @@ func CreateVideoRecord(tx *gorm.DB, c *gin.Context, videoFilePath string, fileSi
 
 func MakeDASHSegments(videoFilePath string) error {
 	ext := path.Ext(videoFilePath)
+	outputFilePath := path.Dir(videoFilePath) //得到输出文件得到父目录名
+
+	var inputFileName = videoFilePath
+	//处理上传的文件不是mp4格式的情况
 	if ext != ".mp4" {
 		err := helper.Other2MP4(videoFilePath)
+		inputFileName = path.Join(outputFilePath, "converted.mp4")
+		defer func() {
+			err := os.Remove(inputFileName)
+			if err != nil {
+				logf.WriteErrLog("logic::MakeDASHSegments", fmt.Sprintf("删除%s生成的.mp4临时文件失败:%s", videoFilePath, err.Error()))
+			}
+		}()
 		if err != nil {
 			return err
 		}
 	}
-	outPutFilePath := path.Dir(videoFilePath)
-	//fmt.Println("outPutFilePath:", outPutFilePath)
+
+	// 调用ffmpeg命令行工具生成分段文件
+	fmt.Println("inputFilePath:", inputFileName)
 	ffmpegArgs := []string{
-		"-i", outPutFilePath + "/converted.mp4",
+		"-i", inputFileName,
 		"-c", "copy",
 		"-f", "dash",
 		"-segment_time", "5",
-		outPutFilePath + "/output.mpd", // 分段文件名模板
+		outputFilePath + "/output.mpd", // 分段文件名模板
 	}
 	cmd := exec.Command("ffmpeg", ffmpegArgs...)
 	err := cmd.Run()
@@ -106,6 +121,7 @@ func DeleteVideo(del *EntitySets.Video) error {
 		return err
 	}
 
+	/*从数据库中删除视频相关信息*/
 	tx := DAO.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -113,19 +129,31 @@ func DeleteVideo(del *EntitySets.Video) error {
 		}
 	}()
 
-	/*从数据库中删除视频信息*/
-	err = tx.Where("VideoID=?", del.VideoID).Delete(&EntitySets.Video{}).Error
+	//从数据库中删除视频信息
+	err = EntitySets.DeleteVideoInfoByID(tx, del.VideoID)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-
-	/*从数据库中删除与视频绑定的Tag信息*/
-	err = tx.Delete(&EntitySets.Tags{}, "VID=?", del.VideoID).Error
+	//从数据库中删除与视频绑定的Tag信息
+	err = EntitySets.DeleteTagRecords(tx, del.VideoID)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
+	//从数据库中删除与视频绑定的弹幕信息
+	err = EntitySets.DeleteBarrageRecordsByVideoID(tx, del.VideoID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	//从数据库中删除与视频绑定的评论信息
+	err = EntitySets.DeleteCommentRecordsByVideoID(tx, del.VideoID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	//从数据库中删除与视频绑定的收藏信息
 	tx.Commit()
 	return nil
 }

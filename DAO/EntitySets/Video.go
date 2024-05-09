@@ -9,12 +9,12 @@ type Video struct {
 	define.MyModel
 
 	//用户显式指定
-	VideoID     string `json:"VID" gorm:"column:videoID;type:char(36);primaryKey"` //视频唯一标识
-	UID         string `json:"UID" gorm:"column:UID;type:char(36)"`                //视频作者ID
-	Title       string `json:"Title" gorm:"column:title;type:varchar(100)"`        //视频题目
-	Description string `json:"Description" gorm:"column:description;type:text"`    //视频描述
-	Class       string `json:"Class" gorm:"column:class;type:varchar(20)"`         //视频分类
-	Path        string `json:"Path" gorm:"column:path;type:varchar(200)"`          //视频路径
+	VideoID     int64  `json:"VID" gorm:"column:videoID;type:bigint;primaryKey"` //视频唯一标识
+	UID         int64  `json:"UID" gorm:"column:UID;type:bigint"`                //视频作者ID
+	Title       string `json:"Title" gorm:"column:title;type:varchar(100)"`      //视频题目
+	Description string `json:"Description" gorm:"column:description;type:text"`  //视频描述
+	Class       string `json:"Class" gorm:"column:class;type:varchar(20)"`       //视频分类
+	Path        string `json:"Path" gorm:"column:path;type:varchar(200)"`        //视频路径
 	//系统默认生成
 	Likes        uint32 `json:"Likes" gorm:"column:likes;type:int unsigned;default:0"`               //视频被点赞数
 	UnLikes      uint32 `json:"UnLikes" gorm:"column:unlikes;type:int unsigned;default:0"`           //视频被点踩数
@@ -24,7 +24,7 @@ type Video struct {
 	Duration     string `json:"Duration" gorm:"column:duration;type:varchar(10);"`                   //视频时长,单位秒
 	Size         int64  `json:"Size" gorm:"column:size;type:int;"`                                   //视频大小,单位字节
 	//以下三项均为一对多
-	Comments []*Comments `gorm:"foreignKey:VID;references:videoID"` //视频评论
+	Comments []*Comments `gorm:"foreignKey:VID;references:VideoID"` //视频评论
 	Tags     []*Tags     `gorm:"foreignKey:VID;references:VideoID"` //视频标签
 	Barrages []*Barrage  `gorm:"foreignKey:VID;references:VideoID"` //视频弹幕
 	//二进制大对象,存放视频封面信息
@@ -36,7 +36,7 @@ func (f *Video) TableName() string {
 }
 
 // GetVideoInfoByID 根据视频ID获得视频信息
-func GetVideoInfoByID(VID string) (*Video, error) {
+func GetVideoInfoByID(VID int64) (*Video, error) {
 	var info = new(Video)
 	db := gorm.DB{}
 	err := db.Where("videoID=?", VID).First(&info).Error
@@ -44,4 +44,10 @@ func GetVideoInfoByID(VID string) (*Video, error) {
 		return nil, err
 	}
 	return info, nil
+}
+
+// DeleteVideoInfoByID 根据视频ID删除视频信息
+func DeleteVideoInfoByID(db *gorm.DB, VID int64) error {
+	err := db.Delete(&Video{}, "VideoID=?", VID).Error
+	return err
 }

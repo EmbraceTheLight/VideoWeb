@@ -10,6 +10,7 @@ require (
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/mojocn/base64Captcha v1.3.6
+	github.com/pborman/uuid v1.2.1
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/shiena/ansicolor v0.0.0-20230509054315-a9deabde6e02
@@ -17,6 +18,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.3
+	github.com/yitter/idgenerator-go v1.3.3
 	go.mongodb.org/mongo-driver v1.15.0
 	golang.org/x/crypto v0.21.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -44,6 +46,7 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/google/uuid v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jonboulle/clockwork v0.4.0 // indirect

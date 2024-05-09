@@ -7,8 +7,8 @@ import (
 type FavoriteVideo struct {
 	define.MyModel
 
-	FavoriteID string `json:"favoriteID" gorm:"primaryKey;column:favoriteID;type:char(36);index:index_FID"`
-	VideoID    string `json:"videoID" gorm:"primaryKey;column:videoID;type:char(36);index:index_VID"`
+	FavoriteID int64 `json:"favoriteID" gorm:"primaryKey;column:favoriteID;type:bigint;index:index_FID"`
+	VideoID    int64 `json:"videoID" gorm:"primaryKey;column:videoID;type:bigint;index:index_VID"`
 }
 
 func (f *FavoriteVideo) TableName() string {

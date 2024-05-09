@@ -8,6 +8,7 @@ import (
 	"VideoWeb/logic"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 )
 
 // CommentToVideo
@@ -29,12 +30,13 @@ func CommentToVideo(c *gin.Context) {
 	if Country == "" {
 		Country = "未知地区"
 	}
+
 	var comment = EntitySets.Comments{
 		MyModel:   define.MyModel{},
 		CommentID: CommentID,
-		UID:       UID,
-		To:        "",
-		VID:       VID,
+		UID:       Utilities.String2Int64(UID),
+		To:        -1,
+		VID:       Utilities.String2Int64(VID),
 		Content:   Content,
 		IPAddress: Country + " " + City,
 	}
@@ -60,9 +62,8 @@ func CommentToVideo(c *gin.Context) {
 		tx.Rollback()
 		return
 	}
-	//TODO:使用websocket通知被评论的视频up主(如果该用户在线)，并把“被评论”这一事件作为msg写入数据库，
-	//这样即使视频up主当时未在线，也能通过检索数据库的方式得知自己有新消息
-	//conn, ok := WebSocket.Hub.UserConnections[UID]
+	/*使用websocket通知被评论的视频up主(如果该用户在线)，并把“被评论”这一事件作为msg写入数据库，
+	这样即使视频up主当时未在线，也能通过检索数据库的方式得知自己有新消息*/
 	liker, _ := logic.GetUserNameByID(UID)
 	msg := &define.Message{
 		Title: liker + "点赞了你的视频",
@@ -75,7 +76,7 @@ func CommentToVideo(c *gin.Context) {
 	}
 	tx.Commit()
 
-	Utilities.SendJsonMsg(c, 200, "发送评论成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "发送评论成功")
 }
 
 // CommentToOtherUser

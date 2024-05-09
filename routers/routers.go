@@ -23,48 +23,63 @@ func CollectRouter(r *gin.Engine) {
 
 	//swagger配置
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggoFiles.Handler))
-	//路由规则
+
+	//------------路由规则-------------//
 	/*公有方法*/
-	r.GET("/send-code", service.SendCode)
-	r.GET("/GenerateGraphicCaptcha", service.GenerateGraphicCaptcha)
-	r.POST("/CheckGraphicCaptcha", service.CheckGraphicCaptcha)
+	//验证码相关接口
+	captcha := r.Group("/captcha")
+	{
+		captcha.GET("/send-code", service.SendCode)
+		captcha.GET("/GenerateGraphicCaptcha", service.GenerateGraphicCaptcha)
+		captcha.POST("/CheckGraphicCaptcha", service.CheckGraphicCaptcha)
+	}
 
 	//用户相关接口
-	userInfo := r.Group("/user")
+	user := r.Group("/user")
 	{
-		userInfo.GET("/user-detail", service.GetUserDetail)
-		userInfo.POST("/fans/follows", service.FollowOtherUser)
-		userInfo.POST("/AddSearchHistory", service.AddSearchHistory)
-		userInfo.POST("/AddVideoHistory", service.AddVideoHistory)
-		userInfo.POST("/login", service.Login)
-		userInfo.POST("/register", service.Register)
-		userInfo.PUT("/ModifySignature", service.ModifyUserSignature)
-		userInfo.PUT("/face/upload/Avatar", service.UploadUserAvatar)
-		userInfo.PUT("/ModifyEmail", service.ModifyUserEmail)
-		userInfo.PUT("/ModifyPassword", service.ModifyPassword)
-		userInfo.PUT("/ModifyUserName", service.ModifyUserName)
-		userInfo.PUT("/ForgetPassword", service.ForgetPassword)
-		userInfo.DELETE("/Logout", service.Logout)
-		userInfo.DELETE("/fans/unfollows", service.UnFollowOtherUser)
-		Favorites := userInfo.Group("/favorites")
+		user.POST("/register", service.Register)
+		user.POST("/login", service.Login)
+		userInfo := user.Group("/:UserID")
 		{
-			Favorites.POST("/create", service.CreateFavorites)
-			Favorites.PUT("/modify", service.ModifyFavorites)
-			Favorites.DELETE("/delete", service.DeleteFavorites)
+			userInfo.GET("/user-detail", service.GetUserDetail)
+			userInfo.POST("/fans/follows", service.FollowOtherUser)
+			userInfo.POST("/AddSearchHistory", service.AddSearchHistory)
+			userInfo.POST("/AddVideoHistory", service.AddVideoHistory)
+			userInfo.PUT("/ModifySignature", service.ModifyUserSignature)
+			userInfo.PUT("/face/upload/Avatar", service.UploadUserAvatar)
+			userInfo.PUT("/ModifyEmail", service.ModifyUserEmail)
+			userInfo.PUT("/ModifyPassword", service.ModifyPassword)
+			userInfo.PUT("/ModifyUserName", service.ModifyUserName)
+			userInfo.PUT("/ForgetPassword", service.ForgetPassword)
+			userInfo.DELETE("/Logout", service.Logout)
+			userInfo.DELETE("/fans/unfollows", service.UnFollowOtherUser)
+
+			//用户收藏夹相关接口
+			Favorites := userInfo.Group("/favorites")
+			{
+				Favorites.POST("/create", service.CreateFavorites)
+				Favorites.PUT("/modify", service.ModifyFavorites)
+				Favorites.DELETE("/delete", service.DeleteFavorites)
+			}
 		}
+
 	}
 
 	//视频相关接口
 	video := r.Group("/video")
 	{
-		video.GET("/getVideoDetail", service.GetVideoInfo)
-		video.GET("/download", service.DownloadVideo)
-		video.GET("/StreamTransmission", service.StreamTransmission)
 		video.GET("/OfferMpd", service.OfferMpd)
 		video.GET("/DASHStreamTransmission", service.DASHStreamTransmission)
-		video.POST("/upload", service.UploadVideo)
-		video.POST("/:VideoID/AddBarrage", service.AddBarrage)
-		video.DELETE("/delete", service.DeleteVideo)
+
+		videoInfo := video.Group("/:ID") //ID在UploadVideo方法中代表用户ID，在其他方法中为视频ID
+		{
+			videoInfo.POST("/upload", service.UploadVideo)
+			videoInfo.POST("/AddBarrage", service.AddBarrage)
+			video.GET("/StreamTransmission", service.StreamTransmission)
+			videoInfo.GET("/download", service.DownloadVideo)
+			videoInfo.GET("/getVideoDetail", service.GetVideoInfo)
+			videoInfo.DELETE("/delete", service.DeleteVideo)
+		}
 	}
 
 	//评论相关接口
@@ -73,6 +88,5 @@ func CollectRouter(r *gin.Engine) {
 		comment.POST("/ToVideo", service.CommentToVideo)
 		comment.POST("/ToUser", service.CommentToOtherUser)
 	}
-	//管理员私有方法
 
 }

@@ -32,7 +32,7 @@ import (
 //}
 
 type Message struct {
-	MessageID      string         `bson:"_id"`        //消息ID
+	MessageID      int64          `bson:"_id"`        //消息ID
 	RoomID         string         `bson:"RoomID"`     //房间ID
 	UserID         string         `bson:"UserID"`     //发送该消息的用户ID
 	MessageContent define.Message `bson:"Data"`       //消息内容

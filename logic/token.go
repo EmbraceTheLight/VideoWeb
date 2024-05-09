@@ -10,13 +10,13 @@ var JwtSecret = []byte("secretString")
 
 type UserClaims struct {
 	UserName string `json:"userName"`
-	UserId   string `json:"userId"`
+	UserId   int64  `json:"userId"`
 	IsAdmin  int    `json:"isAdmin"`
 	jwt.RegisteredClaims
 }
 
 // CreateToken 生成Token
-func CreateToken(identity, name string, isAdmin int) (string, error) {
+func CreateToken(identity int64, name string, isAdmin int) (string, error) {
 	userClaims := UserClaims{
 		UserName:         name,
 		UserId:           identity,

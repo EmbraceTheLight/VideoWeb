@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/CheckGraphicCaptcha": {
+        "/captcha/CheckGraphicCaptcha": {
             "post": {
                 "description": "验证图形验证码并返回给客户端",
                 "consumes": [
@@ -54,7 +54,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/GenerateGraphicCaptcha": {
+        "/captcha/GenerateGraphicCaptcha": {
             "get": {
                 "description": "生成图形验证码并返回给客户端",
                 "produces": [
@@ -67,6 +67,37 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "captcha_result\": CaptchaResult}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/captcha/send-code": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Captcha API"
+                ],
+                "summary": "发送验证码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户邮箱",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"data\":\"data\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -157,617 +188,6 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/send-code": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Captcha API"
-                ],
-                "summary": "发送验证码",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户邮箱",
-                        "name": "email",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"data\":\"data\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/AddSearchHistory": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "增加搜索历史记录",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "UID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "搜索记录",
-                        "name": "searchString",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/user/AddVideoHistory": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "增加视频历史记录",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "视频ID",
-                        "name": "VID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/user/ForgetPassword": {
-            "put": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "重置用户密码",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户邮箱",
-                        "name": "userEmail",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "验证码",
-                        "name": "Code",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户新密码",
-                        "name": "newPassword",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "再次确认密码",
-                        "name": "repeatPassword",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"重置用户密码成功\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/Logout": {
-            "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "用户注销",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "UserID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"注销用户成功\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/ModifyEmail": {
-            "put": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "用户信息修改-更新用户邮箱",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户新邮箱",
-                        "name": "userEmail",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "验证码",
-                        "name": "Code",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"修改用户邮箱成功\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/ModifyPassword": {
-            "put": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "用户信息修改-修改用户密码",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户密码",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户新密码",
-                        "name": "newPassword",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "再次确认密码",
-                        "name": "repeatPassword",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"修改用户密码成功\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/ModifySignature": {
-            "put": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "用户信息修改-更新用户签名",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户签名,为空表示没有签名",
-                        "name": "userSignature",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"修改用户签名成功\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/ModifyUserName": {
-            "put": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "用户信息修改-修改用户名",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "userName",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"修改用户名成功\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/face/upload/Avatar": {
-            "put": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "用户信息修改-上传头像",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "头像",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"上传头像成功\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/fans/follows": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "关注其他用户",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "要关注的用户ID",
-                        "name": "FID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/user/fans/unfollows": {
-            "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "取消关注其他用户",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "要取消关注的用户ID",
-                        "name": "FID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/user/favorites/create": {
-            "post": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json",
-                    "multipart/form-data"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "创建收藏夹",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "UserID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "收藏夹名称",
-                        "name": "FName",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "enum": [
-                            "公开",
-                            "私密"
-                        ],
-                        "type": "string",
-                        "description": "是否私密",
-                        "name": "IsPrivate",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "描述",
-                        "name": "Description",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"data\":\"data\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/favorites/delete": {
-            "delete": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json",
-                    "multipart/form-data"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "删除收藏夹",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "UserID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "收藏夹名称",
-                        "name": "FName",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"data\":\"data\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/favorites/modify": {
-            "put": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json",
-                    "multipart/form-data"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "修改收藏夹",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "UserID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "收藏夹ID",
-                        "name": "FavoriteID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "要修改的收藏夹名称",
-                        "name": "newName",
-                        "in": "formData"
-                    },
-                    {
-                        "enum": [
-                            "公开",
-                            "私密"
-                        ],
-                        "type": "string",
-                        "description": "是否私密",
-                        "name": "IsPrivate",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "描述",
-                        "name": "Description",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"data\":\"data\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/user/login": {
             "post": {
                 "consumes": [
@@ -784,8 +204,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户账号",
-                        "name": "Account",
+                        "description": "用户名",
+                        "name": "Username",
                         "in": "formData",
                         "required": true
                     },
@@ -873,7 +293,587 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/user-detail": {
+        "/user/{UserID}/AddSearchHistory": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "增加搜索历史记录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索记录",
+                        "name": "searchString",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/{UserID}/AddVideoHistory": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "增加视频历史记录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "VID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/{UserID}/ForgetPassword": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "重置用户密码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户邮箱",
+                        "name": "userEmail",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "验证码",
+                        "name": "Code",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户新密码",
+                        "name": "newPassword",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "再次确认密码",
+                        "name": "repeatPassword",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"重置用户密码成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/Logout": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "用户注销",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"注销用户成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/ModifyEmail": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "用户信息修改-更新用户邮箱",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户新邮箱",
+                        "name": "userEmail",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "验证码",
+                        "name": "Code",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"修改用户邮箱成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/ModifyPassword": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "用户信息修改-修改用户密码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户密码",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户新密码",
+                        "name": "newPassword",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "再次确认密码",
+                        "name": "repeatPassword",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"修改用户密码成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/ModifySignature": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "用户信息修改-更新用户签名",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户签名,为空表示没有签名",
+                        "name": "userSignature",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"修改用户签名成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/ModifyUserName": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "用户信息修改-修改用户名",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "userName",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"修改用户名成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/face/upload/Avatar": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "用户信息修改-上传头像",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "头像",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"上传头像成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/fans/follows": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "关注其他用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "要关注的用户ID",
+                        "name": "FID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/{UserID}/fans/unfollows": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "取消关注其他用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "要取消关注的用户ID",
+                        "name": "FID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/{UserID}/favorites/create": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "创建收藏夹",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "收藏夹名称",
+                        "name": "FName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "公开",
+                            "私密"
+                        ],
+                        "type": "string",
+                        "description": "是否私密",
+                        "name": "IsPrivate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "描述",
+                        "name": "Description",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"data\":\"data\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/favorites/delete": {
+            "delete": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "删除收藏夹",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "收藏夹名称",
+                        "name": "FName",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"data\":\"data\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/favorites/modify": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "修改收藏夹",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "收藏夹ID",
+                        "name": "FavoriteID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "要修改的收藏夹名称",
+                        "name": "newName",
+                        "in": "formData"
+                    },
+                    {
+                        "enum": [
+                            "公开",
+                            "私密"
+                        ],
+                        "type": "string",
+                        "description": "是否私密",
+                        "name": "IsPrivate",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "描述",
+                        "name": "Description",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"data\":\"data\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{UserID}/user-detail": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -890,7 +890,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "用户标识",
                         "name": "UserID",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -943,7 +943,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "要传输的视频ID",
+                        "description": "视频所在路径",
                         "name": "filePath",
                         "in": "query",
                         "required": true
@@ -952,7 +952,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/video/StreamTransmission": {
+        "/video/{ID}/StreamTransmission": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -968,15 +968,15 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "要传输的视频ID",
-                        "name": "VideoID",
-                        "in": "query",
+                        "name": "ID",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {}
             }
         },
-        "/video/delete": {
+        "/video/{ID}/delete": {
             "delete": {
                 "consumes": [
                     "multipart/form-data"
@@ -992,15 +992,15 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "视频ID",
-                        "name": "VideoID",
-                        "in": "query",
+                        "name": "ID",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {}
             }
         },
-        "/video/download": {
+        "/video/{ID}/download": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -1016,15 +1016,15 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "用户要下载的视频ID",
-                        "name": "VideoID",
-                        "in": "query",
+                        "name": "ID",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {}
             }
         },
-        "/video/getVideoDetail": {
+        "/video/{ID}/getVideoDetail": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -1040,15 +1040,15 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "要获取的视频ID",
-                        "name": "VideoID",
-                        "in": "query",
+                        "name": "ID",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {}
             }
         },
-        "/video/upload": {
+        "/video/{ID}/upload": {
             "post": {
                 "consumes": [
                     "multipart/form-data"
@@ -1064,8 +1064,8 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "用户ID",
-                        "name": "userID",
-                        "in": "query",
+                        "name": "ID",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -1151,6 +1151,13 @@ const docTemplate = `{
                 ],
                 "summary": "添加弹幕",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "VideoID",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "用户ID",

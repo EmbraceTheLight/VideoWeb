@@ -86,6 +86,7 @@ func HardDelete() {
 		}
 	}
 }
+
 func HDHelper() {
 	go HDBarrage()
 	go HDVideos()
@@ -123,6 +124,7 @@ func HDUsers() {
 	}
 
 }
+
 func HDComments() {
 	err := db.Unscoped().Delete(&EntitySets.Comments{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{

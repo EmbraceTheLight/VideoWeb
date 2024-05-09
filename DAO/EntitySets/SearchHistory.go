@@ -6,7 +6,7 @@ import (
 
 type SearchHistory struct {
 	gorm.Model
-	UID          string `json:"UID" gorm:"column:UID;type:char(36);primaryKey"`
+	UID          int64  `json:"UID" gorm:"column:UID;type:int64;primaryKey"`
 	SearchString string `json:"searchString" gorm:"column:searchString;type:varchar(100);"` //用户搜索字符串
 }
 

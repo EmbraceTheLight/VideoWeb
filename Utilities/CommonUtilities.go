@@ -3,10 +3,12 @@ package Utilities
 import (
 	"VideoWeb/define"
 	"errors"
+	uuid "github.com/satori/go.uuid"
 	"io"
 	"mime/multipart"
 	"os"
 	"path"
+	"strconv"
 )
 
 // WriteToNewFile 写入新文件,src为源文件,dst为目标文件路径
@@ -46,6 +48,7 @@ func CheckVideoExt(filename string) error {
 	return nil
 }
 
+// ReadFileContent 读取文件内容
 func ReadFileContent(filename string) ([]byte, error) {
 	f, err := os.Open(filename)
 	defer f.Close()
@@ -57,4 +60,14 @@ func ReadFileContent(filename string) ([]byte, error) {
 		return nil, err
 	}
 	return ret, nil
+}
+
+// GetUUID4122  生成符合RFC4122规范的UUID
+func GetUUID4122() string {
+	return uuid.NewV4().String()
+}
+
+func String2Int64(str string) int64 {
+	i, _ := strconv.ParseInt(str, 10, 64)
+	return i
 }

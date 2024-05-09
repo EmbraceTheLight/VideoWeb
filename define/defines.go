@@ -12,12 +12,18 @@ var (
 	DefaultPage = "1"
 	DefaultSize = "20"
 	Expired     = time.Minute * 10 //过期时间。单位：秒。用于验证验证码是否过期
-	KiB         = 1024
-	MiB         = int64(1024 * KiB)
-	GiB         = int64(1024 * MiB)
 )
 
-var (
+const (
+	KiB = int64(1024)
+	MiB = 1024 * KiB
+	GiB = 1024 * MiB
+
+	// BaseTime 时间戳基准点，2024-01-01 00:00:00, UTC 时间
+	BaseTime int64 = 1704067200000000000 / 1e6
+)
+
+const (
 	Level1  int = 2 //从0级升到1级所需经验值,下同
 	Level2  int = 4
 	Level3  int = 8
@@ -30,8 +36,8 @@ var (
 	Level10 int = 1024
 )
 
+// MyModel 不包含 gorm.Model 中的默认id字段
 type MyModel struct {
-	// 不包含 gorm.Model 中的默认id字段
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -42,6 +48,7 @@ type GraphicCaptcha struct {
 	B64lob string `json:"b64lob"`
 	Answer string `json:"answer"`
 }
+
 type IPInfo struct {
 	Mobile        bool    `json:"mobile"`
 	Proxy         bool    `json:"proxy"`
