@@ -59,9 +59,9 @@ services:
       - /mnt/Docker/mongo/config:/data/configdb
       - /mnt/Docker/mongo/logs:/data/logs
     environment:
-      - TZ: Asia/Shanghai
       - MONGO_INITDB_DATABASE: VideoWeb
       - MONGO_INITDB_ROOT_USERNAME: root
       - MONGO_INITDB_ROOT_PASSWORD: 213103
+      - TZ: Asia/Shanghai
     ports:
       - "27018:27017"
