@@ -76,7 +76,7 @@ func CollectRouter(r *gin.Engine) {
 			videoInfo.POST("/upload", service.UploadVideo)
 			videoInfo.POST("/AddBarrage", service.AddBarrage)
 			videoInfo.PUT("/addLike", service.AddLike)
-			videoInfo.PUT("/addUnlike", service.AddUnlike)
+			videoInfo.PUT("/undoLike", service.UndoLike)
 			videoInfo.PUT("/throwShell", service.ThrowShell)
 			video.GET("/StreamTransmission", service.StreamTransmission)
 			videoInfo.GET("/download", service.DownloadVideo)

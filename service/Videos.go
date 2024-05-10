@@ -326,14 +326,14 @@ func AddLike(c *gin.Context) {
 	Utilities.SendJsonMsg(c, http.StatusOK, "点赞成功")
 }
 
-// AddUnlike
+// UndoLike
 // @Tags Video API
 // @summary 用户取消点赞视频
 // @Accept json
 // @Produce json
 // @Param ID path string true "要获取的视频ID"
-// @Router /video/{ID}/addUnlike [put]
-func AddUnlike(c *gin.Context) {
+// @Router /video/{ID}/UndoLike [put]
+func UndoLike(c *gin.Context) {
 	c.Set("funcName", "Service::Videos::AddUnlike")
 	VID := c.Param("ID")
 	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
