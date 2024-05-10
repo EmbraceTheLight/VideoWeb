@@ -332,7 +332,7 @@ func AddLike(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param ID path string true "要获取的视频ID"
-// @Router /video/{ID}/UndoLike [put]
+// @Router /video/{ID}/undoLike [put]
 func UndoLike(c *gin.Context) {
 	c.Set("funcName", "Service::Videos::AddUnlike")
 	VID := c.Param("ID")
@@ -365,7 +365,7 @@ func ThrowShell(c *gin.Context) {
 
 	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::ThrowShell", define.GetVideoInfoFailed, "投币失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::ThrowShell", define.GetVideoInfoFailed, "投贝壳失败:"+err.Error())
 		return
 	}
 
@@ -374,5 +374,5 @@ func ThrowShell(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	Utilities.SendJsonMsg(c, http.StatusOK, "投币成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "投贝壳成功")
 }

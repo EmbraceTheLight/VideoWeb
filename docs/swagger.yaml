@@ -672,22 +672,6 @@ paths:
       summary: 用户点赞视频
       tags:
       - Video API
-  /video/{ID}/addUnlike:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 要获取的视频ID
-        in: path
-        name: ID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 用户取消点赞视频
-      tags:
-      - Video API
   /video/{ID}/delete:
     delete:
       consumes:
@@ -760,6 +744,22 @@ paths:
       - application/json
       responses: {}
       summary: 用户为视频扔贝壳，由前端负责检查贝壳数量是否足够投喂
+      tags:
+      - Video API
+  /video/{ID}/undoLike:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要获取的视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户取消点赞视频
       tags:
       - Video API
   /video/{ID}/upload:

@@ -1060,30 +1060,6 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/video/{ID}/addUnlike": {
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Video API"
-                ],
-                "summary": "用户取消点赞视频",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "要获取的视频ID",
-                        "name": "ID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
         "/video/{ID}/delete": {
             "delete": {
                 "consumes": [
@@ -1188,6 +1164,30 @@ const docTemplate = `{
                         "description": "投贝壳的贝壳数量",
                         "name": "shells",
                         "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/{ID}/undoLike": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "用户取消点赞视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要获取的视频ID",
+                        "name": "ID",
+                        "in": "path",
                         "required": true
                     }
                 ],
