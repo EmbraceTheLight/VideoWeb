@@ -8,10 +8,13 @@ import (
 	"VideoWeb/logic"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
+	"strconv"
+	"strings"
 )
 
 // UploadVideo
@@ -197,47 +200,47 @@ func DownloadVideo(c *gin.Context) {
 // @Router /video/{ID}/StreamTransmission [get]
 func StreamTransmission(c *gin.Context) {
 	VID := c.Param("ID")
-	videoInfo, err := EntitySets.GetVideoInfoByID(Utilities.String2Int64(VID))
+	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
 		return
 	}
 	fmt.Println("videoInfo:", videoInfo)
-	//file, err := os.Open(videoInfo.Path)
-	//if err != nil {
-	//	Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.OpenFileFailed, "打开文件失败:"+err.Error())
-	//	return
-	//}
-	//defer file.Close()
-	//
-	//stat, err := file.Stat()
-	//if err != nil {
-	//	Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.OpenFileFailed, "打开文件失败:"+err.Error())
-	//	return
-	//}
-	//
-	//rangeHeader := c.GetHeader("Range")
-	//rangeParts := strings.Split(rangeHeader, "=") //分离出两个部分:Byte和start-end
-	//start, end := logic.ParseRange(rangeParts[1]) //分离出start和end
-	//if end == -1 {                                //请求的是最后一块视频
-	//	end = int64(stat.Size()) - 1
-	//}
-	//_, err = file.Seek(start, 0) //从第0个字节定位文件指针到第start个字节处
-	//if err != nil {
-	//	Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.OpenFileFailed, "打开文件失败:"+err.Error())
-	//	return
-	//}
-	//
-	//c.Header("Accept-Ranges", "bytes")
-	////c.Header("Content-Length", strconv.FormatInt(end-start+1, 10))
-	//c.Header("Content-Range", "bytes "+rangeParts[1]+"/"+fmt.Sprintf("%d", stat.Size()))
-	//c.Header("Transfer-Encoding", "chunked")
-	//
-	//_, err = io.CopyN(c.Writer, file, end-start+1)
-	//if err != nil {
-	//	Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.ReadFileFailed, "读取文件失败:"+err.Error())
-	//	return
-	//}
+	file, err := os.Open(videoInfo.Path)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.OpenFileFailed, "打开文件失败:"+err.Error())
+		return
+	}
+	defer file.Close()
+
+	stat, err := file.Stat()
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.OpenFileFailed, "打开文件失败:"+err.Error())
+		return
+	}
+
+	rangeHeader := c.GetHeader("Range")
+	rangeParts := strings.Split(rangeHeader, "=") //分离出两个部分:Byte和start-end
+	start, end := logic.ParseRange(rangeParts[1]) //分离出start和end
+	if end == -1 {                                //请求的是最后一块视频
+		end = int64(stat.Size()) - 1
+	}
+	_, err = file.Seek(start, 0) //从第0个字节定位文件指针到第start个字节处
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.OpenFileFailed, "打开文件失败:"+err.Error())
+		return
+	}
+
+	c.Header("Accept-Ranges", "bytes")
+	//c.Header("Content-Length", strconv.FormatInt(end-start+1, 10))
+	c.Header("Content-Range", "bytes "+rangeParts[1]+"/"+fmt.Sprintf("%d", stat.Size()))
+	c.Header("Transfer-Encoding", "chunked")
+
+	_, err = io.CopyN(c.Writer, file, end-start+1)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::StreamTransmission", define.ReadFileFailed, "读取文件失败:"+err.Error())
+		return
+	}
 	Utilities.SendJsonMsg(c, 200, "流式传输视频成功")
 }
 
@@ -279,6 +282,7 @@ func OfferMpd(c *gin.Context) {
 // @Param ID path string true "要获取的视频ID"
 // @Router /video/{ID}/getVideoDetail [get]
 func GetVideoInfo(c *gin.Context) {
+	c.Set("funcName", "Service::Videos::GetVideoInfo")
 	VID := c.Param("ID")
 	var videoInfo = new(EntitySets.Video)
 	err := DAO.DB.Where("VideoID=?", VID).Preload("Comments").
@@ -288,9 +292,87 @@ func GetVideoInfo(c *gin.Context) {
 		return
 	}
 
+	/*该视频计数+1*/
+	err = logic.UpdateVideoFieldForUpdate(c, videoInfo.VideoID, "cntViews", -1)
+	if err != nil {
+		return
+	}
 	c.JSON(200, gin.H{
 		"code":     http.StatusOK,
 		"data":     videoInfo,
 		"basePath": path.Dir(videoInfo.Path),
 	})
+}
+
+// AddLike
+// @Tags Video API
+// @summary 用户点赞视频
+// @Accept json
+// @Produce json
+// @Param ID path string true "要获取的视频ID"
+// @Router /video/{ID}/addLike [put]
+func AddLike(c *gin.Context) {
+	c.Set("funcName", "Service::Videos::AddLike")
+	VID := c.Param("ID")
+	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::AddLike", define.GetVideoInfoFailed, "点赞失败:"+err.Error())
+		return
+	}
+	err = logic.UpdateVideoFieldForUpdate(c, videoInfo.VideoID, "likes", 1)
+	if err != nil {
+		return
+	}
+	Utilities.SendJsonMsg(c, http.StatusOK, "点赞成功")
+}
+
+// AddUnlike
+// @Tags Video API
+// @summary 用户取消点赞视频
+// @Accept json
+// @Produce json
+// @Param ID path string true "要获取的视频ID"
+// @Router /video/{ID}/addUnlike [put]
+func AddUnlike(c *gin.Context) {
+	c.Set("funcName", "Service::Videos::AddUnlike")
+	VID := c.Param("ID")
+	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::AddUnlike", define.GetVideoInfoFailed, "取消点赞失败:"+err.Error())
+		return
+	}
+	err = logic.UpdateVideoFieldForUpdate(c, videoInfo.VideoID, "likes", -1)
+	if err != nil {
+		return
+	}
+	Utilities.SendJsonMsg(c, http.StatusOK, "取消点赞成功")
+}
+
+// ThrowShell
+// @Tags Video API
+// @summary 用户为视频扔贝壳，由前端负责检查贝壳数量是否足够投喂
+// @Accept json
+// @Produce json
+// @Param ID path string true "要获取的视频ID"
+// @Param TSUID query string true "投贝壳的用户ID"
+// @Param shells query int true "投贝壳的贝壳数量"
+// @Router /video/{ID}/throwShell [put]
+func ThrowShell(c *gin.Context) {
+	c.Set("funcName", "Service::Videos::ThrowShell")
+	VID := c.Param("ID")
+	TSUID := c.Query("TSUID")
+	tmpShells := c.Query("shells")
+
+	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::ThrowShell", define.GetVideoInfoFailed, "投币失败:"+err.Error())
+		return
+	}
+
+	shells, _ := strconv.Atoi(tmpShells)
+	err = logic.UpdateShells(c, videoInfo, Utilities.String2Int64(TSUID), shells)
+	if err != nil {
+		return
+	}
+	Utilities.SendJsonMsg(c, http.StatusOK, "投币成功")
 }

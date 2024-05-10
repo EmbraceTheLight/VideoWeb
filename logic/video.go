@@ -174,3 +174,27 @@ func OpenAndReadFile(file *multipart.FileHeader) ([]byte, error) {
 	data, err := io.ReadAll(f)
 	return data, err
 }
+
+func UpdateVideoFieldForUpdate(c *gin.Context, VideoID int64, field string, change int) error {
+	return helper.UpdateVideoFieldForUpdate(c, VideoID, field, change)
+}
+
+func UpdateShells(c *gin.Context, videoInfo *EntitySets.Video, TSUID int64, throws int) error {
+	/*修改贝壳币*/
+	//为视频添加贝壳
+	err := UpdateVideoFieldForUpdate(c, videoInfo.VideoID, "shells", throws)
+	if err != nil {
+		return err
+	}
+	//为作者添加贝壳
+	err = UpdateUserFieldForUpdate(c, videoInfo.UID, "shells", throws)
+	if err != nil {
+		return err
+	}
+	//减少投贝壳用户的贝壳数量
+	err = UpdateUserFieldForUpdate(c, TSUID, "shells", -throws)
+	if err != nil {
+		return err
+	}
+	return nil
+}

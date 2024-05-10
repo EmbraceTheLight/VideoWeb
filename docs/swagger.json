@@ -944,6 +944,66 @@
                 "responses": {}
             }
         },
+        "/video/{ID}/AddBarrage": {
+            "post": {
+                "description": "添加弹幕",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Barrage API"
+                ],
+                "summary": "添加弹幕",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "UserID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "弹幕颜色",
+                        "name": "Color",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "发送弹幕时的视频时间",
+                        "name": "Time",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "弹幕数据",
+                        "name": "Content",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"添加弹幕成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/video/{ID}/StreamTransmission": {
             "get": {
                 "consumes": [
@@ -960,6 +1020,54 @@
                     {
                         "type": "string",
                         "description": "要传输的视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/{ID}/addLike": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "用户点赞视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要获取的视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/{ID}/addUnlike": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "用户取消点赞视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要获取的视频ID",
                         "name": "ID",
                         "in": "path",
                         "required": true
@@ -1034,6 +1142,44 @@
                         "description": "要获取的视频ID",
                         "name": "ID",
                         "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/{ID}/throwShell": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "用户为视频扔贝壳，由前端负责检查贝壳数量是否足够投喂",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要获取的视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "投贝壳的用户ID",
+                        "name": "TSUID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "投贝壳的贝壳数量",
+                        "name": "shells",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -1127,66 +1273,6 @@
                     }
                 ],
                 "responses": {}
-            }
-        },
-        "/video/{VideoID}/AddBarrage": {
-            "post": {
-                "description": "添加弹幕",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Barrage API"
-                ],
-                "summary": "添加弹幕",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "视频ID",
-                        "name": "VideoID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户ID",
-                        "name": "UserID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "弹幕颜色",
-                        "name": "Color",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "发送弹幕时的视频时间",
-                        "name": "Time",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "弹幕数据",
-                        "name": "Content",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"添加弹幕成功\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         }
     }

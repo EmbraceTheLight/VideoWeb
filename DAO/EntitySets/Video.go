@@ -36,9 +36,8 @@ func (f *Video) TableName() string {
 }
 
 // GetVideoInfoByID 根据视频ID获得视频信息
-func GetVideoInfoByID(VID int64) (*Video, error) {
+func GetVideoInfoByID(db *gorm.DB, VID int64) (*Video, error) {
 	var info = new(Video)
-	db := gorm.DB{}
 	err := db.Where("videoID=?", VID).First(&info).Error
 	if err != nil {
 		return nil, err
@@ -49,5 +48,11 @@ func GetVideoInfoByID(VID int64) (*Video, error) {
 // DeleteVideoInfoByID 根据视频ID删除视频信息
 func DeleteVideoInfoByID(db *gorm.DB, VID int64) error {
 	err := db.Delete(&Video{}, "VideoID=?", VID).Error
+	return err
+}
+
+// UpdateVideoField 根据视频ID以及字段名更新视频某字段
+func UpdateVideoField(db *gorm.DB, VID int64, fields string, change int) error {
+	err := db.Model(&Video{}).Where("videoID=?", VID).Update(fields, gorm.Expr(fields+"+?", change)).Error
 	return err
 }

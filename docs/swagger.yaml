@@ -599,6 +599,47 @@ paths:
       summary: 用户注册
       tags:
       - User API
+  /video/{ID}/AddBarrage:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 添加弹幕
+      parameters:
+      - description: 视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 弹幕颜色
+        in: query
+        name: Color
+        required: true
+        type: string
+      - description: 发送弹幕时的视频时间
+        in: query
+        name: Time
+        required: true
+        type: string
+      - description: 弹幕数据
+        in: formData
+        name: Content
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"添加弹幕成功"}'
+          schema:
+            type: string
+      summary: 添加弹幕
+      tags:
+      - Barrage API
   /video/{ID}/StreamTransmission:
     get:
       consumes:
@@ -613,6 +654,38 @@ paths:
       - application/octet-stream
       responses: {}
       summary: 流式传输视频
+      tags:
+      - Video API
+  /video/{ID}/addLike:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要获取的视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户点赞视频
+      tags:
+      - Video API
+  /video/{ID}/addUnlike:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要获取的视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户取消点赞视频
       tags:
       - Video API
   /video/{ID}/delete:
@@ -661,6 +734,32 @@ paths:
       - application/octet-stream
       responses: {}
       summary: 提供视频信息详情
+      tags:
+      - Video API
+  /video/{ID}/throwShell:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要获取的视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: 投贝壳的用户ID
+        in: query
+        name: TSUID
+        required: true
+        type: string
+      - description: 投贝壳的贝壳数量
+        in: query
+        name: shells
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户为视频扔贝壳，由前端负责检查贝壳数量是否足够投喂
       tags:
       - Video API
   /video/{ID}/upload:
@@ -730,47 +829,6 @@ paths:
       summary: 用户上传视频
       tags:
       - Video API
-  /video/{VideoID}/AddBarrage:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 添加弹幕
-      parameters:
-      - description: 视频ID
-        in: path
-        name: VideoID
-        required: true
-        type: string
-      - description: 用户ID
-        in: query
-        name: UserID
-        required: true
-        type: string
-      - description: 弹幕颜色
-        in: query
-        name: Color
-        required: true
-        type: string
-      - description: 发送弹幕时的视频时间
-        in: query
-        name: Time
-        required: true
-        type: string
-      - description: 弹幕数据
-        in: formData
-        name: Content
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","msg":"添加弹幕成功"}'
-          schema:
-            type: string
-      summary: 添加弹幕
-      tags:
-      - Barrage API
   /video/DASHStreamTransmission:
     get:
       consumes:

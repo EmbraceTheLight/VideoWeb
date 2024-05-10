@@ -62,3 +62,9 @@ func GetUserCommentsByID(DB *gorm.DB, id string) ([]*Comments, error) {
 	return comments, nil
 
 }
+
+// UpdateUserField 根据用户ID以及字段名更新用户某字段
+func UpdateUserField(db *gorm.DB, UID int64, fields string, change int) error {
+	err := db.Model(&User{}).Where("UserID=?", UID).Update(fields, gorm.Expr(fields+"+?", change)).Error
+	return err
+}
