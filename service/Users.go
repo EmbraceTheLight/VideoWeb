@@ -33,7 +33,7 @@ import (
 // @Param Code formData string true "验证码"
 // @Param Signature formData string false "用户个性签名(至多25个字)"
 // @Success 200 {string}  json "{"code":"200","data":"data"}"
-// @Router /user/register [post]
+// @Router /User/Register [post]
 func Register(c *gin.Context) {
 	userName := c.PostForm("userName")
 	password := c.PostForm("password")
@@ -167,7 +167,7 @@ func Register(c *gin.Context) {
 // @Param Username formData string true "用户名"
 // @Param password formData string true "用户密码"
 // @Success 200 {string}  json "{"code":"200","data":"data"}"
-// @Router /user/login [post]
+// @Router /User/Login [post]
 func Login(c *gin.Context) {
 	var userInfo = new(EntitySets.User)
 	var err error
@@ -183,7 +183,7 @@ func Login(c *gin.Context) {
 	err = DAO.DB.Where("userName=?", Username).First(&userInfo).Error
 	if err != nil {
 		if gorm.ErrRecordNotFound != nil { //未找到用户信息记录
-			Utilities.SendErrMsg(c, "service::Users::Login", define.AccountNotFind, "账号不存在，请重新检查输入的账号")
+			Utilities.SendErrMsg(c, "service::Users::Login", define.AccountNotFind, "用户名不存在，请重新检查输入的账号")
 			return
 		}
 		//其他错误
@@ -295,7 +295,7 @@ func Logout(c *gin.Context) {
 // @Produce json
 // @Param UserID path string true "用户标识"
 // @Success 200 {string}  json "{"code":"200","data":userInfo}"
-// @Router /user/{UserID}/user-detail [get]
+// @Router /User/{UserID}/User-detail [get]
 func GetUserDetail(c *gin.Context) {
 	userID := c.Param("UserID")
 	if userID == "" {
@@ -327,7 +327,7 @@ func GetUserDetail(c *gin.Context) {
 // @Param UserID path string true "用户ID"
 // @Param userSignature formData string false "用户签名,为空表示没有签名"
 // @Success 200 {string}  json "{"code":"200","msg":"修改用户签名成功"}"
-// @Router /user/{UserID}/ModifySignature [put]
+// @Router /User/{UserID}/ModifySignature [put]
 func ModifyUserSignature(c *gin.Context) {
 	id := c.Param("UserID")
 	signature := c.PostForm("userSignature")
@@ -355,7 +355,7 @@ func ModifyUserSignature(c *gin.Context) {
 // @Param userEmail formData string true "用户新邮箱"
 // @Param Code formData string true "验证码"
 // @Success 200 {string}  json "{"code":"200","msg":"修改用户邮箱成功"}"
-// @Router /user/{UserID}/ModifyEmail [put]
+// @Router /User/{UserID}/ModifyEmail [put]
 func ModifyUserEmail(c *gin.Context) {
 	//获取用户id,email,验证码
 	id := c.Param("UserID")
@@ -393,7 +393,7 @@ func ModifyUserEmail(c *gin.Context) {
 // @Param newPassword formData string true "用户新密码"
 // @Param repeatPassword formData string true "再次确认密码"
 // @Success 200 {string}  json "{"code":"200","msg":"重置用户密码成功"}"
-// @Router /user/{UserID}/ForgetPassword [put]
+// @Router /User/{UserID}/ForgetPassword [put]
 func ForgetPassword(c *gin.Context) {
 	id := c.Param("UserID")
 	userEmail := c.PostForm("userEmail")
@@ -439,7 +439,7 @@ func ForgetPassword(c *gin.Context) {
 // @Param newPassword formData string true "用户新密码"
 // @Param repeatPassword formData string true "再次确认密码"
 // @Success 200 {string}  json "{"code":"200","msg":"修改用户密码成功"}"
-// @Router /user/{UserID}/ModifyPassword [put]
+// @Router /User/{UserID}/ModifyPassword [put]
 func ModifyPassword(c *gin.Context) {
 	id := c.Param("UserID")
 	password := c.PostForm("password")
@@ -476,7 +476,7 @@ func ModifyPassword(c *gin.Context) {
 // @Param UserID path string true "用户ID"
 // @Param userName formData string true "用户名"
 // @Success 200 {string}  json "{"code":"200","msg":"修改用户名成功"}"
-// @Router /user/{UserID}/ModifyUserName [put]
+// @Router /User/{UserID}/ModifyUserName [put]
 func ModifyUserName(c *gin.Context) {
 	id := c.Param("UserID")
 	userName := c.PostForm("userName")
@@ -518,7 +518,7 @@ func ModifyUserName(c *gin.Context) {
 // @Param UserID path string true "用户ID"
 // @Param file formData file true "头像"
 // @Success 200 {string}  json "{"code":"200","msg":"上传头像成功"}"
-// @Router /user/{UserID}/face/upload/Avatar [put]
+// @Router /User/{UserID}/Face/Upload/Avatar [put]
 func UploadUserAvatar(c *gin.Context) {
 	userID := c.Param("UserID")
 	FH, _ := c.FormFile("file") //FH=FileHeader
@@ -561,16 +561,16 @@ func UploadUserAvatar(c *gin.Context) {
 // @Produce json
 // @Param UserID path string true "用户ID"
 // @Param searchString query string true "搜索记录"
-// @Router /user/{UserID}/AddSearchHistory [post]
+// @Router /User/{UserID}/AddSearchHistory [post]
 func AddSearchHistory(c *gin.Context) {
 	UID := c.Param("UserID")
 	searchString := c.Query("searchString")
-	SearchHistory := EntitySets.SearchHistory{
+	SearchHistory := &EntitySets.SearchHistory{
 		Model:        gorm.Model{},
 		UID:          Utilities.String2Int64(UID),
 		SearchString: searchString,
 	}
-	err := SearchHistory.Create(DAO.DB)
+	err := EntitySets.InsertSearchRecord(DAO.DB, SearchHistory)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::AddSearchHistory", 5019, "创建搜索历史失败:"+err.Error())
 		return
@@ -586,16 +586,16 @@ func AddSearchHistory(c *gin.Context) {
 // @Produce json
 // @Param UserID path string true "用户ID"
 // @Param VID query string true "视频ID"
-// @Router /user/{UserID}/AddVideoHistory [post]
+// @Router /User/{UserID}/AddVideoHistory [post]
 func AddVideoHistory(c *gin.Context) {
 	UID := c.Param("UserID")
 	VID := c.Query("VID")
-	VideoHistory := EntitySets.VideoHistory{
+	VideoHistory := &EntitySets.VideoHistory{
 		MyModel: define.MyModel{},
 		UID:     Utilities.String2Int64(UID),
 		VID:     Utilities.String2Int64(VID),
 	}
-	err := VideoHistory.Create(DAO.DB)
+	err := EntitySets.InsertVideoHistoryRecord(DAO.DB, VideoHistory)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::AddVideoHistory", 5020, "创建视频历史记录失败")
 		return

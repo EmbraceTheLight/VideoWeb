@@ -153,7 +153,8 @@ func DeleteVideo(del *EntitySets.Video) error {
 		tx.Rollback()
 		return err
 	}
-	//从数据库中删除与视频绑定的收藏信息
+	//TODO:从数据库中删除与视频绑定的收藏信息
+
 	tx.Commit()
 	return nil
 }
@@ -175,26 +176,88 @@ func OpenAndReadFile(file *multipart.FileHeader) ([]byte, error) {
 	return data, err
 }
 
-func UpdateVideoFieldForUpdate(c *gin.Context, VideoID int64, field string, change int) error {
-	return helper.UpdateVideoFieldForUpdate(c, VideoID, field, change)
+// AddVideoViewCount 增加视频观看次数
+func AddVideoViewCount(c *gin.Context, videoID int64) error {
+	AddFuncName(c, "AddVideoViewCount")
+	err := helper.UpdateVideoFieldForUpdate(videoID, "cntViews", 1, nil)
+	if err != nil {
+		handleInternalServerError(c, err)
+		return err
+	}
+	return nil
 }
 
+// UpdateVideoLikeStatus 更新视频点赞状态,若已经点赞，则为取消点赞，反之则为点赞，更新对应状态与数据
+func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, isLiked bool) error {
+	AddFuncName(c, "UpdateVideoLikeStatus")
+	tx := DAO.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
+
+	//更新视频点赞数
+	if isLiked {
+		err := helper.UpdateVideoFieldForUpdate(VideoID, field, -1, tx)
+		if err != nil {
+			handleInternalServerError(c, err)
+			tx.Rollback()
+			return err
+		}
+	} else {
+		err := helper.UpdateVideoFieldForUpdate(VideoID, field, 1, tx)
+		if err != nil {
+			handleInternalServerError(c, err)
+			tx.Rollback()
+			return err
+		}
+	}
+	//更新用户点赞状态:当前状态取反
+	err := helper.UpdateUserVideoFieldForUpdate(UserID, VideoID, "is_like", !isLiked, tx)
+	if err != nil {
+		handleInternalServerError(c, err)
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
+}
+
+// UpdateShells 更新视频投币数,更新对应状态与数据
 func UpdateShells(c *gin.Context, videoInfo *EntitySets.Video, TSUID int64, throws int) error {
+	AddFuncName(c, "UpdateShells")
 	/*修改贝壳币*/
 	//为视频添加贝壳
-	err := UpdateVideoFieldForUpdate(c, videoInfo.VideoID, "shells", throws)
+	tx := DAO.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
+
+	err := helper.UpdateVideoFieldForUpdate(videoInfo.VideoID, "shells", throws, tx)
 	if err != nil {
+		handleInternalServerError(c, err)
+		tx.Rollback()
 		return err
 	}
 	//为作者添加贝壳
-	err = UpdateUserFieldForUpdate(c, videoInfo.UID, "shells", throws)
+	err = helper.UpdateUserFieldForUpdate(videoInfo.UID, "shells", throws, tx)
 	if err != nil {
+		handleInternalServerError(c, err)
+		tx.Rollback()
 		return err
 	}
 	//减少投贝壳用户的贝壳数量
-	err = UpdateUserFieldForUpdate(c, TSUID, "shells", -throws)
+	err = helper.UpdateUserFieldForUpdate(TSUID, "shells", -throws, tx)
 	if err != nil {
+		handleInternalServerError(c, err)
+		tx.Rollback()
 		return err
 	}
+	tx.Commit()
 	return nil
 }

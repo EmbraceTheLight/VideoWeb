@@ -19,10 +19,10 @@ type User struct {
 	CntMsgNotRead int32                            `json:"count" gorm:"column:CntMsgNotRead;type:int unsigned;default:0"` //用户未读消息数
 	UserLevel     Level                            `json:"userLevel" gorm:"foreignKey:UID;references:UserID"`             //用户等级
 	Videos        []*Video                         `json:"videos" gorm:"foreignKey:UID;references:UserID;"`               //has-many 一对多
-	UserWatch     []*VideoHistory                  `json:"userHistory" gorm:"foreignKey:UID;references:UserID"`           //用户观看记录，has-many
+	UserWatch     []*VideoHistory                  `json:"userHistory" gorm:"foreignKey:UID;references:UserID"`           //用户观看记录,has-many
 	Favorites     []*Favorites                     `json:"favorites" gorm:"foreignKey:UID;references:UserID"`             //用户收藏夹has-many
 	Comments      []*Comments                      `json:"comments" gorm:"foreignKey:UID;references:UserID"`              //用户评论has-many
-	UserSearch    []*SearchHistory                 `json:"userSearch" gorm:"foreignKey:UID;references:UserID"`            //用户搜索记录
+	UserSearch    []*SearchHistory                 `json:"userSearch" gorm:"foreignKey:UID;references:UserID"`            //用户搜索记录,has-many
 	Follows       []*RelationshipSets.UserFollows  `json:"follows" gorm:"foreignKey:UID;references:UserID"`               //用户关注列表 many2many 多对多
 	Followed      []*RelationshipSets.UserFollowed `json:"followed" gorm:"foreignKey:UID;references:UserID"`              //用户粉丝列表 many2many 多对多
 	Avatar        []byte                           `json:"avatar" gorm:"type:MediumBLOB;size:10240000"`                   //用户头像,最大为10MiB
@@ -64,7 +64,7 @@ func GetUserCommentsByID(DB *gorm.DB, id string) ([]*Comments, error) {
 }
 
 // UpdateUserField 根据用户ID以及字段名更新用户某字段
-func UpdateUserField(db *gorm.DB, UID int64, fields string, change int) error {
-	err := db.Model(&User{}).Where("UserID=?", UID).Update(fields, gorm.Expr(fields+"+?", change)).Error
+func UpdateUserField(db *gorm.DB, UID int64, field string, change int) error {
+	err := db.Model(&User{}).Where("UserID=?", UID).Update(field, gorm.Expr(field+"+?", change)).Error
 	return err
 }

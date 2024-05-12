@@ -21,7 +21,7 @@ import (
 // @Param IsPrivate query string true "是否私密"  Enums(公开, 私密)
 // @Param Description formData string false "描述"
 // @Success 200 {string}  json "{"code":"200","data":"data"}"
-// @Router /user/{UserID}/favorites/create [post]
+// @Router /User/{UserID}/Favorites/Create [post]
 func CreateFavorites(c *gin.Context) {
 	UID := c.Param("UserID")
 	IsPrivate := logic.String2Int8(c.Query("IsPrivate"))
@@ -64,7 +64,7 @@ func CreateFavorites(c *gin.Context) {
 // @Param UserID path string true "用户ID"
 // @Param FName query string true "收藏夹名称"
 // @Success 200 {string}  json "{"code":"200","data":"data"}"
-// @Router /user/{UserID}/favorites/delete [delete]
+// @Router /User/{UserID}/Favorites/Delete [delete]
 func DeleteFavorites(c *gin.Context) {
 	UID := c.Param("UserID")
 	FName := c.Query("FName")
@@ -74,7 +74,7 @@ func DeleteFavorites(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Favorites::DeleteFavorites", define.DeleteFavoriteFailed, "删除收藏夹失败:"+err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, 200, "删除收藏夹"+FName+"成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "删除收藏夹"+FName+"成功")
 }
 
 // ModifyFavorites
@@ -88,7 +88,7 @@ func DeleteFavorites(c *gin.Context) {
 // @Param IsPrivate formData string false "是否私密"  Enums(公开, 私密)
 // @Param Description formData string false "描述"
 // @Success 200 {string}  json "{"code":"200","data":"data"}"
-// @Router /user/{UserID}/favorites/modify [put]
+// @Router /User/{UserID}/Favorites/Modify [put]
 func ModifyFavorites(c *gin.Context) {
 	UID := c.Param("UserID")
 	FavoriteID := c.Query("FavoriteID")

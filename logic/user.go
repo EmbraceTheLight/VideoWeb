@@ -95,23 +95,3 @@ func CheckRegisterInfo(checkInfo *EntitySets.User, repeatPassword string) error 
 	}
 	return nil
 }
-
-// UpdateUserFieldForUpdate 更新用户某个字段(悲观锁)
-func UpdateUserFieldForUpdate(c *gin.Context, UserID int64, field string, change int) error {
-	tx := DAO.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
-	err := EntitySets.UpdateUserField(tx, UserID, field, change)
-	funcName, _ := c.Get("funcName")
-	if err != nil {
-		tx.Rollback()
-		Utilities.SendErrMsg(c, funcName.(string), 5000, err.Error())
-		return err
-	}
-	tx.Commit()
-	return nil
-}

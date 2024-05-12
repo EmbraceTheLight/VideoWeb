@@ -17,7 +17,7 @@ import (
 // @Produce json
 // @Param email query string true "用户邮箱"
 // @Success 200 {string}  json "{"code":"200","data":"data"}"
-// @Router /captcha/send-code [get]
+// @Router /Captcha/Send-code [get]
 func SendCode(c *gin.Context) {
 	userEmail := c.Query("email") //从前端获取email信息
 	if userEmail == "" {
@@ -45,8 +45,8 @@ func SendCode(c *gin.Context) {
 // @Summary 生成图形验证码
 // @Description 生成图形验证码并返回给客户端
 // @Produce json
-// @Success 200 {string} json {"captcha_result": CaptchaResult}
-// @Router /captcha/GenerateGraphicCaptcha [get]
+// @Success 200 {string} json {"captcha": CaptchaResult}
+// @Router /Captcha/GenerateGraphicCaptcha [get]
 func GenerateGraphicCaptcha(c *gin.Context) {
 	id, b64s, ans, err := logic.GenerateGraphicCaptcha()
 	if err != nil {
@@ -74,14 +74,14 @@ func GenerateGraphicCaptcha(c *gin.Context) {
 // @Param id query string true "验证码ID"
 // @Param input formData string true "用户输入的验证码"
 // @Success 200 {string} json {"captcha_result": CaptchaResult}
-// @Router /captcha/CheckGraphicCaptcha [post]
-func CheckGraphicCaptcha(c *gin.Context) {
-	id := c.Query("id")
-	input := c.PostForm("input")
-	right := logic.GraphicCaptchaVerify(id, input)
-	if !right {
-		Utilities.SendJsonMsg(c, http.StatusOK, "图形验证码验证失败！")
-		return
-	}
-	Utilities.SendJsonMsg(c, http.StatusOK, "图形验证码验证成功！")
-}
+// @Router /Captcha/CheckGraphicCaptcha [post]
+//func CheckGraphicCaptcha(c *gin.Context) {
+//	id := c.Query("id")
+//	input := c.PostForm("input")
+//	right := logic.GraphicCaptchaVerify(id, input)
+//	if !right {
+//		Utilities.SendJsonMsg(c, http.StatusOK, "图形验证码验证失败！")
+//		return
+//	}
+//	Utilities.SendJsonMsg(c, http.StatusOK, "图形验证码验证成功！")
+//}

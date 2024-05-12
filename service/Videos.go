@@ -3,6 +3,7 @@ package service
 import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
+	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
 	"VideoWeb/logic"
@@ -46,13 +47,11 @@ func UploadVideo(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ReadFileFailed, "创建视频目录失败:"+err.Error())
 		return
 	}
-	//fmt.Println("videoPath:", videoPath)
 
 	/*在对应目录下创建并写入文件*/
 	baseVideoName := path.Base(videoPath)                              //获得刚才创建的目录名作为文件名
 	videoFileName := videoPath + baseVideoName + path.Ext(FH.Filename) //拼接视频文件名
-	//fmt.Println("videoFileName:", videoFileName)
-	defer func() { //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
+	defer func() {                                                     //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
 		if err != nil {
 			e := os.RemoveAll(videoPath)
 			if e == nil {
@@ -146,8 +145,7 @@ func UploadVideo(c *gin.Context) {
 // @Router /video/{ID}/delete [Delete]
 func DeleteVideo(c *gin.Context) {
 	VID := c.Param("ID")
-	var del = new(EntitySets.Video)
-	err := DAO.DB.Model(&EntitySets.Video{}).Where("videoID=?", VID).First(&del).Error
+	var del, err = EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::DeleteVideo", define.GetVideoInfoFailed, "获取视频信息失败")
 		return
@@ -280,10 +278,12 @@ func OfferMpd(c *gin.Context) {
 // @Accept json
 // @Produce octet-stream
 // @Param ID path string true "要获取的视频ID"
+// @Param UID query string true "浏览的用户ID"
 // @Router /video/{ID}/getVideoDetail [get]
 func GetVideoInfo(c *gin.Context) {
 	c.Set("funcName", "Service::Videos::GetVideoInfo")
 	VID := c.Param("ID")
+	UID := c.Query("UID")
 	var videoInfo = new(EntitySets.Video)
 	err := DAO.DB.Where("VideoID=?", VID).Preload("Comments").
 		Preload("Tags").Preload("Barrages").First(&videoInfo).Error
@@ -292,8 +292,15 @@ func GetVideoInfo(c *gin.Context) {
 		return
 	}
 
+	/*更新UserVideo表：若没有对应记录则插入*/
+	err = logic.InsertUserVideoIfNotExist(Utilities.String2Int64(UID), Utilities.String2Int64(VID))
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
+		return
+	}
+
 	/*该视频计数+1*/
-	err = logic.UpdateVideoFieldForUpdate(c, videoInfo.VideoID, "cntViews", -1)
+	err = logic.AddVideoViewCount(c, videoInfo.VideoID)
 	if err != nil {
 		return
 	}
@@ -304,48 +311,41 @@ func GetVideoInfo(c *gin.Context) {
 	})
 }
 
-// AddLike
+// LikeOrUndoLike
 // @Tags Video API
-// @summary 用户点赞视频
+// @summary 用户点赞/取消点赞视频
 // @Accept json
 // @Produce json
 // @Param ID path string true "要获取的视频ID"
-// @Router /video/{ID}/addLike [put]
-func AddLike(c *gin.Context) {
-	c.Set("funcName", "Service::Videos::AddLike")
+// @Param UID query string true "要点赞的用户ID"
+// @Router /video/{ID}/likeOrUndoLike [put]
+func LikeOrUndoLike(c *gin.Context) {
+	logic.AddFuncName(c, "Service::Videos::LikeOrUndoLike")
 	VID := c.Param("ID")
-	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
+	UID := c.Query("UID")
+	UserID := Utilities.String2Int64(UID)
+	VideoID := Utilities.String2Int64(VID)
+
+	/*查找对应的UserVideo记录*/
+	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, VideoID)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::AddLike", define.GetVideoInfoFailed, "点赞失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::LikeOrUndoLike", define.GetVideoInfoFailed, "点赞/取消点赞失败:"+err.Error())
 		return
 	}
-	err = logic.UpdateVideoFieldForUpdate(c, videoInfo.VideoID, "likes", 1)
+
+	/*检查用户是否已经点赞*/
+	//查找对应的UserVideo记录
+	uv, err := RelationshipSets.GetUserVideoRecord(DAO.DB, UserID, videoInfo.VideoID)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::LikeOrUndoLike", define.GetVideoInfoFailed, "点赞/取消点赞失败:"+err.Error())
+		return
+	}
+	//修改用户点赞状态与视频点赞数
+	err = logic.UpdateVideoLikeStatus(c, UserID, videoInfo.VideoID, "likes", uv.IsLike)
 	if err != nil {
 		return
 	}
 	Utilities.SendJsonMsg(c, http.StatusOK, "点赞成功")
-}
-
-// UndoLike
-// @Tags Video API
-// @summary 用户取消点赞视频
-// @Accept json
-// @Produce json
-// @Param ID path string true "要获取的视频ID"
-// @Router /video/{ID}/undoLike [put]
-func UndoLike(c *gin.Context) {
-	c.Set("funcName", "Service::Videos::AddUnlike")
-	VID := c.Param("ID")
-	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::AddUnlike", define.GetVideoInfoFailed, "取消点赞失败:"+err.Error())
-		return
-	}
-	err = logic.UpdateVideoFieldForUpdate(c, videoInfo.VideoID, "likes", -1)
-	if err != nil {
-		return
-	}
-	Utilities.SendJsonMsg(c, http.StatusOK, "取消点赞成功")
 }
 
 // ThrowShell
@@ -358,7 +358,7 @@ func UndoLike(c *gin.Context) {
 // @Param shells query int true "投贝壳的贝壳数量"
 // @Router /video/{ID}/throwShell [put]
 func ThrowShell(c *gin.Context) {
-	c.Set("funcName", "Service::Videos::ThrowShell")
+	logic.AddFuncName(c, "Service::Videos::ThrowShell")
 	VID := c.Param("ID")
 	TSUID := c.Query("TSUID")
 	tmpShells := c.Query("shells")
@@ -376,3 +376,8 @@ func ThrowShell(c *gin.Context) {
 	}
 	Utilities.SendJsonMsg(c, http.StatusOK, "投贝壳成功")
 }
+
+//func Test(c *gin.Context) {
+//	_, err := EntitySets.GetVideoInfoByID(DAO.DB, 1)
+//	c.String(200, err.Error())
+//}

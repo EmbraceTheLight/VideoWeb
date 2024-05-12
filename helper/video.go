@@ -3,8 +3,7 @@ package helper
 import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
-	"VideoWeb/Utilities"
-	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"os/exec"
 	"path"
 )
@@ -28,21 +27,28 @@ func Other2MP4(videoPath string) error {
 }
 
 // UpdateVideoFieldForUpdate 更新视频某个字段(悲观锁)
-func UpdateVideoFieldForUpdate(c *gin.Context, videoID int64, field string, change int) error {
-	tx := DAO.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
+// 注意:如果上层逻辑只需要更新一个数据,则传入tx为nil,该函数自动开启事务进行处理
+// 否则,函数调用者(位于logic层)需要自行传入tx,并在函数结束后提交或回滚事务
+func UpdateVideoFieldForUpdate(videoID int64, field string, change int, tx *gorm.DB) error {
+	if tx == nil {
+		tx = DAO.DB.Begin()
+		defer func() {
+			if r := recover(); r != nil {
+				tx.Rollback()
+			}
+		}()
+		tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
+		err := EntitySets.UpdateVideoField(tx, videoID, field, change)
+		if err != nil {
 			tx.Rollback()
+			return err
 		}
-	}()
-	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
-	err := EntitySets.UpdateVideoField(tx, videoID, field, change)
-	funcName, _ := c.Get("funcName")
-	if err != nil {
-		tx.Rollback()
-		Utilities.SendErrMsg(c, funcName.(string), 5000, err.Error())
-		return err
+		tx.Commit()
+	} else {
+		err := EntitySets.UpdateVideoField(tx, videoID, field, change)
+		if err != nil {
+			return err
+		}
 	}
-	tx.Commit()
 	return nil
 }

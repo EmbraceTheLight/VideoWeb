@@ -69,21 +69,21 @@ func checkAndCreateTable() {
 	if exist := DB.Migrator().HasTable("Barrages"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.Barrage{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&EntitySets.Barrage{}):", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.Barrage{}):", err))
 			panic(err)
 		}
 	}
 	if exist := DB.Migrator().HasTable("FavoriteVideo"); !exist {
 		err = DB.Debug().AutoMigrate(&RelationshipSets.FavoriteVideo{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&RelationshipSets.FavoriteVideo{}):", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&RelationshipSets.FavoriteVideo{}):", err))
 			panic(err)
 		}
 	}
 	if exist := DB.Migrator().HasTable("Level"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.Level{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&EntitySets.Level{}):", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.Level{}):", err))
 			panic(err)
 		}
 	}
@@ -91,63 +91,70 @@ func checkAndCreateTable() {
 	if exist := DB.Migrator().HasTable("Tags"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.Tags{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&EntitySets.Tags{}):", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.Tags{}):", err))
 			panic(err)
 		}
 	}
 	if exist := DB.Migrator().HasTable("Comments"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.Comments{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&EntitySets.Comments{}):", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.Comments{}):", err))
 			panic(err)
 		}
 	}
 	if exist := DB.Migrator().HasTable("UserFollowed"); !exist {
 		err = DB.Debug().AutoMigrate(&RelationshipSets.UserFollowed{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&RelationshipSets.UserFollowed{}:", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&RelationshipSets.UserFollowed{}):", err))
 			panic(err)
 		}
 	}
 	if exist := DB.Migrator().HasTable("UserFollows"); !exist {
 		err = DB.Debug().AutoMigrate(&RelationshipSets.UserFollows{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&RelationshipSets.UserFollows{}:", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&RelationshipSets.UserFollows{}):", err))
 			panic(err)
 		}
 	}
 	if exist := DB.Migrator().HasTable("Video"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.Video{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&EntitySets.Video{}:", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.Video{}):", err))
 			panic(err)
 		}
 	}
 	if exist := DB.Migrator().HasTable("Favorites"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.Favorites{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&EntitySets.Favorites{}:", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.Favorites{}):", err))
 			panic(err)
 		}
 	}
 	if exist := DB.Migrator().HasTable("Users"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.User{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&EntitySets.User{}:", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.User{}):", err))
 			panic(err)
 		}
 	}
-	if exist := DB.Migrator().HasTable("VideoHistory"); !exist {
+	if exist := DB.Migrator().HasTable("video_history"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.VideoHistory{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(EntitySets.VideoHistory{}:", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.VideoHistory{}):", err))
 			panic(err)
 		}
 	}
-	if exist := DB.Migrator().HasTable("SearchHistory"); !exist {
+	if exist := DB.Migrator().HasTable("search_history"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.SearchHistory{})
 		if err != nil {
-			fmt.Println("Err in AutoMigrate(&EntitySets.SearchHistory{}:", err)
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&EntitySets.SearchHistory{}):", err))
+			panic(err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("user_video"); !exist {
+		err = DB.Debug().AutoMigrate(&RelationshipSets.UserVideo{})
+		if err != nil {
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&RelationshipSets.UserVideo{}):", err))
 			panic(err)
 		}
 	}

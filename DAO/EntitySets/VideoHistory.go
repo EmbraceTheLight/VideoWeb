@@ -12,10 +12,9 @@ type VideoHistory struct {
 }
 
 func (v *VideoHistory) TableName() string {
-	return "VideoHistory"
+	return "video_history"
 }
 
-func (v *VideoHistory) Create(DB *gorm.DB) error {
-	result := DB.Create(&v)
-	return result.Error
+func InsertVideoHistoryRecord(db *gorm.DB, vh *VideoHistory) error {
+	return db.Model(&VideoHistory{}).Create(vh).Error
 }

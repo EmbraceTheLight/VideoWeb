@@ -18,7 +18,7 @@ import (
 // // @Param Authorization header string true "token"
 // @Param UserID path string true "用户ID"
 // @Param FID query string true "要关注的用户ID"
-// @Router /user/{UserID}/fans/follows [post]
+// @Router /user/{UserID}/Fans/Follows [post]
 func FollowOtherUser(c *gin.Context) {
 	tmpUID := c.Param("UserID")
 	tmpFID := c.Query("FID")
@@ -71,7 +71,7 @@ func FollowOtherUser(c *gin.Context) {
 // // @Param Authorization header string true "token"
 // @Param UserID path string true "用户ID"
 // @Param FID query string true "要取消关注的用户ID"
-// @Router /user/{UserID}/fans/unfollows [delete]
+// @Router /user/{UserID}/Fans/Unfollows [delete]
 func UnFollowOtherUser(c *gin.Context) {
 	tmpUID := c.Param("UserID")
 	tmpFID := c.Query("FID")

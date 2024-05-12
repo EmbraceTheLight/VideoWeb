@@ -27,39 +27,39 @@ func CollectRouter(r *gin.Engine) {
 	//------------路由规则-------------//
 	/*公有方法*/
 	//验证码相关接口
-	captcha := r.Group("/captcha")
+	captcha := r.Group("/Captcha")
 	{
-		captcha.GET("/send-code", service.SendCode)
+		captcha.GET("/Send-code", service.SendCode)
 		captcha.GET("/GenerateGraphicCaptcha", service.GenerateGraphicCaptcha)
-		captcha.POST("/CheckGraphicCaptcha", service.CheckGraphicCaptcha)
+		//captcha.POST("/CheckGraphicCaptcha", service.CheckGraphicCaptcha)
 	}
 
 	//用户相关接口
-	user := r.Group("/user")
+	user := r.Group("/User")
 	{
-		user.POST("/register", service.Register)
-		user.POST("/login", service.Login)
+		user.POST("/Register", service.Register)
+		user.POST("/Login", service.Login)
 		userInfo := user.Group("/:UserID")
 		{
-			userInfo.GET("/user-detail", service.GetUserDetail)
-			userInfo.POST("/fans/follows", service.FollowOtherUser)
+			userInfo.GET("/User-detail", service.GetUserDetail)
+			userInfo.POST("/Fans/Follows", service.FollowOtherUser)
 			userInfo.POST("/AddSearchHistory", service.AddSearchHistory)
 			userInfo.POST("/AddVideoHistory", service.AddVideoHistory)
 			userInfo.PUT("/ModifySignature", service.ModifyUserSignature)
-			userInfo.PUT("/face/upload/Avatar", service.UploadUserAvatar)
+			userInfo.PUT("/Face/Upload/Avatar", service.UploadUserAvatar)
 			userInfo.PUT("/ModifyEmail", service.ModifyUserEmail)
 			userInfo.PUT("/ModifyPassword", service.ModifyPassword)
 			userInfo.PUT("/ModifyUserName", service.ModifyUserName)
 			userInfo.PUT("/ForgetPassword", service.ForgetPassword)
 			userInfo.DELETE("/Logout", service.Logout)
-			userInfo.DELETE("/fans/unfollows", service.UnFollowOtherUser)
+			userInfo.DELETE("/Fans/Unfollows", service.UnFollowOtherUser)
 
 			//用户收藏夹相关接口
-			Favorites := userInfo.Group("/favorites")
+			Favorites := userInfo.Group("/Favorites")
 			{
-				Favorites.POST("/create", service.CreateFavorites)
-				Favorites.PUT("/modify", service.ModifyFavorites)
-				Favorites.DELETE("/delete", service.DeleteFavorites)
+				Favorites.POST("/Create", service.CreateFavorites)
+				Favorites.PUT("/Modify", service.ModifyFavorites)
+				Favorites.DELETE("/Delete", service.DeleteFavorites)
 			}
 		}
 
@@ -75,12 +75,12 @@ func CollectRouter(r *gin.Engine) {
 		{
 			videoInfo.POST("/upload", service.UploadVideo)
 			videoInfo.POST("/AddBarrage", service.AddBarrage)
-			videoInfo.PUT("/addLike", service.AddLike)
-			videoInfo.PUT("/undoLike", service.UndoLike)
+			videoInfo.PUT("/likeOrUndoLike", service.LikeOrUndoLike)
 			videoInfo.PUT("/throwShell", service.ThrowShell)
-			video.GET("/StreamTransmission", service.StreamTransmission)
+			videoInfo.GET("/StreamTransmission", service.StreamTransmission)
 			videoInfo.GET("/download", service.DownloadVideo)
 			videoInfo.GET("/getVideoDetail", service.GetVideoInfo)
+			//videoInfo.GET("/test", service.Test)
 			videoInfo.DELETE("/delete", service.DeleteVideo)
 		}
 	}
