@@ -29,10 +29,12 @@ const (
 	favoriteVideo
 	followed
 	follows
+	//followList
+	userVideo
 )
 
 var idToFunc = make(map[int]string)
-var errChannel = make(chan *errInDelete, 11)
+var errChannel = make(chan *errInDelete, 12)
 var db *gorm.DB
 
 func initNecessary() error {
@@ -58,6 +60,8 @@ func initNecessary() error {
 	idToFunc[favoriteVideo] = "HDFavoriteVideo"
 	idToFunc[followed] = "HDFollowed"
 	idToFunc[follows] = "HDFollows"
+	//idToFunc[followList] = "HDFollowList"
+	idToFunc[userVideo] = "HDUserVideo"
 	return nil
 }
 
@@ -98,6 +102,8 @@ func HDHelper() {
 	go HDFavoriteVideo()
 	go HDFollowed()
 	go HDFollows()
+	go HDUserVideo()
+	//go HDFollowList()
 }
 
 func HDBarrage() {
@@ -177,6 +183,14 @@ func HDFollows() {
 	err := db.Unscoped().Delete(&RelationshipSets.UserFollows{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
 		id:  follows,
+		err: err,
+	}
+}
+
+func HDUserVideo() {
+	err := db.Unscoped().Delete(&RelationshipSets.UserVideo{}, "deleted_at IS NOT NULL").Error
+	errChannel <- &errInDelete{
+		id:  barrage,
 		err: err,
 	}
 }

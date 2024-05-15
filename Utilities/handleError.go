@@ -1,7 +1,6 @@
-package logic
+package Utilities
 
 import (
-	"VideoWeb/Utilities"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,8 +14,8 @@ func AddFuncName(c *gin.Context, funcName string) {
 	}
 }
 
-// handleInternalServerError 处理内部错误辅助函数
-func handleInternalServerError(c *gin.Context, err error) {
+// HandleInternalServerError 处理内部错误辅助函数
+func HandleInternalServerError(c *gin.Context, err error) {
 	funcName, _ := c.Get("funcName")
-	Utilities.SendErrMsg(c, funcName.(string), 5000, err.Error())
+	SendErrMsg(c, funcName.(string), 5000, err.Error())
 }

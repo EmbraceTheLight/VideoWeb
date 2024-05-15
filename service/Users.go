@@ -3,7 +3,6 @@ package service
 import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
-	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
 	"VideoWeb/logic"
@@ -14,9 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"io"
-	"log"
 	"net/http"
-	"os"
 	"path"
 	"unicode/utf8"
 )
@@ -25,7 +22,7 @@ import (
 // @Tags User API
 // @summary 用户注册
 // @Accept multipart/form-data
-// @Produce json,multipart/form-data
+// @Produce json
 // @Param userName formData string true "用户名"
 // @Param password formData string true "用户密码"
 // @Param repeatPassword formData string true "再次确认密码"
@@ -43,7 +40,7 @@ func Register(c *gin.Context) {
 	verify := c.PostForm("Code")
 	UUID := logic.GetUUID()
 
-	newUser := EntitySets.User{
+	newUser := &EntitySets.User{
 		MyModel:   define.MyModel{},
 		UserID:    UUID,
 		UserName:  userName,
@@ -51,7 +48,7 @@ func Register(c *gin.Context) {
 		Email:     email,
 		Signature: Signature,
 	}
-	err := logic.CheckRegisterInfo(&newUser, repeatPassword)
+	err := logic.CheckRegisterInfo(newUser, repeatPassword)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register::CheckRegisterInfoFailed", define.CheckRegisterInfoFailed, err.Error())
 		return
@@ -84,15 +81,7 @@ func Register(c *gin.Context) {
 	}
 	newUser.Avatar = avatar
 
-	tx := DAO.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("Error:", r)
-			tx.Rollback()
-		}
-	}()
-
-	defaultFavorites := EntitySets.Favorites{
+	defaultFavorites := &EntitySets.Favorites{
 		MyModel:     define.MyModel{},
 		FavoriteID:  logic.GetUUID(),
 		UID:         newUser.UserID,
@@ -101,7 +90,7 @@ func Register(c *gin.Context) {
 		IsPrivate:   1,
 		Videos:      nil,
 	}
-	privateFavorites := EntitySets.Favorites{
+	privateFavorites := &EntitySets.Favorites{
 		MyModel:     define.MyModel{},
 		FavoriteID:  logic.GetUUID(),
 		UID:         newUser.UserID,
@@ -110,46 +99,26 @@ func Register(c *gin.Context) {
 		IsPrivate:   -1,
 		Videos:      nil,
 	}
-	userLevel := EntitySets.Level{
+	userLevel := &EntitySets.Level{
 		UID: newUser.UserID,
 	}
-
-	err = EntitySets.InsertUserRecord(tx, &newUser)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
-		tx.Rollback()
-		return
+	defaultFollowList := &EntitySets.FollowList{
+		ListID:   logic.GetUUID(),
+		UID:      newUser.UserID,
+		ListName: "默认关注列表",
 	}
 
-	err = EntitySets.InsertFavoritesRecords(tx, &defaultFavorites)
+	err = logic.InsertInitRecords(defaultFavorites, privateFavorites, userLevel, defaultFollowList, newUser)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-
-	err = EntitySets.InsertFavoritesRecords(tx, &privateFavorites)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-
-	err = EntitySets.InsertLevelRecords(tx, &userLevel)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
-		tx.Rollback()
+		Utilities.SendErrMsg(c, "service::Users::Register-->logic.InsertInitRecords", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		return
 	}
 
 	token, err := logic.CreateToken(newUser.UserID, newUser.UserName, newUser.IsAdmin)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register", define.CreateUserFailed, "创建用户失败:"+err.Error())
-		tx.Rollback()
 		return
 	}
-
-	tx.Commit()
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":  http.StatusOK,
@@ -169,7 +138,6 @@ func Register(c *gin.Context) {
 // @Success 200 {string}  json "{"code":"200","data":"data"}"
 // @Router /User/Login [post]
 func Login(c *gin.Context) {
-	var userInfo = new(EntitySets.User)
 	var err error
 	Username := c.PostForm("Username")
 	password := c.PostForm("password")
@@ -180,7 +148,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	err = DAO.DB.Where("userName=?", Username).First(&userInfo).Error
+	userInfo, err := EntitySets.GetUserInfoByName(DAO.DB, Username)
+
 	if err != nil {
 		if gorm.ErrRecordNotFound != nil { //未找到用户信息记录
 			Utilities.SendErrMsg(c, "service::Users::Login", define.AccountNotFind, "用户名不存在，请重新检查输入的账号")
@@ -215,75 +184,26 @@ func Login(c *gin.Context) {
 // @summary 用户注销
 // @Accept json
 // @Produce json
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Success 200 {string}  json "{"code":"200","msg":"注销用户成功"}"
-// @Router /user/{UserID}/Logout [delete]
+// @Router /User/Logout [delete]
 func Logout(c *gin.Context) {
-	id := c.Param("UserID")
-	favorites, err := logic.GetFavoritesByID(id)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Login", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-		return
-	}
-	/*删除用户上传的视频信息*/
-	err = os.RemoveAll(path.Join(define.VideoSavePath, id))
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-		return
-	}
+	Utilities.AddFuncName(c, "service::Users::Logout")
+	u, _ := c.Get("user")
+	id := u.(*logic.UserClaims).UserId
+	///*删除用户磁盘资源，如视频、图片、音频等*/
+	//err := logic.RemoveUserResource(strconv.FormatInt(id, 10))
+	//if err != nil {
+	//	Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
+	//	return
+	//}
 
-	tx := DAO.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-	/*删除用户的收藏夹信息*/
-	for _, favorite := range favorites {
-		err := EntitySets.DeleteFavoritesRecords(tx, favorite)
-		if err != nil {
-			Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-			tx.Rollback()
-			return
-		}
-	}
-	/*删除用户上传的视频信息*/
-	err = DAO.DB.Where("UID=?", id).Delete(&EntitySets.Video{}).Error
+	/*删除用户在数据库中的信息，如用户记录,关注列表,收藏夹,关注用户,搜索记录,观看记录,收藏夹收藏的信息等*/
+	err := logic.DeleteUserInfoInDB(c, id)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-		tx.Rollback()
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
-	/*删除用户的关注列表信息*/
-	err = DAO.DB.Where("UID=?", id).Delete(&RelationshipSets.UserFollows{}).Error
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-	/*删除被关注用户的对应粉丝列表信息*/
-	err = DAO.DB.Where("FID=?", id).Delete(&RelationshipSets.UserFollowed{}).Error
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-	/*删除用户对应等级信息*/
-	err = DAO.DB.Where("UID=?", id).Delete(&EntitySets.Level{}).Error
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-	/*删除用户信息*/
-	var user *EntitySets.User
-	err = DAO.DB.Debug().Where("UserID=?", id).Delete(&user).Error
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::Logout", define.LogoutUserFailed, "注销用户失败:"+err.Error())
-		tx.Rollback()
-		return
-	}
-	tx.Commit()
 	Utilities.SendJsonMsg(c, http.StatusOK, "注销账户成功")
 
 }
@@ -293,20 +213,17 @@ func Logout(c *gin.Context) {
 // @Summary 获取用户完整、详细的信息
 // @Accept json
 // @Produce json
-// @Param UserID path string true "用户标识"
+// @Param Authorization header string true "token"
 // @Success 200 {string}  json "{"code":"200","data":userInfo}"
-// @Router /User/{UserID}/User-detail [get]
+// @Router /User/User-detail [get]
 func GetUserDetail(c *gin.Context) {
-	userID := c.Param("UserID")
-	if userID == "" {
-		Utilities.SendErrMsg(c, "service::Users::GetUserDetail", define.ObtainUserInformationFailed, "用户唯一标识不能为空")
-		return
-	}
+	u, _ := c.Get("user")
+	userID := u.(*logic.UserClaims).UserId
 
 	var userInfo = new(EntitySets.User)
-	err := DAO.DB.Omit("password").Where("UserID=?", userID).Preload("Videos").Preload("Favorites").
+	err := DAO.DB.Omit("password").Where("user_id=?", userID).Preload("Videos").Preload("Favorites").
 		Preload("Favorites.Videos").Preload("Comments").
-		Preload("Follows").Preload("UserLevel").
+		Preload("Follows").Preload("Follows.Users").Preload("UserLevel").
 		Preload("Followed").Preload("UserWatch").Preload("UserSearch").First(&userInfo).Error
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::GetUserDetail", define.ObtainUserInformationFailed, "Get User Info failed:"+err.Error())
@@ -323,20 +240,20 @@ func GetUserDetail(c *gin.Context) {
 // @summary 用户信息修改-更新用户签名
 // @Accept multipart/form-data
 // @Produce json
-// // @Param Authorization header string true "token"
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param userSignature formData string false "用户签名,为空表示没有签名"
 // @Success 200 {string}  json "{"code":"200","msg":"修改用户签名成功"}"
-// @Router /User/{UserID}/ModifySignature [put]
+// @Router /User/ModifySignature [put]
 func ModifyUserSignature(c *gin.Context) {
-	id := c.Param("UserID")
+	u, _ := c.Get("user")
+	id := u.(*logic.UserClaims).UserId
 	signature := c.PostForm("userSignature")
 	if utf8.RuneCountInString(signature) > 25 {
 		Utilities.SendErrMsg(c, "service::Users::ModifySignature", define.SignatureTooLong, "个性签名过长，请重新输入")
 		return
 	}
 
-	err := DAO.DB.Model(&EntitySets.User{}).Debug().Where("UserID=?", id).Update("signature", signature).Error
+	err := EntitySets.UpdateUserStringField(DAO.DB, id, "signature", signature)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::ModifySignature", define.ModifySignatureFailed, "修改用户签名失败:"+err.Error())
 		return
@@ -350,15 +267,15 @@ func ModifyUserSignature(c *gin.Context) {
 // @summary 用户信息修改-更新用户邮箱
 // @Accept multipart/form-data
 // @Produce json
-// // @Param Authorization header string true "token"
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param userEmail formData string true "用户新邮箱"
 // @Param Code formData string true "验证码"
 // @Success 200 {string}  json "{"code":"200","msg":"修改用户邮箱成功"}"
-// @Router /User/{UserID}/ModifyEmail [put]
+// @Router /User/ModifyEmail [put]
 func ModifyUserEmail(c *gin.Context) {
 	//获取用户id,email,验证码
-	id := c.Param("UserID")
+	u, _ := c.Get("user")
+	id := u.(*logic.UserClaims).UserId
 	userEmail := c.PostForm("userEmail")
 	verify := c.PostForm("Code")
 
@@ -373,12 +290,13 @@ func ModifyUserEmail(c *gin.Context) {
 	}
 
 	//修改后存入数据库中
-	err = DAO.DB.Model(&EntitySets.User{}).Debug().Where("UserID=?", id).Update("Email", userEmail).Error
+	err = EntitySets.UpdateUserStringField(DAO.DB, id, "email", userEmail)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::ModifyEmail", define.CodeSendFailed, "验证码发送失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::ModifyEmail", define.CodeSendFailed, "邮箱修改失败:"+err.Error())
 		return
 	}
 	Utilities.SendJsonMsg(c, http.StatusOK, "修改用户邮箱成功")
+	DAO.RDB.Del(c, userEmail)
 }
 
 // ForgetPassword
@@ -386,24 +304,23 @@ func ModifyUserEmail(c *gin.Context) {
 // @summary 重置用户密码
 // @Accept multipart/form-data
 // @Produce json
-// // @Param Authorization header string true "token"
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param userEmail formData string true "用户邮箱"
 // @Param Code formData string true "验证码"
 // @Param newPassword formData string true "用户新密码"
 // @Param repeatPassword formData string true "再次确认密码"
 // @Success 200 {string}  json "{"code":"200","msg":"重置用户密码成功"}"
-// @Router /User/{UserID}/ForgetPassword [put]
+// @Router /User/ForgetPassword [put]
 func ForgetPassword(c *gin.Context) {
-	id := c.Param("UserID")
+	u, _ := c.Get("user")
+	id := u.(*logic.UserClaims).UserId
 	userEmail := c.PostForm("userEmail")
 	Code := c.PostForm("Code")
 	newPassword := c.PostForm("newPassword")
 	repeatPassword := c.PostForm("repeatPassword")
 
-	var userInfo = new(EntitySets.User)
 	verify, RDBErr := DAO.RDB.Get(c, userEmail).Result()
-	err := DAO.DB.Model(&EntitySets.User{}).Where("Userid=?", id).First(&userInfo).Error
+	userInfo, err := EntitySets.GetUserInfoByID(DAO.DB, id)
 	switch {
 	case err != nil:
 		Utilities.SendErrMsg(c, "service::Users::ForgetPassword", define.ObtainUserInformationFailed, "获取用户信息失败")
@@ -433,21 +350,20 @@ func ForgetPassword(c *gin.Context) {
 // @summary 用户信息修改-修改用户密码
 // @Accept multipart/form-data
 // @Produce json
-// // @Param Authorization header string true "token"
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param password formData string true "用户密码"
 // @Param newPassword formData string true "用户新密码"
 // @Param repeatPassword formData string true "再次确认密码"
 // @Success 200 {string}  json "{"code":"200","msg":"修改用户密码成功"}"
-// @Router /User/{UserID}/ModifyPassword [put]
+// @Router /User/ModifyPassword [put]
 func ModifyPassword(c *gin.Context) {
-	id := c.Param("UserID")
+	u, _ := c.Get("user")
+	id := u.(*logic.UserClaims).UserId
 	password := c.PostForm("password")
 	newPassword := c.PostForm("newPassword")
 	repeatPassword := c.PostForm("repeatPassword")
 
-	var userInfo = new(EntitySets.User)
-	err := DAO.DB.Where("Userid=?", id).First(&userInfo).Error
+	userInfo, err := EntitySets.GetUserInfoByID(DAO.DB, id)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::ModifyPassword", define.ObtainUserInformationFailed, "获取用户信息失败")
 		return
@@ -472,40 +388,35 @@ func ModifyPassword(c *gin.Context) {
 // @summary 用户信息修改-修改用户名
 // @Accept multipart/form-data
 // @Produce json
-// // @Param Authorization header string true "token"
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param userName formData string true "用户名"
 // @Success 200 {string}  json "{"code":"200","msg":"修改用户名成功"}"
-// @Router /User/{UserID}/ModifyUserName [put]
+// @Router /User/ModifyUserName [put]
 func ModifyUserName(c *gin.Context) {
-	id := c.Param("UserID")
+	u, _ := c.Get("user")
+	id := u.(*logic.UserClaims).UserId
 	userName := c.PostForm("userName")
 
-	var userInfo = new(EntitySets.User)
-	err := DAO.DB.Where("Userid=?", id).First(&userInfo).Error
+	userInfo, err := EntitySets.GetUserInfoByID(DAO.DB, id)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::ModifyUserName", define.ObtainUserInformationFailed, "获取用户信息失败")
 		return
 	}
 
-	var countName int64
-	err = DAO.DB.Model(&EntitySets.User{}).Where("userName=?", userName).Count(&countName).Error
-	switch {
-	case err != nil: //数据库查询错误
-		Utilities.SendErrMsg(c, "service::Users::ModifyUserName", define.QueryUserError, "error while searching database:"+err.Error())
-		return
-	case countName > 0: //已有同名用户
+	user, _ := EntitySets.GetUserInfoByName(DAO.DB, userName)
+
+	if user != nil { //已有同名用户
 		Utilities.SendErrMsg(c, "service::Users::ModifyUserName", define.ExistUserName, "用户名已存在，请重新输入用户名")
 		return
 	}
 
-	err = DAO.DB.Model(&EntitySets.User{}).Debug().Where("UserID=?", id).Update("userName", userName).Error
+	err = EntitySets.UpdateUserStringField(DAO.DB, id, "user_name", userName)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::ModifyUserName", define.ModifyUserNameFailed, "修改用户名失败")
 		return
 	}
 
-	Utilities.SendJsonMsg(c, 200, "修改用户名成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "修改用户名成功")
 	DAO.RDB.Del(c, userInfo.Email)
 }
 
@@ -514,24 +425,24 @@ func ModifyUserName(c *gin.Context) {
 // @summary 用户信息修改-上传头像
 // @Accept multipart/form-data
 // @Produce json
-// // @Param Authorization header string true "token"
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param file formData file true "头像"
 // @Success 200 {string}  json "{"code":"200","msg":"上传头像成功"}"
-// @Router /User/{UserID}/Face/Upload/Avatar [put]
+// @Router /User/Face/Upload/Avatar [put]
 func UploadUserAvatar(c *gin.Context) {
-	userID := c.Param("UserID")
+	u, _ := c.Get("user")
+	userID := u.(*logic.UserClaims).UserId
 	FH, _ := c.FormFile("file") //FH=FileHeader
-	//TODO:检查文件后缀名是否为 .jpg/.jpeg/.png/.jfif
+
+	//检查文件后缀名是否为 .jpg/.jpeg/.png/.jfif
 	fname := FH.Filename
 	extension := path.Ext(fname)
-
-	println("ext:", extension)
 	if _, ok := define.PicExtCheck[extension]; ok != true {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ImageFormatError, "图片格式错误或不支持此图片格式")
 		return
 	}
 
+	//读取用户头像文件内容
 	file, err := FH.Open()
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.OpenFileFailed, "打开文件失败"+err.Error())
@@ -544,14 +455,15 @@ func UploadUserAvatar(c *gin.Context) {
 		return
 	}
 
-	err = DAO.DB.Model(&EntitySets.User{}).Where("userID=?", userID).Update("Avatar", data).Error
+	//更新用户头像
+	err = EntitySets.UpdateUserAvatar(DAO.DB, userID, data)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.UploadUserAvatarFailed, "上传用户头像失败")
 		fmt.Println("err:", err.Error())
 		return
 	}
 
-	Utilities.SendJsonMsg(c, 200, "上传用户头像成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "上传用户头像成功")
 }
 
 // AddSearchHistory
@@ -559,15 +471,16 @@ func UploadUserAvatar(c *gin.Context) {
 // @summary 增加搜索历史记录
 // @Accept json
 // @Produce json
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param searchString query string true "搜索记录"
-// @Router /User/{UserID}/AddSearchHistory [post]
+// @Router /User/AddSearchHistory [post]
 func AddSearchHistory(c *gin.Context) {
-	UID := c.Param("UserID")
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
 	searchString := c.Query("searchString")
 	SearchHistory := &EntitySets.SearchHistory{
 		Model:        gorm.Model{},
-		UID:          Utilities.String2Int64(UID),
+		UID:          UID,
 		SearchString: searchString,
 	}
 	err := EntitySets.InsertSearchRecord(DAO.DB, SearchHistory)
@@ -584,16 +497,17 @@ func AddSearchHistory(c *gin.Context) {
 // @summary 增加视频历史记录
 // @Accept json
 // @Produce json
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param VID query string true "视频ID"
-// @Router /User/{UserID}/AddVideoHistory [post]
+// @Router /User/AddVideoHistory [post]
 func AddVideoHistory(c *gin.Context) {
-	UID := c.Param("UserID")
-	VID := c.Query("VID")
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
+	VID := Utilities.String2Int64(c.Query("VID"))
 	VideoHistory := &EntitySets.VideoHistory{
 		MyModel: define.MyModel{},
-		UID:     Utilities.String2Int64(UID),
-		VID:     Utilities.String2Int64(VID),
+		UID:     UID,
+		VID:     VID,
 	}
 	err := EntitySets.InsertVideoHistoryRecord(DAO.DB, VideoHistory)
 	if err != nil {

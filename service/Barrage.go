@@ -5,7 +5,9 @@ import (
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
+	"VideoWeb/logic"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 )
 
@@ -16,15 +18,16 @@ import (
 // @Accept  multipart/form-data
 // @Produce  json
 // @Param ID path string true "视频ID"
-// @param UserID query string true "用户ID"
+// @Param Authorization header string true "token"
 // @param Color query string true "弹幕颜色"
 // @param Time query string true "发送弹幕时的视频时间"
 // @Param Content formData string true "弹幕数据"
 // @Success 200 {string}  json "{"code":"200","msg":"添加弹幕成功"}"
 // @Router /video/{ID}/AddBarrage [post]
 func AddBarrage(c *gin.Context) {
-	VID := c.Param("ID")
-	UID := c.Query("UserID")
+	VID := Utilities.String2Int64(c.Param("ID"))
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
 	color := c.Query("Color")
 	seconds := c.Query("Time")
 	content := c.PostForm("Content")
@@ -33,8 +36,8 @@ func AddBarrage(c *gin.Context) {
 	_, t := Utilities.SecondToTime(int64(second))
 	barrage := &EntitySets.Barrage{
 		MyModel: define.MyModel{},
-		UID:     Utilities.String2Int64(UID),
-		VID:     Utilities.String2Int64(VID),
+		UID:     UID,
+		VID:     VID,
 		Content: content,
 		Hour:    uint8(t[0]),
 		Minute:  uint8(t[1]),
@@ -46,5 +49,5 @@ func AddBarrage(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Barrage::AddBarrage", define.AddBarrageFailed, "添加弹幕失败:"+err.Error())
 		return
 	}
-	Utilities.SendJsonMsg(c, 200, "添加弹幕成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "添加弹幕成功")
 }

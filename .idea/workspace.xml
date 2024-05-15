@@ -6,27 +6,43 @@
   <component name="ChangeListManager">
     <list default="true" id="b03ac556-b29e-4ae2-8b6e-8a7be861813c" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Barrage.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Barrage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Comments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Favorites.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Favorites.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Level.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Level.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Message.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Message.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/EntitySets/SearchHistory.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/SearchHistory.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Tags.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Tags.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/EntitySets/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/User.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Video.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Video.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/EntitySets/VideoHistory.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/VideoHistory.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/InitDatabase.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/InitDatabase.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/define/status.go" beforeDir="false" afterPath="$PROJECT_DIR$/define/vwstatus.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/FavoriteVideo.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/FavoriteVideo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/Followed.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/Followed.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/Follows.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/Follows.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/UserVideo.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/UserVideo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utilities/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/database.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utilities/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/video.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helper/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/helper/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/HandleError.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/HandleError.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/HandleError.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/handleError.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/favorites.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/favorites.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/message.go" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/VideoWeb.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/VideoWeb.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/VideoWeb.log.20240507" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/middlewares/auth_admin.go" beforeDir="false" afterPath="$PROJECT_DIR$/middlewares/auth_admin.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/middlewares/auth_user.go" beforeDir="false" afterPath="$PROJECT_DIR$/middlewares/auth_user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/routers.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/routers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/Barrage.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Barrage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Comments.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Favorites.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Favorites.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/UserFollow.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/UserFollow.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Users.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Users.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/captcha.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/captcha.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +72,9 @@
     &quot;accountId&quot;: &quot;c1d93c50-52de-478e-9e2a-3d0518c9f0aa&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 7
@@ -68,47 +87,59 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;Go 测试.TestPath in VideoWeb/test (1).executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.TestPath in VideoWeb/test.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.VideoWeb/test 中的 TestHardDelete.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.VideoWeb/test 中的 TestLog.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.VideoWeb/test 中的 TestReadConfig.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.VideoWeb/test 中的 TestSendEmail.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.VideoWeb/test 中的 TestVideoTime.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.config_test.go.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.gobench VideoWeb/test.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/张恩阳&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go 测试.TestPath in VideoWeb/test (1).executor": "Run",
+    "Go 测试.TestPath in VideoWeb/test.executor": "Run",
+    "Go 测试.VideoWeb/test 中的 TestHardDelete.executor": "Run",
+    "Go 测试.VideoWeb/test 中的 TestLog.executor": "Run",
+    "Go 测试.VideoWeb/test 中的 TestReadConfig.executor": "Run",
+    "Go 测试.VideoWeb/test 中的 TestSendEmail.executor": "Run",
+    "Go 测试.VideoWeb/test 中的 TestVideoTime.executor": "Run",
+    "Go 测试.config_test.go.executor": "Run",
+    "Go 测试.gobench VideoWeb/test.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "master",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "C:/Users/张恩阳",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\VideoWeb\Utilities" />
       <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWebFromUbuntu-22.04LTS\VideoWeb\temp" />
       <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWebFromUbuntu-22.04LTS\VideoWeb\Utilities\logf" />
       <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\service" />
       <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\service\Video" />
     </key>
+  </component>
+  <component name="RunAnythingCache">
+    <myKeys>
+      <visibility group="Grunt" flag="true" />
+      <visibility group="Gulp" flag="true" />
+      <visibility group="HTTP 请求" flag="true" />
+      <visibility group="npm" flag="true" />
+      <visibility group="yarn" flag="true" />
+      <visibility group="最近的项目" flag="true" />
+      <visibility group="运行配置" flag="true" />
+    </myKeys>
   </component>
   <component name="RunManager" selected="Go 测试.TestPath in VideoWeb/test (1)">
     <configuration name="TestPath in VideoWeb/test (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">

@@ -7,7 +7,6 @@ import (
 	"VideoWeb/define"
 	"VideoWeb/logic"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -19,62 +18,44 @@ import (
 // @Param VideoID query string true "用户要评论的视频ID"
 // @Param UserID query string true "用户ID"
 // @Param CommentContent formData string true "用户要评论的内容"
-// @Router /comment/ToVideo [post]
+// @Router /Comment/ToVideo [post]
 func CommentToVideo(c *gin.Context) {
 	VID := c.Query("VideoID")
 	UID := c.Query("UserID")
 	Content := c.PostForm("CommentContent")
-	CommentID := logic.GetUUID()
+	userID := Utilities.String2Int64(UID)
+	videoID := Utilities.String2Int64(VID)
 
 	Country, City := logic.GetUserIpInfo(c)
+
 	if Country == "" {
 		Country = "未知地区"
 	}
-
-	var comment = EntitySets.Comments{
+	var comment = &EntitySets.Comments{
 		MyModel:   define.MyModel{},
-		CommentID: CommentID,
-		UID:       Utilities.String2Int64(UID),
+		CommentID: logic.GetUUID(),
+		UID:       userID,
 		To:        -1,
-		VID:       Utilities.String2Int64(VID),
+		VID:       videoID,
 		Content:   Content,
 		IPAddress: Country + " " + City,
 	}
-	err := DAO.DB.Create(&comment).Error
+
+	err := EntitySets.InsertCommentRecord(DAO.DB, comment)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.CreateCommentToVideoFailed, "创建用户评论（To视频）记录失败")
 		return
 	}
 
-	tx := DAO.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("Error:", r)
-			tx.Rollback()
-		}
-	}()
-
 	//根据视频ID获得视频Up主ID
-	var VideoUpID string
-	err = tx.Model(&EntitySets.Video{}).Where("videoID=?", VID).Pluck("UID", &VideoUpID).Error
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.QueryUserError, "获取用户信息失败"+err.Error())
-		tx.Rollback()
-		return
-	}
+	//up, err := EntitySets.GetVideoInfoByID(tx, videoID)
+	//if err != nil {
+	//	Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.QueryUserError, "获取用户信息失败:"+err.Error())
+	//	tx.Rollback()
+	//	return
+	//}
 	/*使用websocket通知被评论的视频up主(如果该用户在线)，并把“被评论”这一事件作为msg写入数据库，
 	这样即使视频up主当时未在线，也能通过检索数据库的方式得知自己有新消息*/
-	liker, _ := logic.GetUserNameByID(UID)
-	msg := &define.Message{
-		Title: liker + "点赞了你的视频",
-		Body:  "",
-	}
-
-	err = logic.CreateMessage(msg)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.CreateMessageFailed, "创建Message失败:"+err.Error())
-	}
-	tx.Commit()
 
 	Utilities.SendJsonMsg(c, http.StatusOK, "发送评论成功")
 }
@@ -88,7 +69,7 @@ func CommentToVideo(c *gin.Context) {
 // @Param UserID query string true "用户ID"
 // @Param UserID query string true "用户要评论的评论ID"
 // @Param CommentContent formData string true "用户要评论的内容"
-// @Router /comment/ToUser [post]
+// @Router /Comment/ToUser [post]
 func CommentToOtherUser(c *gin.Context) {
 
 }

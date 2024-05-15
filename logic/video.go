@@ -3,6 +3,7 @@ package logic
 import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
+	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/Utilities/logf"
 	"VideoWeb/define"
@@ -51,19 +52,18 @@ func GetVideoDuration(VideoPath string) (duration int64, err error) {
 }
 
 // CreateVideoRecord 创建视频记录
-func CreateVideoRecord(tx *gorm.DB, c *gin.Context, videoFilePath string, fileSize int64) (VID int64, err error) {
+func CreateVideoRecord(tx *gorm.DB, c *gin.Context, UserID int64, videoFilePath string, fileSize int64) (VID int64, err error) {
 	t, err := GetVideoDuration(videoFilePath)
 	if err != nil {
 		return VID, err
 	}
-	UserID := c.Param("ID")
 	videoTime, _ := Utilities.SecondToTime(t)
 	Title := c.PostForm("title")
 	Description := c.PostForm("description")
 	Class := c.PostForm("class")
 
 	VID = GetUUID()
-	UID := Utilities.String2Int64(UserID)
+	UID := UserID
 	video := &EntitySets.Video{
 		MyModel:     define.MyModel{},
 		VideoID:     VID,
@@ -75,7 +75,7 @@ func CreateVideoRecord(tx *gorm.DB, c *gin.Context, videoFilePath string, fileSi
 		Duration:    videoTime,
 		Size:        fileSize,
 	}
-	err = tx.Model(&EntitySets.Video{}).Create(&video).Error
+	err = EntitySets.InsertVideoRecord(tx, video)
 	return VID, err
 }
 
@@ -130,7 +130,7 @@ func DeleteVideo(del *EntitySets.Video) error {
 	}()
 
 	//从数据库中删除视频信息
-	err = EntitySets.DeleteVideoInfoByID(tx, del.VideoID)
+	err = EntitySets.DeleteVideoInfoByVideoID(tx, del.VideoID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -178,10 +178,10 @@ func OpenAndReadFile(file *multipart.FileHeader) ([]byte, error) {
 
 // AddVideoViewCount 增加视频观看次数
 func AddVideoViewCount(c *gin.Context, videoID int64) error {
-	AddFuncName(c, "AddVideoViewCount")
-	err := helper.UpdateVideoFieldForUpdate(videoID, "cntViews", 1, nil)
+	Utilities.AddFuncName(c, "AddVideoViewCount")
+	err := helper.UpdateVideoFieldForUpdate(videoID, "cnt_views", 1, nil)
 	if err != nil {
-		handleInternalServerError(c, err)
+		Utilities.HandleInternalServerError(c, err)
 		return err
 	}
 	return nil
@@ -189,9 +189,14 @@ func AddVideoViewCount(c *gin.Context, videoID int64) error {
 
 // UpdateVideoLikeStatus 更新视频点赞状态,若已经点赞，则为取消点赞，反之则为点赞，更新对应状态与数据
 func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, isLiked bool) error {
-	AddFuncName(c, "UpdateVideoLikeStatus")
+	var err error
 	tx := DAO.DB.Begin()
 	defer func() {
+		if err != nil {
+			Utilities.AddFuncName(c, "UpdateVideoLikeStatus")
+			Utilities.HandleInternalServerError(c, err)
+			tx.Rollback()
+		}
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
@@ -200,25 +205,19 @@ func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, 
 
 	//更新视频点赞数
 	if isLiked {
-		err := helper.UpdateVideoFieldForUpdate(VideoID, field, -1, tx)
+		err = helper.UpdateVideoFieldForUpdate(VideoID, field, -1, tx)
 		if err != nil {
-			handleInternalServerError(c, err)
-			tx.Rollback()
 			return err
 		}
 	} else {
-		err := helper.UpdateVideoFieldForUpdate(VideoID, field, 1, tx)
+		err = helper.UpdateVideoFieldForUpdate(VideoID, field, 1, tx)
 		if err != nil {
-			handleInternalServerError(c, err)
-			tx.Rollback()
 			return err
 		}
 	}
 	//更新用户点赞状态:当前状态取反
-	err := helper.UpdateUserVideoFieldForUpdate(UserID, VideoID, "is_like", !isLiked, tx)
+	err = helper.UpdateUserVideoFieldForUpdate(UserID, VideoID, "is_like", !isLiked, tx)
 	if err != nil {
-		handleInternalServerError(c, err)
-		tx.Rollback()
 		return err
 	}
 	tx.Commit()
@@ -227,35 +226,77 @@ func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, 
 
 // UpdateShells 更新视频投币数,更新对应状态与数据
 func UpdateShells(c *gin.Context, videoInfo *EntitySets.Video, TSUID int64, throws int) error {
-	AddFuncName(c, "UpdateShells")
+	var err error
 	/*修改贝壳币*/
 	//为视频添加贝壳
 	tx := DAO.DB.Begin()
 	defer func() {
+		if err != nil {
+			Utilities.AddFuncName(c, "UpdateShells")
+			Utilities.HandleInternalServerError(c, err)
+			tx.Rollback()
+		}
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
 	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
-
-	err := helper.UpdateVideoFieldForUpdate(videoInfo.VideoID, "shells", throws, tx)
+	//为视频添加贝壳
+	fmt.Println("tx before update video shells:", tx)
+	err = helper.UpdateVideoFieldForUpdate(videoInfo.VideoID, "shells", throws, tx)
 	if err != nil {
-		handleInternalServerError(c, err)
-		tx.Rollback()
 		return err
 	}
 	//为作者添加贝壳
+	fmt.Println("tx before update Author shells:", tx)
 	err = helper.UpdateUserFieldForUpdate(videoInfo.UID, "shells", throws, tx)
 	if err != nil {
-		handleInternalServerError(c, err)
-		tx.Rollback()
 		return err
 	}
 	//减少投贝壳用户的贝壳数量
+	fmt.Println("tx before update user shells:", tx)
 	err = helper.UpdateUserFieldForUpdate(TSUID, "shells", -throws, tx)
 	if err != nil {
-		handleInternalServerError(c, err)
-		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
+}
+
+// UpdateVideoFavorite 更新视频收藏次数相关数据
+func UpdateVideoFavorite(c *gin.Context, videoID, fid, uid int64, change int) error {
+	var err error
+	tx := DAO.DB.Begin()
+	defer func() {
+		if err != nil {
+			Utilities.AddFuncName(c, "UpdateVideoFavorite")
+			Utilities.HandleInternalServerError(c, err)
+			tx.Rollback()
+		}
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	/*收藏视频*/
+	//增加用户收藏记录
+	newFV := &RelationshipSets.FavoriteVideo{
+		UserID:     uid,
+		FavoriteID: fid,
+		VideoID:    videoID,
+	}
+	err = RelationshipSets.InsertFavoriteVideoRecord(tx, newFV)
+	if err != nil {
+		return err
+	}
+	//更新Video收藏数
+	err = helper.UpdateVideoFieldForUpdate(videoID, "cnt_favorites", change, tx)
+	if err != nil {
+		return err
+	}
+	//更新UserVideo用户状态
+	err = helper.UpdateUserVideoFieldForUpdate(uid, videoID, "is_favor", true, tx)
+	if err != nil {
 		return err
 	}
 	tx.Commit()

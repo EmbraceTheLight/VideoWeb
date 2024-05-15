@@ -4,32 +4,6 @@ info:
   title: VideoWeb
   version: "1.0"
 paths:
-  /Captcha/CheckGraphicCaptcha:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 验证图形验证码并返回给客户端
-      parameters:
-      - description: 验证码ID
-        in: query
-        name: id
-        required: true
-        type: string
-      - description: 用户输入的验证码
-        in: formData
-        name: input
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'captcha_result": CaptchaResult}'
-          schema:
-            type: string
-      summary: 验证图形验证码
-      tags:
-      - Captcha API
   /Captcha/GenerateGraphicCaptcha:
     get:
       description: 生成图形验证码并返回给客户端
@@ -37,7 +11,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'captcha_result": CaptchaResult}'
+          description: 'captcha": CaptchaResult}'
           schema:
             type: string
       summary: 生成图形验证码
@@ -63,14 +37,71 @@ paths:
       summary: 发送验证码
       tags:
       - Captcha API
-  /User/{UserID}/AddSearchHistory:
+  /Comment/ToUser:
     post:
       consumes:
       - application/json
       parameters:
+      - description: 用户要评论的视频ID
+        in: query
+        name: VideoID
+        required: true
+        type: string
       - description: 用户ID
-        in: path
+        in: query
         name: UserID
+        required: true
+        type: string
+      - description: 用户要评论的评论ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 用户要评论的内容
+        in: formData
+        name: CommentContent
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户评论其他用户
+      tags:
+      - Comment API
+  /Comment/ToVideo:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户要评论的视频ID
+        in: query
+        name: VideoID
+        required: true
+        type: string
+      - description: 用户ID
+        in: query
+        name: UserID
+        required: true
+        type: string
+      - description: 用户要评论的内容
+        in: formData
+        name: CommentContent
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户评论视频
+      tags:
+      - Comment API
+  /User/AddSearchHistory:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 搜索记录
@@ -84,14 +115,14 @@ paths:
       summary: 增加搜索历史记录
       tags:
       - User API
-  /User/{UserID}/AddVideoHistory:
+  /User/AddVideoHistory:
     post:
       consumes:
       - application/json
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 视频ID
@@ -105,14 +136,91 @@ paths:
       summary: 增加视频历史记录
       tags:
       - User API
-  /User/{UserID}/Favorites/Create:
+  /User/Face/Upload/Avatar:
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 头像
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"上传头像成功"}'
+          schema:
+            type: string
+      summary: 用户信息修改-上传头像
+      tags:
+      - User API
+  /User/Fans/Follows:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 要关注的用户ID
+        in: query
+        name: FID
+        required: true
+        type: string
+      - description: 关注列表ID
+        in: query
+        name: FollowListID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 关注其他用户
+      tags:
+      - User API
+  /User/Fans/Unfollows:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 要取消关注的用户ID
+        in: query
+        name: FID
+        required: true
+        type: string
+      - description: 要取消关注的用户ID
+        in: query
+        name: FollowListID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 取消关注其他用户
+      tags:
+      - User API
+  /User/Favorites/Create:
     post:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 收藏夹名称
@@ -143,14 +251,14 @@ paths:
       summary: 创建收藏夹
       tags:
       - User API
-  /User/{UserID}/Favorites/Delete:
+  /User/Favorites/Delete:
     delete:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 收藏夹名称
@@ -169,14 +277,14 @@ paths:
       summary: 删除收藏夹
       tags:
       - User API
-  /User/{UserID}/Favorites/Modify:
+  /User/Favorites/Modify:
     put:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 收藏夹ID
@@ -210,14 +318,14 @@ paths:
       summary: 修改收藏夹
       tags:
       - User API
-  /User/{UserID}/ForgetPassword:
+  /User/ForgetPassword:
     put:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 用户邮箱
@@ -250,14 +358,60 @@ paths:
       summary: 重置用户密码
       tags:
       - User API
-  /User/{UserID}/ModifyEmail:
+  /User/Login:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户名
+        in: formData
+        name: Username
+        required: true
+        type: string
+      - description: 用户密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 用户登录
+      tags:
+      - User API
+  /User/Logout:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"注销用户成功"}'
+          schema:
+            type: string
+      summary: 用户注销
+      tags:
+      - User API
+  /User/ModifyEmail:
     put:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 用户新邮箱
@@ -280,14 +434,14 @@ paths:
       summary: 用户信息修改-更新用户邮箱
       tags:
       - User API
-  /User/{UserID}/ModifyPassword:
+  /User/ModifyPassword:
     put:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 用户密码
@@ -315,14 +469,14 @@ paths:
       summary: 用户信息修改-修改用户密码
       tags:
       - User API
-  /User/{UserID}/ModifySignature:
+  /User/ModifySignature:
     put:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 用户签名,为空表示没有签名
@@ -339,14 +493,14 @@ paths:
       summary: 用户信息修改-更新用户签名
       tags:
       - User API
-  /User/{UserID}/ModifyUserName:
+  /User/ModifyUserName:
     put:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 用户名
@@ -362,77 +516,6 @@ paths:
           schema:
             type: string
       summary: 用户信息修改-修改用户名
-      tags:
-      - User API
-  /User/{UserID}/User-detail:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户标识
-        in: path
-        name: UserID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","data":userInfo}'
-          schema:
-            type: string
-      summary: 获取用户完整、详细的信息
-      tags:
-      - User API
-  /User/{UserID}/face/upload/Avatar:
-    put:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
-        required: true
-        type: string
-      - description: 头像
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","msg":"上传头像成功"}'
-          schema:
-            type: string
-      summary: 用户信息修改-上传头像
-      tags:
-      - User API
-  /User/Login:
-    post:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: 用户名
-        in: formData
-        name: Username
-        required: true
-        type: string
-      - description: 用户密码
-        in: formData
-        name: password
-        required: true
-        type: string
-      produces:
-      - application/json
-      - text/xml
-      responses:
-        "200":
-          description: '{"code":"200","data":"data"}'
-          schema:
-            type: string
-      summary: 用户登录
       tags:
       - User API
   /User/Register:
@@ -471,7 +554,6 @@ paths:
         type: string
       produces:
       - application/json
-      - multipart/form-data
       responses:
         "200":
           description: '{"code":"200","data":"data"}'
@@ -480,123 +562,24 @@ paths:
       summary: 用户注册
       tags:
       - User API
-  /comment/ToUser:
-    post:
+  /User/User-detail:
+    get:
       consumes:
       - application/json
       parameters:
-      - description: 用户要评论的视频ID
-        in: query
-        name: VideoID
-        required: true
-        type: string
-      - description: 用户ID
-        in: query
-        name: UserID
-        required: true
-        type: string
-      - description: 用户要评论的评论ID
-        in: query
-        name: UserID
-        required: true
-        type: string
-      - description: 用户要评论的内容
-        in: formData
-        name: CommentContent
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 用户评论其他用户
-      tags:
-      - Comment API
-  /comment/ToVideo:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户要评论的视频ID
-        in: query
-        name: VideoID
-        required: true
-        type: string
-      - description: 用户ID
-        in: query
-        name: UserID
-        required: true
-        type: string
-      - description: 用户要评论的内容
-        in: formData
-        name: CommentContent
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 用户评论视频
-      tags:
-      - Comment API
-  /user/{UserID}/Fans/Follows:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
-        required: true
-        type: string
-      - description: 要关注的用户ID
-        in: query
-        name: FID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 关注其他用户
-      tags:
-      - User API
-  /user/{UserID}/Fans/Unfollows:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
-        required: true
-        type: string
-      - description: 要取消关注的用户ID
-        in: query
-        name: FID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 取消关注其他用户
-      tags:
-      - User API
-  /user/{UserID}/Logout:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户ID
-        in: path
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: '{"code":"200","msg":"注销用户成功"}'
+          description: '{"code":"200","data":userInfo}'
           schema:
             type: string
-      summary: 用户注销
+      summary: 获取用户完整、详细的信息
       tags:
       - User API
   /video/{ID}/AddBarrage:
@@ -610,9 +593,9 @@ paths:
         name: ID
         required: true
         type: string
-      - description: 用户ID
-        in: query
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 弹幕颜色
@@ -640,6 +623,36 @@ paths:
       summary: 添加弹幕
       tags:
       - Barrage API
+  /video/{ID}/Bookmark:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 收藏夹ID
+        in: query
+        name: FID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","data":"data"}'
+          schema:
+            type: string
+      summary: 收藏视频
+      tags:
+      - Video API
   /video/{ID}/StreamTransmission:
     get:
       consumes:
@@ -698,9 +711,9 @@ paths:
         name: ID
         required: true
         type: string
-      - description: 浏览的用户ID
-        in: query
-        name: UID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
@@ -719,9 +732,9 @@ paths:
         name: ID
         required: true
         type: string
-      - description: 要点赞的用户ID
-        in: query
-        name: UID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
@@ -740,9 +753,9 @@ paths:
         name: ID
         required: true
         type: string
-      - description: 投贝壳的用户ID
-        in: query
-        name: TSUID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 投贝壳的贝壳数量
@@ -756,14 +769,46 @@ paths:
       summary: 用户为视频扔贝壳，由前端负责检查贝壳数量是否足够投喂
       tags:
       - Video API
-  /video/{ID}/upload:
+  /video/DASHStreamTransmission:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要传输的视频路径
+        in: query
+        name: filePath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: DASH流式传输视频
+      tags:
+      - Video API
+  /video/OfferMpd:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 视频所在路径
+        in: query
+        name: filePath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 提供DASH所需的.mpd文件
+      tags:
+      - Video API
+  /video/upload:
     post:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户ID
-        in: path
-        name: ID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 视频标题
@@ -821,38 +866,6 @@ paths:
       - application/json
       responses: {}
       summary: 用户上传视频
-      tags:
-      - Video API
-  /video/DASHStreamTransmission:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 要传输的视频路径
-        in: query
-        name: filePath
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses: {}
-      summary: DASH流式传输视频
-      tags:
-      - Video API
-  /video/OfferMpd:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 视频所在路径
-        in: query
-        name: filePath
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses: {}
-      summary: 提供DASH所需的.mpd文件
       tags:
       - Video API
 swagger: "2.0"

@@ -33,14 +33,14 @@ import (
 
 type Message struct {
 	MessageID      int64          `bson:"_id"`        //消息ID
-	RoomID         string         `bson:"RoomID"`     //房间ID
-	UserID         string         `bson:"UserID"`     //发送该消息的用户ID
-	MessageContent define.Message `bson:"Data"`       //消息内容
+	RoomID         string         `bson:"room_id"`    //房间ID
+	UserID         string         `bson:"user_id"`    //发送该消息的用户ID
+	MessageContent define.Message `bson:"data"`       //消息内容
 	CreatedAt      int64          `bson:"created_at"` //创建时间
 }
 
 func (m *Message) CollectionName() string {
-	return "Message"
+	return "message"
 }
 
 func InsertMessage(mongodb *mongo.Database, message *Message) error {

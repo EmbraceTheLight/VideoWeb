@@ -5,8 +5,8 @@ import (
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
+	"VideoWeb/logic"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 )
 
@@ -15,52 +15,21 @@ import (
 // @summary 关注其他用户
 // @Accept json
 // @Produce json
-// // @Param Authorization header string true "token"
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param FID query string true "要关注的用户ID"
-// @Router /user/{UserID}/Fans/Follows [post]
+// @Param FollowListID query string true "关注列表ID"
+// @Router /User/Fans/Follows [post]
 func FollowOtherUser(c *gin.Context) {
-	tmpUID := c.Param("UserID")
-	tmpFID := c.Query("FID")
-
-	tx := DAO.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-	/*更新关注用户的关注列表*/
-	UID := Utilities.String2Int64(tmpUID)
-	FID := Utilities.String2Int64(tmpFID)
-	followsRecord := &RelationshipSets.UserFollows{
-		Model:     gorm.Model{},
-		GroupName: "默认关注分组",
-		UID:       UID,
-		FID:       FID,
-	}
-	err := RelationshipSets.InsertFollowsRecord(tx, followsRecord)
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
+	FID := Utilities.String2Int64(c.Query("FID"))
+	FollowListID := Utilities.String2Int64(c.Query("FollowListID"))
+	err := logic.FollowOtherUser(c, FollowListID, UID, FID)
 	if err != nil {
-		tx.Rollback()
-		Utilities.SendErrMsg(c, "service::UserFollow::FollowOtherUser", define.FollowUserFailed, "关注用户失败"+err.Error())
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
-
-	/*更新被关注用户的被关注（粉丝）列表*/
-	followedRecord := &RelationshipSets.UserFollowed{
-		MyModel: define.MyModel{},
-		UID:     FID,
-		FID:     UID,
-	}
-
-	err = RelationshipSets.InsertFollowedRecord(tx, followedRecord)
-	if err != nil {
-		tx.Rollback()
-		Utilities.SendErrMsg(c, "service::UserFollow::FollowOtherUser", define.FollowUserFailed, "关注用户失败"+err.Error())
-		return
-	}
-	tx.Commit()
-
-	Utilities.SendJsonMsg(c, 200, "关注成功")
+	Utilities.SendJsonMsg(c, http.StatusOK, "关注成功")
 }
 
 // UnFollowOtherUser
@@ -68,13 +37,15 @@ func FollowOtherUser(c *gin.Context) {
 // @summary 取消关注其他用户
 // @Accept json
 // @Produce json
-// // @Param Authorization header string true "token"
-// @Param UserID path string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param FID query string true "要取消关注的用户ID"
-// @Router /user/{UserID}/Fans/Unfollows [delete]
+// @Param FollowListID query string true "要取消关注的用户ID"
+// @Router /User/Fans/Unfollows [delete]
 func UnFollowOtherUser(c *gin.Context) {
-	tmpUID := c.Param("UserID")
-	tmpFID := c.Query("FID")
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
+	FID := Utilities.String2Int64(c.Query("FID"))
+	FollowListID := Utilities.String2Int64(c.Query("FollowListID"))
 
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -83,12 +54,11 @@ func UnFollowOtherUser(c *gin.Context) {
 		}
 	}()
 
-	UID := Utilities.String2Int64(tmpUID)
-	FID := Utilities.String2Int64(tmpFID)
 	/*更新用户的关注列表*/
 	followsRecord := &RelationshipSets.UserFollows{
-		UID: UID,
-		FID: FID,
+		FollowListID: FollowListID,
+		UID:          UID,
+		FID:          FID,
 	}
 	err := RelationshipSets.DeleteFollowsRecord(tx, followsRecord)
 	if err != nil {

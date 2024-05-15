@@ -36,6 +36,5 @@ func Mkdir(uid string) (path string, err error) {
 	b.WriteString("/")
 	videoDirPath := b.String()
 	err = os.MkdirAll(videoDirPath, os.ModePerm)
-	path = b.String()
-	return path, err
+	return videoDirPath, err
 }

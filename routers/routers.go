@@ -3,6 +3,7 @@ package routers
 import (
 	"VideoWeb/Utilities/WebSocket"
 	_ "VideoWeb/docs"
+	"VideoWeb/middlewares"
 	"VideoWeb/service"
 	"github.com/gin-gonic/gin"
 	swaggoFiles "github.com/swaggo/files"
@@ -39,7 +40,7 @@ func CollectRouter(r *gin.Engine) {
 	{
 		user.POST("/Register", service.Register)
 		user.POST("/Login", service.Login)
-		userInfo := user.Group("/:UserID")
+		userInfo := user.Group("", middlewares.CheckIfUserLogin()) //添加登录中间件
 		{
 			userInfo.GET("/User-detail", service.GetUserDetail)
 			userInfo.POST("/Fans/Follows", service.FollowOtherUser)
@@ -55,11 +56,11 @@ func CollectRouter(r *gin.Engine) {
 			userInfo.DELETE("/Fans/Unfollows", service.UnFollowOtherUser)
 
 			//用户收藏夹相关接口
-			Favorites := userInfo.Group("/Favorites")
+			favorites := userInfo.Group("/Favorites")
 			{
-				Favorites.POST("/Create", service.CreateFavorites)
-				Favorites.PUT("/Modify", service.ModifyFavorites)
-				Favorites.DELETE("/Delete", service.DeleteFavorites)
+				favorites.POST("/Create", service.CreateFavorites)
+				favorites.PUT("/Modify", service.ModifyFavorites)
+				favorites.DELETE("/Delete", service.DeleteFavorites)
 			}
 		}
 
@@ -70,11 +71,12 @@ func CollectRouter(r *gin.Engine) {
 	{
 		video.GET("/OfferMpd", service.OfferMpd)
 		video.GET("/DASHStreamTransmission", service.DASHStreamTransmission)
+		video.POST("/upload", middlewares.CheckIfUserLogin(), service.UploadVideo)
 
-		videoInfo := video.Group("/:ID") //ID在UploadVideo方法中代表用户ID，在其他方法中为视频ID
+		videoInfo := video.Group("/:ID", middlewares.CheckIfUserLogin()) //ID为视频ID
 		{
-			videoInfo.POST("/upload", service.UploadVideo)
 			videoInfo.POST("/AddBarrage", service.AddBarrage)
+			videoInfo.POST("/Bookmark", service.BookmarkVideo)
 			videoInfo.PUT("/likeOrUndoLike", service.LikeOrUndoLike)
 			videoInfo.PUT("/throwShell", service.ThrowShell)
 			videoInfo.GET("/StreamTransmission", service.StreamTransmission)
@@ -86,7 +88,7 @@ func CollectRouter(r *gin.Engine) {
 	}
 
 	//评论相关接口
-	comment := r.Group("/comment")
+	comment := r.Group("/Comment")
 	{
 		comment.POST("/ToVideo", service.CommentToVideo)
 		comment.POST("/ToUser", service.CommentToOtherUser)

@@ -3,15 +3,62 @@ package logic
 import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
+	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
+	"VideoWeb/helper"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"os"
+	"path"
 	"unicode/utf8"
 )
+
+func InsertInitRecords(defaultFavorites, privateFavorites *EntitySets.Favorites,
+	userLevel *EntitySets.Level,
+	defaultFollowList *EntitySets.FollowList,
+	newUser *EntitySets.User) error {
+	var err error
+	tx := DAO.DB.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	err = EntitySets.InsertFollowList(tx, defaultFollowList)
+	if err != nil {
+		return err
+	}
+
+	err = EntitySets.InsertUserRecord(tx, newUser)
+	if err != nil {
+		return err
+	}
+
+	err = EntitySets.InsertFavoritesRecords(tx, defaultFavorites)
+	if err != nil {
+		return err
+	}
+
+	err = EntitySets.InsertFavoritesRecords(tx, privateFavorites)
+	if err != nil {
+		return err
+	}
+
+	err = EntitySets.InsertLevelRecords(tx, userLevel)
+	if err != nil {
+		return err
+	}
+	tx.Commit()
+	return nil
+}
 
 // GetUserIpInfo 获取并返回用户所在国家和地区
 func GetUserIpInfo(c *gin.Context) (Country, City string) {
@@ -25,26 +72,6 @@ func GetUserIpInfo(c *gin.Context) (Country, City string) {
 	return info.Country, info.City
 }
 
-// GetUserNameByID 通过用户ID获取用户名
-func GetUserNameByID(id string) (string, error) {
-	var userName string
-	err := DAO.DB.Where("UserID=?", id).Pluck("userName", &userName).Limit(1).Error
-	if err != nil {
-		return "", err
-	}
-	return userName, nil
-}
-
-// GetFavoritesByID 通过用户ID来获取该用户的收藏夹列表
-func GetFavoritesByID(id string) ([]*EntitySets.Favorites, error) {
-	var favorites []*EntitySets.Favorites
-	err := DAO.DB.Where("UID = ?", id).Find(&favorites).Error
-	if err != nil {
-		return nil, err
-	}
-	return favorites, nil
-}
-
 // ComparePassword  比较用户输入的密码与数据库中的密码
 func ComparePassword(userPassword, inputPassword string) error {
 	if err := bcrypt.CompareHashAndPassword([]byte(userPassword), []byte(inputPassword)); err != nil {
@@ -54,7 +81,7 @@ func ComparePassword(userPassword, inputPassword string) error {
 }
 
 // ModifyPassword 用户修改辅助函数
-func ModifyPassword(id, newPassword, repeatPassword string) (int, error) {
+func ModifyPassword(id int64, newPassword, repeatPassword string) (int, error) {
 	switch {
 	case len(newPassword) < 6: //密码长度小于6位
 		return 4002, errors.New("密码长度不能小于6位，请重新输入密码")
@@ -68,18 +95,18 @@ func ModifyPassword(id, newPassword, repeatPassword string) (int, error) {
 	}
 
 	//更新用户密码
-	err = DAO.DB.Model(&EntitySets.User{}).Debug().Where("UserID=?", id).Update("Password", string(hashedPassword)).Error
+	err = EntitySets.UpdateUserStringField(DAO.DB, id, "password", string(hashedPassword))
 	if err != nil {
 		return define.ModifyPasswordFailed, errors.New("修改密码失败")
 	}
-
 	return http.StatusOK, nil
 }
 
 // CheckRegisterInfo 检查注册信息是否正确。
 func CheckRegisterInfo(checkInfo *EntitySets.User, repeatPassword string) error {
 	var countName int64
-	err := DAO.DB.Model(&EntitySets.User{}).Where("userName=?", checkInfo.UserName).Count(&countName).Error
+	err := DAO.DB.Model(&EntitySets.User{}).Where("user_name=?", checkInfo.UserName).Count(&countName).Error
+
 	if err != nil {
 		return errors.New("查询用户信息失败")
 	}
@@ -93,5 +120,109 @@ func CheckRegisterInfo(checkInfo *EntitySets.User, repeatPassword string) error 
 	case utf8.RuneCountInString(checkInfo.Signature) > 25:
 		return errors.New("个性签名过长")
 	}
+	return nil
+}
+
+// RemoveUserResource 删除用户资源
+func RemoveUserResource(userID string) error {
+	err := os.RemoveAll(path.Join(define.VideoSavePath, userID))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// DeleteUserInfoInDB 删除用户在数据库中的所有相关信息
+func DeleteUserInfoInDB(c *gin.Context, uid int64) error {
+	var err error
+	tx := DAO.DB.Begin()
+	defer func() {
+		if err != nil {
+			Utilities.AddFuncName(c, "DeleteUserInfoInDB")
+			tx.Rollback()
+		}
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	/*删除用户的收藏夹信息*/
+	err = helper.DeleteUserFavoriteRecords(uid, tx)
+	if err != nil {
+		return err
+	}
+	///*删除用户上传的视频信息*/
+	//err = EntitySets.DeleteVideoInfoByUserID(tx, uid)
+	//if err != nil {
+	//	return err
+	//}
+	/*删除用户的关注列表信息*/
+	err = helper.DeleteFollowListRecords(uid, tx)
+	if err != nil {
+		return err
+	}
+	/*删除被关注用户的对应粉丝列表信息*/
+	err = RelationshipSets.DeleteFollowedRecordsByUserID(tx, uid)
+	if err != nil {
+		return err
+	}
+	/*删除用户对应等级信息*/
+	err = EntitySets.DeleteLevelRecordByUserID(tx, uid)
+	if err != nil {
+		return err
+	}
+	/*删除用户的搜索历史信息和观看历史信息*/
+	err = EntitySets.DeleteAllSearchRecord(tx, uid)
+	if err != nil {
+		return err
+	}
+	err = EntitySets.DeleteAllVideoHistoryRecords(tx, uid)
+	if err != nil {
+		return err
+	}
+	/*删除用户信息*/
+	err = EntitySets.DeleteUserRecordByID(tx, uid)
+	if err != nil {
+		return err
+	}
+	tx.Commit()
+	return nil
+}
+
+// FollowOtherUser 关注其他用户
+func FollowOtherUser(c *gin.Context, followlistID, UID, followsID int64) error {
+	Utilities.AddFuncName(c, "FollowOtherUser")
+	var err error
+	tx := DAO.DB.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	/*更新关注用户的关注列表*/
+	followsRecord := &RelationshipSets.UserFollows{
+		FollowListID: followlistID,
+		UID:          UID,
+		FID:          followsID,
+	}
+	err = RelationshipSets.InsertFollowsRecord(tx, followsRecord)
+	if err != nil {
+		return err
+	}
+
+	/*更新被关注用户的被关注（粉丝）列表*/
+	followedRecord := &RelationshipSets.UserFollowed{
+		MyModel: define.MyModel{},
+		UID:     followsID,
+		FID:     UID,
+	}
+
+	err = RelationshipSets.InsertFollowedRecord(tx, followedRecord)
+	if err != nil {
+		return err
+	}
+	tx.Commit()
 	return nil
 }

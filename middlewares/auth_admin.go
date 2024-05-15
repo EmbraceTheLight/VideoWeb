@@ -17,12 +17,12 @@ func AuthAdminCheck() gin.HandlerFunc {
 		fmt.Println("auth--------->", auth)
 		userClaim, err := logic.ParseToken(auth)
 		if err != nil {
-			Utilities.SendErrMsg(c, http.StatusUnauthorized, "Unauthorized")
+			Utilities.SendErrMsg(c, "middlewares::AuthAdminCheck", http.StatusUnauthorized, "Unauthorized")
 			c.Abort() // TODO:中间件验证失败，取消执行后面的流程（关键）
 			return
 		}
 		if userClaim.IsAdmin != 1 {
-			Utilities.SendErrMsg(c, http.StatusUnauthorized, "Not Admin")
+			Utilities.SendErrMsg(c, "middlewares::AuthAdminCheck", http.StatusUnauthorized, "Not Admin")
 			c.Abort() // TODO:中间件验证失败，取消执行后面的流程（关键）
 			return
 		}

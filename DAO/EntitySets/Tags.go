@@ -4,15 +4,19 @@ import "gorm.io/gorm"
 
 type Tags struct {
 	Tag string `json:"Tag" gorm:"column:tag;type:varchar(15);primaryKey"`
-	VID int64  `json:"VID" gorm:"column:VID;type:bigint;primaryKey"`
+	VID int64  `json:"VID" gorm:"column:video_id;type:bigint;primaryKey"`
 }
 
 func (t *Tags) TableName() string {
-	return "Tags"
+	return "tags"
+}
+
+func InsertTags(db *gorm.DB, tags []*Tags) error {
+	return db.Model(&Tags{}).Create(tags).Error
 }
 
 // DeleteTagRecords 删除视频标签记录
 func DeleteTagRecords(db *gorm.DB, VID int64) error {
-	err := db.Delete(&Tags{}, "VID=?", VID).Error
+	err := db.Model(&Tags{}).Delete(&Tags{}, "video_id=?", VID).Error
 	return err
 }
