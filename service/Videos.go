@@ -384,6 +384,7 @@ func ThrowShell(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Videos::ThrowShell", 4000, "贝壳数量不足")
 		return
 	}
+	//更新视频，用户贝壳数量
 	err = logic.UpdateShells(c, videoInfo, TSUID, shells)
 	if err != nil {
 		return
