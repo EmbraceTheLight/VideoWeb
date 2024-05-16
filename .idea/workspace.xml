@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b03ac556-b29e-4ae2-8b6e-8a7be861813c" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/middlewares/auth_user.go" beforeDir="false" afterPath="$PROJECT_DIR$/middlewares/auth_user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/InitDatabase.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/InitDatabase.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utilities/WebSocket/Client.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/WebSocket/Client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/captchaVerify.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/captchaVerify.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +23,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../../tmp/go1.22.1" />
+  <component name="GOROOT" url="file://$PROJECT_DIR$/.." />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -52,40 +54,41 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "Go 测试.TestPath in VideoWeb/test (1).executor": "Run",
-    "Go 测试.TestPath in VideoWeb/test.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestHardDelete.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestLog.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestReadConfig.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestSendEmail.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestVideoTime.executor": "Run",
-    "Go 测试.config_test.go.executor": "Run",
-    "Go 测试.gobench VideoWeb/test.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "master",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "C:/Users/张恩阳",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go 测试.TestPath in VideoWeb/test (1).executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.TestPath in VideoWeb/test.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestHardDelete.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestLog.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestReadConfig.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestSendEmail.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestVideoTime.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.config_test.go.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.gobench VideoWeb/test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/xiaoxi&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Go&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\VideoWeb\Utilities" />
@@ -106,7 +109,7 @@
       <visibility group="运行配置" flag="true" />
     </myKeys>
   </component>
-  <component name="RunManager" selected="Go 测试.TestPath in VideoWeb/test (1)">
+  <component name="RunManager" selected="Go 测试.gobench VideoWeb/test">
     <configuration name="TestPath in VideoWeb/test (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="VideoWeb" />
       <working_directory value="$PROJECT_DIR$/test" />
@@ -166,21 +169,12 @@
       <framework value="gobench" />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Go 测试.TestPath in VideoWeb/test (1)" />
-        <item itemvalue="Go 测试.TestPath in VideoWeb/test" />
-        <item itemvalue="Go 测试.VideoWeb/test 中的 TestLog" />
-        <item itemvalue="Go 测试.gobench VideoWeb/test" />
-        <item itemvalue="Go 测试.VideoWeb/test 中的 TestSendEmail" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-33c477a475b1-b97fc8a1e17c-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.14494.238" />
-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-GO-241.14494.238" />
+        <option value="bundled-gosdk-33c477a475b1-e0158606a674-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.15989.157" />
+        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-GO-241.15989.157" />
       </set>
     </attachedChunks>
   </component>

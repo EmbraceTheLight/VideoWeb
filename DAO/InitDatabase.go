@@ -51,7 +51,7 @@ func createDatabase() {
 	dbConnection := fmt.Sprintf("%s:%s@(%s:%s)/mysql?charset=%s&parseTime=True&loc=Local&timeout=10s",
 		MySQLConf.User, MySQLConf.Password, MySQLConf.Host, MySQLConf.Port, MySQLConf.Charset)
 	db, _ := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
-	db.Exec("CREATE DATABASE  IF NOT EXISTS VideoWeb")
+	db.Exec("CREATE DATABASE  IF NOT EXISTS videoweb")
 }
 func connectMysql() {
 	var err error

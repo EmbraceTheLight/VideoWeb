@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="dataSourceStorageLocal" created-in="GO-241.14494.238">
+  <component name="dataSourceStorageLocal" created-in="GO-241.15989.157">
     <data-source name="VideoWeb@localhost" uuid="6854648a-797e-4af5-a340-23b48edd3889">
       <database-info product="MySQL" version="8.0.32" jdbc-version="4.2" driver-name="MySQL Connector/J" driver-version="mysql-connector-java-8.0.25 (Revision: 08be9e9b4cba6aa115f9b27b215887af40b159e0)" dbms="MYSQL" exact-version="8.0.32" exact-driver-version="8.0">
         <extra-name-characters>#@</extra-name-characters>

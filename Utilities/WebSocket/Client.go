@@ -29,6 +29,7 @@ func NewConnection(UserID string, ctx *gin.Context) (*ClientConnection, error) {
 	var newConn *ClientConnection
 
 	newConn = &ClientConnection{
+		hub1:       hub,
 		UserID:     UserID,
 		Conn:       conn,
 		Send:       make(chan *define.Message),
