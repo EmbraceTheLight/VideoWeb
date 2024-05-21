@@ -24,7 +24,14 @@ func main() {
 
 	r := gin.Default()
 	//解决跨域问题，注册全局中间件
-	r.Use(cors.Default())
+	r.Use(cors.New(defineCorsConfig()))
 	routers.CollectRouter(r)
 	log.Fatal(r.Run(":51233"))
+}
+
+func defineCorsConfig() cors.Config {
+	c := cors.DefaultConfig()
+	c.AllowAllOrigins = true
+	c.AddAllowHeaders("Authorization")
+	return c
 }
