@@ -7,8 +7,8 @@
     <list default="true" id="b03ac556-b29e-4ae2-8b6e-8a7be861813c" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Video.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/define/defines.go" beforeDir="false" afterPath="$PROJECT_DIR$/define/defines.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/IPInfo_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/IPInfo_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +58,7 @@
     &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
     &quot;Go 测试.TestPath in VideoWeb/test (1).executor&quot;: &quot;Run&quot;,
     &quot;Go 测试.TestPath in VideoWeb/test.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestGetIPInfo.executor&quot;: &quot;Run&quot;,
     &quot;Go 测试.VideoWeb/test 中的 TestHardDelete.executor&quot;: &quot;Run&quot;,
     &quot;Go 测试.VideoWeb/test 中的 TestLog.executor&quot;: &quot;Run&quot;,
     &quot;Go 测试.VideoWeb/test 中的 TestReadConfig.executor&quot;: &quot;Run&quot;,
@@ -97,18 +98,7 @@
       <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\service\Video" />
     </key>
   </component>
-  <component name="RunAnythingCache">
-    <myKeys>
-      <visibility group="Grunt" flag="true" />
-      <visibility group="Gulp" flag="true" />
-      <visibility group="HTTP 请求" flag="true" />
-      <visibility group="npm" flag="true" />
-      <visibility group="yarn" flag="true" />
-      <visibility group="最近的项目" flag="true" />
-      <visibility group="运行配置" flag="true" />
-    </myKeys>
-  </component>
-  <component name="RunManager" selected="Go 测试.gobench VideoWeb/test">
+  <component name="RunManager" selected="Go 测试.VideoWeb/test 中的 TestGetIPInfo">
     <configuration name="TestPath in VideoWeb/test (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="VideoWeb" />
       <working_directory value="$PROJECT_DIR$/test" />
@@ -131,6 +121,18 @@
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
       <pattern value="^\QTestPath\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="VideoWeb/test 中的 TestGetIPInfo" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="VideoWeb" />
+      <working_directory value="$PROJECT_DIR$/test" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="VideoWeb/test" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestGetIPInfo\E$" />
       <method v="2" />
     </configuration>
     <configuration name="VideoWeb/test 中的 TestLog" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
@@ -157,17 +159,11 @@
       <pattern value="^\QTestSendEmail\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="gobench VideoWeb/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="VideoWeb" />
-      <working_directory value="$PROJECT_DIR$/test" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="VideoWeb/test" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gobench" />
-      <method v="2" />
-    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go 测试.VideoWeb/test 中的 TestGetIPInfo" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

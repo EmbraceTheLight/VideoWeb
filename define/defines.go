@@ -24,16 +24,26 @@ const (
 )
 
 const (
-	Level1  int = 2 //从0级升到1级所需经验值,下同
-	Level2  int = 4
-	Level3  int = 8
-	Level4  int = 16
-	Level5  int = 32
-	Level6  int = 64
-	Level7  int = 128
-	Level8  int = 256
-	Level9  int = 512
-	Level10 int = 1024
+	// AddHotEachView 每访问一次增加的热度
+	AddHotEachView = 1
+
+	// AddHotEachComment 每评论一次增加的热度
+	AddHotEachComment = 3 * AddHotEachView
+
+	// AddHotEachBarrage 每发表一次弹幕增加的热度
+	AddHotEachBarrage = 3 * AddHotEachComment
+
+	// AddHotEachLike 每点赞一次增加的热度
+	AddHotEachLike = 10 * AddHotEachView
+
+	// AddHotEachShell 每投一个贝壳增加的热度
+	AddHotEachShell = 3 * AddHotEachView
+
+	// AddHotEachFavorite 每收藏一次增加的热度
+	AddHotEachFavorite = 75 * AddHotEachView
+
+	// AddHotEachShare 每分享一次增加的热度
+	AddHotEachShare = 50 * AddHotEachView
 )
 
 // MyModel 不包含 gorm.Model 中的默认id字段
@@ -50,29 +60,28 @@ type GraphicCaptcha struct {
 }
 
 type IPInfo struct {
-	Mobile        bool    `json:"mobile"`
-	Proxy         bool    `json:"proxy"`
-	Hosting       bool    `json:"hosting"`
-	Lat           float64 `json:"lat"`       //纬度
-	Lon           float64 `json:"lon"`       //经度
-	Query         string  `json:"query"`     //待查询的IP
-	Status        string  `json:"status"`    //查询状态，如success
-	Continent     string  `json:"continent"` //大洲
-	ContinentCode string  `json:"continentCode"`
-	Country       string  `json:"country"`
-	CountryCode   string  `json:"countryCode"`
-	Region        string  `json:"region"`
-	RegionName    string  `json:"regionName"`
-	City          string  `json:"city"`
-	District      string  `json:"district"`
-	Zip           string  `json:"zip"`
-	Timezone      string  `json:"timezone"`
-	Offset        string  `json:"offset"`
-	Currency      string  `json:"currency"`
-	ISP           string  `json:"ISP"`
-	Org           string  `json:"org"`
-	As            string  `json:"as"`
-	AsName        string  `json:"asName"`
+	Query     string `json:"query"`     //待查询的IP
+	Status    string `json:"status"`    //查询状态，如success
+	Continent string `json:"continent"` //大洲	//Mobile  bool `json:"mobile"`
+	Country   string `json:"country"`
+	City      string `json:"city"`
+	//Proxy   bool `json:"proxy"`
+	//Hosting bool `json:"hosting"`
+	//Lat           float64 `json:"lat"`       //纬度
+	//Lon           float64 `json:"lon"`       //经度
+	//ContinentCode string  `json:"continentCode"`
+	//CountryCode   string  `json:"countryCode"`
+	//Region        string  `json:"region"`
+	//RegionName    string  `json:"regionName"`
+	//District      string  `json:"district"`
+	//Zip           string  `json:"zip"`
+	//Timezone      string  `json:"timezone"`
+	//Offset        string  `json:"offset"`
+	//Currency      string  `json:"currency"`
+	//ISP           string  `json:"ISP"`
+	//Org           string  `json:"org"`
+	//As            string  `json:"as"`
+	//AsName        string  `json:"asName"`
 }
 
 // PicExtCheck 验证图片后缀名

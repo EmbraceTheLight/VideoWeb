@@ -17,9 +17,9 @@ type Video struct {
 	VideoID      int64  `json:"VID" gorm:"column:video_id;type:bigint;primaryKey"`                    //视频唯一标识
 	UID          int64  `json:"UID" gorm:"column:user_id;type:bigint"`                                //视频作者ID
 	Likes        uint32 `json:"Likes" gorm:"column:likes;type:int unsigned;default:0"`                //视频被点赞数
-	UnLikes      uint32 `json:"UnLikes" gorm:"column:unlikes;type:int unsigned;default:0"`            //视频被点踩数
+	CntShares    uint32 `json:"CntShares" gorm:"column:cnt_shares;type:int unsigned;default:0"`       //视频被分享数
 	Shells       uint32 `json:"Shells" gorm:"column:shells;type:int unsigned;default:0"`              //视频获得的贝壳数
-	Hot          uint32 `json:"Hot" gorm:"column:hot;type:int unsigned;default:0"`                    //视频热度,默认排序的依据
+	Hot          uint32 `json:"Hot" gorm:"column:hot;type:int unsigned;default:0;index:idx_hot"`      //视频热度,默认排序的依据
 	CntFavorites uint32 `json:"CntFavorites" gorm:"column:cnt_favorites;type:int unsigned;default:0"` //视频被收藏数,似乎可以通过联表计算出来
 	CntViews     uint32 `json:"CntViews" gorm:"column:cnt_views;type:int unsigned;default:0"`         //视频播放量
 	Duration     string `json:"Duration" gorm:"column:duration;type:varchar(10);"`                    //视频时长,单位秒
