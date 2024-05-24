@@ -9,8 +9,8 @@ import (
 var (
 	Store = base64Captcha.NewMemoryStore(base64Captcha.GCLimitNumber, Expired)
 
-	DefaultPage = "1"
-	DefaultSize = "20"
+	DefaultPage = 1
+	DefaultSize = 20
 	Expired     = time.Minute * 10 //过期时间。单位：秒。用于验证验证码是否过期
 )
 

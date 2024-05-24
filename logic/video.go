@@ -79,6 +79,7 @@ func CreateVideoRecord(tx *gorm.DB, c *gin.Context, UserID int64, videoFilePath 
 	return VID, err
 }
 
+// MakeDASHSegments 生成DASH分段文件
 func MakeDASHSegments(videoFilePath string) error {
 	ext := path.Ext(videoFilePath)
 	outputFilePath := path.Dir(videoFilePath) //得到输出文件得到父目录名
@@ -178,12 +179,28 @@ func OpenAndReadFile(file *multipart.FileHeader) ([]byte, error) {
 
 // AddVideoViewCount 增加视频观看次数
 func AddVideoViewCount(c *gin.Context, videoID int64) error {
-	Utilities.AddFuncName(c, "AddVideoViewCount")
-	err := helper.UpdateVideoFieldForUpdate(videoID, "cnt_views", 1, nil)
+	var err error
+	tx := DAO.DB.Begin()
+	defer func() {
+		if err != nil {
+			Utilities.AddFuncName(c, "AddVideoViewCount")
+			tx.Rollback()
+		}
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
+	err = helper.UpdateVideoFieldForUpdate(videoID, "cnt_views", 1, tx)
 	if err != nil {
-		Utilities.HandleInternalServerError(c, err)
 		return err
 	}
+	err = helper.UpdateVideoFieldForUpdate(videoID, "hot", define.AddHotEachView, tx)
+	if err != nil {
+		return err
+	}
+	tx.Commit()
 	return nil
 }
 
@@ -194,7 +211,6 @@ func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, 
 	defer func() {
 		if err != nil {
 			Utilities.AddFuncName(c, "UpdateVideoLikeStatus")
-			Utilities.HandleInternalServerError(c, err)
 			tx.Rollback()
 		}
 		if r := recover(); r != nil {
@@ -209,8 +225,16 @@ func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, 
 		if err != nil {
 			return err
 		}
+		err = helper.UpdateVideoFieldForUpdate(VideoID, "hot", -define.AddHotEachLike, tx)
+		if err != nil {
+			return err
+		}
 	} else {
 		err = helper.UpdateVideoFieldForUpdate(VideoID, field, 1, tx)
+		if err != nil {
+			return err
+		}
+		err = helper.UpdateVideoFieldForUpdate(VideoID, "hot", define.AddHotEachLike, tx)
 		if err != nil {
 			return err
 		}
@@ -233,7 +257,6 @@ func UpdateShells(c *gin.Context, videoInfo *EntitySets.Video, TSUID int64, thro
 	defer func() {
 		if err != nil {
 			Utilities.AddFuncName(c, "UpdateShells")
-			Utilities.HandleInternalServerError(c, err)
 			tx.Rollback()
 		}
 		if r := recover(); r != nil {
@@ -242,20 +265,22 @@ func UpdateShells(c *gin.Context, videoInfo *EntitySets.Video, TSUID int64, thro
 	}()
 	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
 	//为视频添加贝壳
-	fmt.Println("tx before update video shells:", tx)
 	err = helper.UpdateVideoFieldForUpdate(videoInfo.VideoID, "shells", throws, tx)
 	if err != nil {
 		return err
 	}
 	//为作者添加贝壳
-	fmt.Println("tx before update Author shells:", tx)
 	err = helper.UpdateUserFieldForUpdate(videoInfo.UID, "shells", throws, tx)
 	if err != nil {
 		return err
 	}
 	//减少投贝壳用户的贝壳数量
-	fmt.Println("tx before update user shells:", tx)
 	err = helper.UpdateUserFieldForUpdate(TSUID, "shells", -throws, tx)
+	if err != nil {
+		return err
+	}
+	//增加视频热度
+	err = helper.UpdateVideoFieldForUpdate(videoInfo.VideoID, "hot", throws*define.AddHotEachShell, tx)
 	if err != nil {
 		return err
 	}
@@ -270,7 +295,6 @@ func UpdateVideoFavorite(c *gin.Context, videoID, fid, uid int64, change int) er
 	defer func() {
 		if err != nil {
 			Utilities.AddFuncName(c, "UpdateVideoFavorite")
-			Utilities.HandleInternalServerError(c, err)
 			tx.Rollback()
 		}
 		if r := recover(); r != nil {
@@ -301,4 +325,16 @@ func UpdateVideoFavorite(c *gin.Context, videoID, fid, uid int64, change int) er
 	}
 	tx.Commit()
 	return nil
+}
+
+// GetVideoListByClass 根据分类及其热度获取视频列表
+func GetVideoListByClass(class string) (videos []*EntitySets.Video, err error) {
+	if class != "recommend" {
+		err = DAO.DB.Model(&EntitySets.Video{}).
+			Order("hot desc").Limit(define.DefaultSize).Find(&videos).Error
+	} else {
+		err = DAO.DB.Model(&EntitySets.Video{}).Where("class=?", class).
+			Order("hot desc").Limit(define.DefaultSize).Find(&videos).Error
+	}
+	return
 }

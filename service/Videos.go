@@ -332,7 +332,7 @@ func LikeOrUndoLike(c *gin.Context) {
 	/*查找对应的UserVideo记录*/
 	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, VideoID)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::LikeOrUndoLike", define.GetVideoInfoFailed, "点赞/取消点赞失败:"+err.Error())
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
 
@@ -340,12 +340,13 @@ func LikeOrUndoLike(c *gin.Context) {
 	//查找对应的UserVideo记录
 	uv, err := RelationshipSets.GetUserVideoRecord(DAO.DB, UserID, videoInfo.VideoID)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::LikeOrUndoLike", define.GetVideoInfoFailed, "点赞/取消点赞失败:"+err.Error())
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
 	//修改用户点赞状态与视频点赞数
 	err = logic.UpdateVideoLikeStatus(c, UserID, videoInfo.VideoID, "likes", uv.IsLike)
 	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
 	Utilities.SendJsonMsg(c, http.StatusOK, "点赞成功")
@@ -387,9 +388,23 @@ func ThrowShell(c *gin.Context) {
 	//更新视频，用户贝壳数量
 	err = logic.UpdateShells(c, videoInfo, TSUID, shells)
 	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
 	Utilities.SendJsonMsg(c, http.StatusOK, "投贝壳成功")
+}
+
+// GetHomeVideoList
+// @Tags Video API
+// @summary 主页获取视频列表
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param class query string true "根据分类给出视频列表"
+// @Router /video/{ID}/throwShell [get]
+func GetHomeVideoList(c *gin.Context) {
+	class := c.DefaultQuery("class", "recommend")
+	logic.GetVideoListByClass(class)
 }
 
 //func Test(c *gin.Context) {

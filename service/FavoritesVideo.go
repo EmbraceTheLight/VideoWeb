@@ -26,6 +26,7 @@ func BookmarkVideo(c *gin.Context) {
 
 	err := logic.UpdateVideoFavorite(c, VID, FID, UID, 1)
 	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
 	Utilities.SendJsonMsg(c, http.StatusOK, "收藏成功")
