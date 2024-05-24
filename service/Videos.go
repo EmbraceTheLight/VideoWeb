@@ -63,11 +63,13 @@ func UploadVideo(c *gin.Context) {
 	}()
 
 	/*创建文件并将视频数据写入文件*/
+	//写入视频源数据
 	err = Utilities.WriteToNewFile(FH, videoFileName)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 		return
 	}
+	//写入分段视频数据
 	err = logic.MakeDASHSegments(videoFileName)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "创建DASH视频切片失败:"+err.Error())
@@ -82,7 +84,8 @@ func UploadVideo(c *gin.Context) {
 		}
 	}()
 
-	/*将视频数据插入数据库*/
+	//将视频数据插入数据库
+
 	VID, err := logic.CreateVideoRecord(tx, c, UserID, videoFileName, FH.Size)
 	if err != nil {
 		tx.Rollback()
@@ -90,7 +93,7 @@ func UploadVideo(c *gin.Context) {
 		return
 	}
 
-	/*将视频标签数据插入数据库*/
+	//将视频标签数据插入数据库
 	Tags := c.PostFormArray("tags")
 	if len(Tags) != 0 {
 		tags := make([]*EntitySets.Tags, len(Tags))
@@ -403,8 +406,8 @@ func ThrowShell(c *gin.Context) {
 // @Param class query string true "根据分类给出视频列表"
 // @Router /video/{ID}/throwShell [get]
 func GetHomeVideoList(c *gin.Context) {
-	class := c.DefaultQuery("class", "recommend")
-	logic.GetVideoListByClass(class)
+	//class := c.DefaultQuery("class", "recommend")
+	//videoInfo,err:=logic.GetVideoListByClass(class)
 }
 
 //func Test(c *gin.Context) {

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
@@ -25,6 +24,8 @@ import (
 // @Success 200 {string}  json "{"code":"200","msg":"添加弹幕成功"}"
 // @Router /video/{ID}/AddBarrage [post]
 func AddBarrage(c *gin.Context) {
+	Utilities.AddFuncName(c, "Service::Barrage::AddBarrage")
+	var err error
 	VID := Utilities.String2Int64(c.Param("ID"))
 	u, _ := c.Get("user")
 	UID := u.(*logic.UserClaims).UserId
@@ -44,9 +45,10 @@ func AddBarrage(c *gin.Context) {
 		Second:  uint8(t[2]),
 		Color:   color,
 	}
-	err := EntitySets.InsertBarrageRecord(DAO.DB, barrage)
+
+	err = logic.AddVideoBarrage(c, VID, barrage)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Barrage::AddBarrage", define.AddBarrageFailed, "添加弹幕失败:"+err.Error())
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
 	Utilities.SendJsonMsg(c, http.StatusOK, "添加弹幕成功")

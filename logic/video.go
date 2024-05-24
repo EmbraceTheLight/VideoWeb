@@ -64,10 +64,13 @@ func CreateVideoRecord(tx *gorm.DB, c *gin.Context, UserID int64, videoFilePath 
 
 	VID = GetUUID()
 	UID := UserID
+	var userInfo EntitySets.User
+	err = tx.Model(&EntitySets.User{}).Where("id = ?", UserID).First(&userInfo).Error
 	video := &EntitySets.Video{
 		MyModel:     define.MyModel{},
 		VideoID:     VID,
 		UID:         UID,
+		UserName:    userInfo.UserName,
 		Title:       Title,
 		Description: Description,
 		Class:       Class,
