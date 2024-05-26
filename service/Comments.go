@@ -1,7 +1,6 @@
 package service
 
 import (
-	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
 	"VideoWeb/define"
@@ -16,14 +15,16 @@ import (
 // @Accept json
 // @Produce json
 // @Param VideoID query string true "用户要评论的视频ID"
-// @Param UserID query string true "用户ID"
+// @Param Authorization header string true "token"
 // @Param CommentContent formData string true "用户要评论的内容"
+// @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
 // @Router /Comment/ToVideo [post]
 func CommentToVideo(c *gin.Context) {
 	VID := c.Query("VideoID")
-	UID := c.Query("UserID")
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
 	Content := c.PostForm("CommentContent")
-	userID := Utilities.String2Int64(UID)
+	userID := UID
 	videoID := Utilities.String2Int64(VID)
 
 	Country, City := logic.GetUserIpInfo(c)
@@ -40,13 +41,11 @@ func CommentToVideo(c *gin.Context) {
 		Content:   Content,
 		IPAddress: Country + " " + City,
 	}
-
-	err := EntitySets.InsertCommentRecord(DAO.DB, comment)
+	err := logic.AddCommentToVideo(c, comment)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.CreateCommentToVideoFailed, "创建用户评论（To视频）记录失败")
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
-
 	//根据视频ID获得视频Up主ID
 	//up, err := EntitySets.GetVideoInfoByID(tx, videoID)
 	//if err != nil {
@@ -66,9 +65,10 @@ func CommentToVideo(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param VideoID query string true "用户要评论的视频ID"
-// @Param UserID query string true "用户ID"
-// @Param UserID query string true "用户要评论的评论ID"
+// @Param Authorization header string true "token"
+// @Param CommentID query string true "用户要评论的评论ID"
 // @Param CommentContent formData string true "用户要评论的内容"
+// @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
 // @Router /Comment/ToUser [post]
 func CommentToOtherUser(c *gin.Context) {
 

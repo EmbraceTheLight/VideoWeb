@@ -18,7 +18,7 @@ func UpdateUserFieldForUpdate(UserID int64, field string, change int, tx *gorm.D
 				tx.Rollback()
 			}
 		}()
-		tx = tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
+		tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
 		err := EntitySets.UpdateUserNumField(tx, UserID, field, change)
 		if err != nil {
 			tx.Rollback()

@@ -65,7 +65,10 @@ func CreateVideoRecord(tx *gorm.DB, c *gin.Context, UserID int64, videoFilePath 
 	VID = GetUUID()
 	UID := UserID
 	var userInfo EntitySets.User
-	err = tx.Model(&EntitySets.User{}).Where("id = ?", UserID).First(&userInfo).Error
+	err = tx.Model(&EntitySets.User{}).Where("user_id = ?", UserID).First(&userInfo).Error
+	if err != nil {
+		return VID, err
+	}
 	video := &EntitySets.Video{
 		MyModel:     define.MyModel{},
 		VideoID:     VID,
@@ -306,23 +309,44 @@ func UpdateVideoFavorite(c *gin.Context, videoID, fid, uid int64, change int) er
 	}()
 
 	/*收藏视频*/
-	//增加用户收藏记录
-	newFV := &RelationshipSets.FavoriteVideo{
-		UserID:     uid,
-		FavoriteID: fid,
-		VideoID:    videoID,
+	//更新用户收藏记录
+	if change == 1 { //收藏
+		newFV := &RelationshipSets.FavoriteVideo{
+			UserID:     uid,
+			FavoriteID: fid,
+			VideoID:    videoID,
+		}
+		err = RelationshipSets.InsertFavoriteVideoRecord(tx, newFV)
+	} else if change == -1 { //取消收藏
+		err = RelationshipSets.DeleteFavoriteVideoRecordByUserIDVideoID(tx, uid, videoID)
 	}
-	err = RelationshipSets.InsertFavoriteVideoRecord(tx, newFV)
 	if err != nil {
 		return err
 	}
+
 	//更新Video收藏数
-	err = helper.UpdateVideoFieldForUpdate(videoID, "cnt_favorites", change, tx)
+	println(change)
+	err = helper.UpdateVideoFieldForUpdate(videoID, "cnt_favorites", change, tx.Set("gorm:query_option", "FOR UPDATE"))
 	if err != nil {
 		return err
 	}
+
 	//更新UserVideo用户状态
-	err = helper.UpdateUserVideoFieldForUpdate(uid, videoID, "is_favor", true, tx)
+	if change == 1 { //收藏
+		err = helper.UpdateUserVideoFieldForUpdate(uid, videoID, "is_favor", true, tx)
+	} else if change == -1 { //取消收藏
+		err = helper.UpdateUserVideoFieldForUpdate(uid, videoID, "is_favor", false, tx)
+	}
+	if err != nil {
+		return err
+	}
+
+	//更新视频热度
+	if change == 1 { //收藏
+		err = helper.UpdateVideoFieldForUpdate(videoID, "hot", define.AddHotEachFavorite, tx)
+	} else if change == -1 { //取消收藏
+		err = helper.UpdateVideoFieldForUpdate(videoID, "hot", -define.AddHotEachFavorite, tx)
+	}
 	if err != nil {
 		return err
 	}
@@ -331,10 +355,15 @@ func UpdateVideoFavorite(c *gin.Context, videoID, fid, uid int64, change int) er
 }
 
 // GetVideoListByClass 根据分类及其热度获取视频列表
-func GetVideoListByClass(class string) (videos []*EntitySets.Video, err error) {
-	if class != "recommend" {
-		err = DAO.DB.Model(&EntitySets.Video{}).
-			Order("hot desc").Limit(define.DefaultSize).Find(&videos).Error
+func GetVideoListByClass(c *gin.Context, class string) (videos []*EntitySets.VideoSummary, err error) {
+	defer func() {
+		if err != nil {
+			Utilities.AddFuncName(c, "GetVideoListByClass")
+		}
+	}()
+	if class == "recommend" {
+		err = DAO.DB.Model(&EntitySets.Video{}).Debug().
+			Order("hot desc").Limit(define.DefaultSize).Omit("class").Find(&videos).Error
 	} else {
 		err = DAO.DB.Model(&EntitySets.Video{}).Where("class=?", class).
 			Order("hot desc").Limit(define.DefaultSize).Find(&videos).Error

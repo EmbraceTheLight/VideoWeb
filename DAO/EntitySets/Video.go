@@ -8,7 +8,7 @@ import (
 // VideoSummary 视频摘要信息
 type VideoSummary struct {
 	VideoID     int64  `json:"VID"`
-	VCName      string `json:"VCName"` //Video Creator Name
+	VCName      string `json:"VCName" gorm:"column:user_name"` //Video Creator Name
 	CntBarrages uint32 `json:"CntBarrages"`
 	Title       string `json:"Title"`
 	CntViews    uint32 `json:"CntViews"`
@@ -22,7 +22,7 @@ type Video struct {
 	//用户显式指定
 	Title       string `json:"Title" gorm:"column:title;type:varchar(100);index:,class:FULLTEXT"` //视频题目,添加了全文索引
 	Description string `json:"Description" gorm:"column:description;type:text"`                   //视频描述
-	Class       string `json:"Class" gorm:"column:class;type:varchar(20)index:idx_class_hot"`     //视频分类
+	Class       string `json:"Class" gorm:"column:class;type:varchar(20);index:idx_class_hot"`    //视频分类
 	Path        string `json:"Path" gorm:"column:path;type:varchar(200)"`                         //视频路径
 	//系统默认生成
 	VideoID      int64  `json:"VID" gorm:"column:video_id;type:bigint;primaryKey"`                     //视频唯一标识

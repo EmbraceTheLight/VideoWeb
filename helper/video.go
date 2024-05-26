@@ -41,7 +41,8 @@ func UpdateVideoFieldForUpdate(videoID int64, field string, change int, tx *gorm
 				tx.Rollback()
 			}
 		}()
-		tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
+		tx.Set("gorm:query_option", "FOR UPDATE")
+		//添加行级锁(悲观)
 		err = EntitySets.UpdateVideoField(tx, videoID, field, change)
 		if err != nil {
 			return err

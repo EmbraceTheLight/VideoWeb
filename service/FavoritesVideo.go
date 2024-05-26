@@ -31,3 +31,26 @@ func BookmarkVideo(c *gin.Context) {
 	}
 	Utilities.SendJsonMsg(c, http.StatusOK, "收藏成功")
 }
+
+// UnBookmarkVideo
+// @Tags Video API
+// @summary 取消收藏视频
+// @Accept json
+// @Produce json
+// @Param ID path string true "视频ID"
+// @Param Authorization header string true "token"
+// @Success 200 {string}  json "{"code":"200","msg":"取消收藏成功"}"
+// @Router /video/{ID}/UnBookmark [delete]
+func UnBookmarkVideo(c *gin.Context) {
+	Utilities.AddFuncName(c, "Service::Video::BookmarkVideo")
+	VID := Utilities.String2Int64(c.Param("ID"))
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
+	var FID int64 = 0 // 取消收藏时，收藏夹ID为0
+	err := logic.UpdateVideoFavorite(c, VID, FID, UID, -1)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+	Utilities.SendJsonMsg(c, http.StatusOK, "取消收藏成功")
+}

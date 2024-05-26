@@ -71,12 +71,14 @@ func CollectRouter(r *gin.Engine) {
 	{
 		video.GET("/OfferMpd", service.OfferMpd)
 		video.GET("/DASHStreamTransmission", service.DASHStreamTransmission)
+		video.GET("/getHomeVideoList", middlewares.CheckIfUserLogin(), service.GetHomeVideoList)
 		video.POST("/upload", middlewares.CheckIfUserLogin(), service.UploadVideo)
 
 		videoInfo := video.Group("/:ID", middlewares.CheckIfUserLogin()) //ID为视频ID
 		{
 			videoInfo.POST("/AddBarrage", service.AddBarrage)
 			videoInfo.POST("/Bookmark", service.BookmarkVideo)
+			videoInfo.DELETE("/UnBookmark", service.UnBookmarkVideo)
 			videoInfo.PUT("/likeOrUndoLike", service.LikeOrUndoLike)
 			videoInfo.PUT("/throwShell", service.ThrowShell)
 			videoInfo.GET("/StreamTransmission", service.StreamTransmission)
@@ -88,7 +90,7 @@ func CollectRouter(r *gin.Engine) {
 	}
 
 	//评论相关接口
-	comment := r.Group("/Comment")
+	comment := r.Group("/Comment", middlewares.CheckIfUserLogin())
 	{
 		comment.POST("/ToVideo", service.CommentToVideo)
 		comment.POST("/ToUser", service.CommentToOtherUser)

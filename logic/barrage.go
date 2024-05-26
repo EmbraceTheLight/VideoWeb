@@ -12,18 +12,18 @@ import (
 // AddVideoBarrage 添加视频弹幕
 func AddVideoBarrage(c *gin.Context, VID int64, barrage *EntitySets.Barrage) error {
 	var err error
-	Utilities.AddFuncName(c, "AddVideoBarrage")
 
 	tx := DAO.DB.Begin()
 	defer func() {
 		if err != nil {
+			Utilities.AddFuncName(c, "AddVideoBarrage")
 			tx.Rollback()
 		}
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
-	tx = tx.Set("gorm:query_option", "FOR UPDATE")
+	tx.Set("gorm:query_option", "FOR UPDATE")
 	/*更新视频弹幕信息*/
 	//添加弹幕记录
 	err = EntitySets.InsertBarrageRecord(tx, barrage)
@@ -31,7 +31,7 @@ func AddVideoBarrage(c *gin.Context, VID int64, barrage *EntitySets.Barrage) err
 		return err
 	}
 	//更新视频弹幕数
-	err = helper.UpdateVideoFieldForUpdate(VID, "cnt_barrage", 1, tx)
+	err = helper.UpdateVideoFieldForUpdate(VID, "cnt_barrages", 1, tx)
 	if err != nil {
 		return err
 	}

@@ -669,6 +669,31 @@ paths:
       summary: 流式传输视频
       tags:
       - Video API
+  /video/{ID}/UnBookmark:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"取消收藏成功"}'
+          schema:
+            type: string
+      summary: 取消收藏视频
+      tags:
+      - Video API
   /video/{ID}/delete:
     delete:
       consumes:
@@ -799,6 +824,26 @@ paths:
       - application/octet-stream
       responses: {}
       summary: 提供DASH所需的.mpd文件
+      tags:
+      - Video API
+  /video/getHomeVideoList:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 根据分类给出视频列表
+        in: query
+        name: class
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 主页根据分类获取视频列表
       tags:
       - Video API
   /video/upload:

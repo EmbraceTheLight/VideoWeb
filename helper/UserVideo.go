@@ -17,7 +17,7 @@ func UpdateUserVideoFieldForUpdate(UserID, VideoID int64, field string, change b
 				tx.Rollback()
 			}
 		}()
-		tx = tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
+		tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
 		err := RelationshipSets.UpdateUserVideoRecord(tx, UserID, VideoID, field, change)
 		if err != nil {
 			tx.Rollback()

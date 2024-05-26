@@ -399,15 +399,24 @@ func ThrowShell(c *gin.Context) {
 
 // GetHomeVideoList
 // @Tags Video API
-// @summary 主页获取视频列表
+// @summary 主页根据分类获取视频列表
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param class query string true "根据分类给出视频列表"
-// @Router /video/{ID}/throwShell [get]
+// @Param class query string false "根据分类给出视频列表"
+// @Router /video/getHomeVideoList [get]
 func GetHomeVideoList(c *gin.Context) {
-	//class := c.DefaultQuery("class", "recommend")
-	//videoInfo,err:=logic.GetVideoListByClass(class)
+	class := c.DefaultQuery("class", "recommend")
+	println("class is", class)
+	videoInfo, err := logic.GetVideoListByClass(c, class)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"data": videoInfo,
+	})
 }
 
 //func Test(c *gin.Context) {

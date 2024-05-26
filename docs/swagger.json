@@ -918,6 +918,36 @@
                 "responses": {}
             }
         },
+        "/video/getHomeVideoList": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "主页根据分类获取视频列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "根据分类给出视频列表",
+                        "name": "class",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/video/upload": {
             "post": {
                 "consumes": [
@@ -1134,6 +1164,44 @@
                     }
                 ],
                 "responses": {}
+            }
+        },
+        "/video/{ID}/UnBookmark": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "取消收藏视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"取消收藏成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/video/{ID}/delete": {
