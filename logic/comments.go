@@ -36,7 +36,7 @@ func AddCommentToVideo(c *gin.Context, comment *EntitySets.Comments) error {
 }
 
 // LikeOrDislikeComment 点赞或点踩评论
-func LikeOrDislikeComment(c *gin.Context, userID, commentID int64, isLike bool) error {
+func LikeOrDislikeComment(c *gin.Context, userID, commentID, videoID int64, isLike bool) error {
 	var err error
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -56,7 +56,7 @@ func LikeOrDislikeComment(c *gin.Context, userID, commentID int64, isLike bool) 
 		return err
 	}
 	//插入点赞/点踩记录
-	err = helper.UpdateUserCommentRecord(userID, commentID, isLike, false, tx)
+	err = helper.UpdateUserCommentRecord(userID, commentID, videoID, isLike, false, tx)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func LikeOrDislikeComment(c *gin.Context, userID, commentID int64, isLike bool) 
 }
 
 // UndoLikeOrDislikeComment 取消点赞或取消点踩评论
-func UndoLikeOrDislikeComment(c *gin.Context, userID, commentID int64, isLike bool) error {
+func UndoLikeOrDislikeComment(c *gin.Context, userID, commentID, videoID int64, isLike bool) error {
 	var err error
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -87,7 +87,7 @@ func UndoLikeOrDislikeComment(c *gin.Context, userID, commentID int64, isLike bo
 	}
 
 	//删除点赞/点踩记录
-	err = helper.UpdateUserCommentRecord(userID, commentID, isLike, true, tx)
+	err = helper.UpdateUserCommentRecord(userID, commentID, videoID, isLike, true, tx)
 	if err != nil {
 		return err
 	}

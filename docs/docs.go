@@ -67,10 +67,10 @@ const docTemplate = `{
                 }
             }
         },
-        "/Comment/ToUser": {
+        "/Comment/{VideoID}/Comment": {
             "post": {
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -78,27 +78,26 @@ const docTemplate = `{
                 "tags": [
                     "Comment API"
                 ],
-                "summary": "用户评论其他用户",
+                "summary": "用户评论视频",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "用户要评论的视频ID",
                         "name": "VideoID",
-                        "in": "query",
+                        "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户要评论的对象ID",
+                        "name": "To",
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "token",
                         "name": "Authorization",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户要评论的评论ID",
-                        "name": "CommentID",
-                        "in": "query",
                         "required": true
                     },
                     {
@@ -119,8 +118,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/Comment/ToVideo": {
-            "post": {
+        "/Comment/{VideoID}/LikeOrDislikeComment": {
+            "put": {
                 "consumes": [
                     "application/json"
                 ],
@@ -130,22 +129,8 @@ const docTemplate = `{
                 "tags": [
                     "Comment API"
                 ],
-                "summary": "用户评论视频",
+                "summary": "用户点赞评论",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户要评论的视频ID",
-                        "name": "VideoID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户要评论的对象ID",
-                        "name": "To",
-                        "in": "query",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "token",
@@ -154,10 +139,62 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "boolean",
+                        "description": "是点赞还是点踩",
+                        "name": "IsLike",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "type": "string",
-                        "description": "用户要评论的内容",
-                        "name": "CommentContent",
-                        "in": "formData",
+                        "description": "用户要点赞/点踩的评论ID",
+                        "name": "CommentID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"操作成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/Comment/{VideoID}/UndoLikeOrDislikeComment": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comment API"
+                ],
+                "summary": "用户撤销点赞/点踩评论",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是点赞还是点踩",
+                        "name": "IsLike",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户撤销点赞/点踩的评论ID",
+                        "name": "CommentID",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -948,37 +985,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/video/getVideoList": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Video API"
-                ],
-                "summary": "主页根据分类获取视频列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "根据分类给出视频列表",
-                        "name": "class",
-                        "in": "query"
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/video/upload": {
+        "/video/Upload": {
             "post": {
                 "consumes": [
                     "multipart/form-data"
@@ -1062,6 +1069,36 @@ const docTemplate = `{
                         "description": "视频描述",
                         "name": "description",
                         "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/VideoList": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "主页根据分类获取视频列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "根据分类给出视频列表",
+                        "name": "class",
+                        "in": "query"
                     }
                 ],
                 "responses": {}
@@ -1170,33 +1207,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/video/{ID}/StreamTransmission": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/octet-stream"
-                ],
-                "tags": [
-                    "Video API"
-                ],
-                "summary": "流式传输视频",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "要传输的视频ID",
-                        "name": "ID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/video/{ID}/UnBookmark": {
+            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -1234,55 +1245,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/video/{ID}/delete": {
-            "delete": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Video API"
-                ],
-                "summary": "用户删除视频",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "视频ID",
-                        "name": "ID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/video/{ID}/download": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/octet-stream"
-                ],
-                "tags": [
-                    "Video API"
-                ],
-                "summary": "用户下载视频(根据视频ID下载视频)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户要下载的视频ID",
-                        "name": "ID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/video/{ID}/getVideoComments": {
+        "/video/{ID}/Comments": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -1333,7 +1296,31 @@ const docTemplate = `{
                 }
             }
         },
-        "/video/{ID}/getVideoDetail": {
+        "/video/{ID}/Delete": {
+            "delete": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "用户删除视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/{ID}/Download": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -1344,27 +1331,20 @@ const docTemplate = `{
                 "tags": [
                     "Video API"
                 ],
-                "summary": "提供视频信息详情",
+                "summary": "用户下载视频(根据视频ID下载视频)",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "要获取的视频ID",
+                        "description": "用户要下载的视频ID",
                         "name": "ID",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
                 "responses": {}
             }
         },
-        "/video/{ID}/likeOrUndoLike": {
+        "/video/{ID}/LikeOrUndoLike": {
             "put": {
                 "consumes": [
                     "application/json"
@@ -1395,7 +1375,31 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/video/{ID}/throwShell": {
+        "/video/{ID}/StreamTransmission": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "流式传输视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要传输的视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/{ID}/ThrowShell": {
             "put": {
                 "consumes": [
                     "application/json"
@@ -1427,6 +1431,37 @@ const docTemplate = `{
                         "description": "投贝壳的贝壳数量",
                         "name": "shells",
                         "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/{ID}/VideoDetail": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "提供视频信息详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要获取的视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],

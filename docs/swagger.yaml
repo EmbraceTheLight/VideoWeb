@@ -37,55 +37,19 @@ paths:
       summary: 发送验证码
       tags:
       - Captcha API
-  /Comment/ToUser:
+  /Comment/{VideoID}/Comment:
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       parameters:
       - description: 用户要评论的视频ID
-        in: query
-        name: VideoID
-        required: true
-        type: string
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: 用户要评论的评论ID
-        in: query
-        name: CommentID
-        required: true
-        type: string
-      - description: 用户要评论的内容
-        in: formData
-        name: CommentContent
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","msg":"发送评论成功"}'
-          schema:
-            type: string
-      summary: 用户评论其他用户
-      tags:
-      - Comment API
-  /Comment/ToVideo:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户要评论的视频ID
-        in: query
+        in: path
         name: VideoID
         required: true
         type: string
       - description: 用户要评论的对象ID
         in: query
         name: To
-        required: true
         type: string
       - description: token
         in: header
@@ -105,6 +69,66 @@ paths:
           schema:
             type: string
       summary: 用户评论视频
+      tags:
+      - Comment API
+  /Comment/{VideoID}/LikeOrDislikeComment:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 是点赞还是点踩
+        in: query
+        name: IsLike
+        required: true
+        type: boolean
+      - description: 用户要点赞/点踩的评论ID
+        in: query
+        name: CommentID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"操作成功"}'
+          schema:
+            type: string
+      summary: 用户点赞评论
+      tags:
+      - Comment API
+  /Comment/{VideoID}/UndoLikeOrDislikeComment:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 是点赞还是点踩
+        in: query
+        name: IsLike
+        required: true
+        type: boolean
+      - description: 用户撤销点赞/点踩的评论ID
+        in: query
+        name: CommentID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"发送评论成功"}'
+          schema:
+            type: string
+      summary: 用户撤销点赞/点踩评论
       tags:
       - Comment API
   /User/AddSearchHistory:
@@ -637,6 +661,30 @@ paths:
       tags:
       - Barrage API
   /video/{ID}/Bookmark:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"取消收藏成功"}'
+          schema:
+            type: string
+      summary: 取消收藏视频
+      tags:
+      - Video API
     post:
       consumes:
       - application/json
@@ -666,80 +714,7 @@ paths:
       summary: 收藏视频
       tags:
       - Video API
-  /video/{ID}/StreamTransmission:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 要传输的视频ID
-        in: path
-        name: ID
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses: {}
-      summary: 流式传输视频
-      tags:
-      - Video API
-  /video/{ID}/UnBookmark:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: 视频ID
-        in: path
-        name: ID
-        required: true
-        type: string
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","msg":"取消收藏成功"}'
-          schema:
-            type: string
-      summary: 取消收藏视频
-      tags:
-      - Video API
-  /video/{ID}/delete:
-    delete:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: 视频ID
-        in: path
-        name: ID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 用户删除视频
-      tags:
-      - Video API
-  /video/{ID}/download:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户要下载的视频ID
-        in: path
-        name: ID
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses: {}
-      summary: 用户下载视频(根据视频ID下载视频)
-      tags:
-      - Video API
-  /video/{ID}/getVideoComments:
+  /video/{ID}/Comments:
     get:
       consumes:
       - application/json
@@ -773,28 +748,39 @@ paths:
       summary: 获取视频评论列表
       tags:
       - Comment API
-  /video/{ID}/getVideoDetail:
-    get:
+  /video/{ID}/Delete:
+    delete:
       consumes:
-      - application/json
+      - multipart/form-data
       parameters:
-      - description: 要获取的视频ID
+      - description: 视频ID
         in: path
         name: ID
         required: true
         type: string
-      - description: token
-        in: header
-        name: Authorization
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户删除视频
+      tags:
+      - Video API
+  /video/{ID}/Download:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户要下载的视频ID
+        in: path
+        name: ID
         required: true
         type: string
       produces:
       - application/octet-stream
       responses: {}
-      summary: 提供视频信息详情
+      summary: 用户下载视频(根据视频ID下载视频)
       tags:
       - Video API
-  /video/{ID}/likeOrUndoLike:
+  /video/{ID}/LikeOrUndoLike:
     put:
       consumes:
       - application/json
@@ -815,7 +801,23 @@ paths:
       summary: 用户点赞/取消点赞视频
       tags:
       - Video API
-  /video/{ID}/throwShell:
+  /video/{ID}/StreamTransmission:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要传输的视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 流式传输视频
+      tags:
+      - Video API
+  /video/{ID}/ThrowShell:
     put:
       consumes:
       - application/json
@@ -839,6 +841,27 @@ paths:
       - application/json
       responses: {}
       summary: 用户为视频扔贝壳，由前端负责检查贝壳数量是否足够投喂
+      tags:
+      - Video API
+  /video/{ID}/VideoDetail:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要获取的视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 提供视频信息详情
       tags:
       - Video API
   /video/DASHStreamTransmission:
@@ -873,27 +896,7 @@ paths:
       summary: 提供DASH所需的.mpd文件
       tags:
       - Video API
-  /video/getVideoList:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: 根据分类给出视频列表
-        in: query
-        name: class
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 主页根据分类获取视频列表
-      tags:
-      - Video API
-  /video/upload:
+  /video/Upload:
     post:
       consumes:
       - multipart/form-data
@@ -958,6 +961,26 @@ paths:
       - application/json
       responses: {}
       summary: 用户上传视频
+      tags:
+      - Video API
+  /video/VideoList:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 根据分类给出视频列表
+        in: query
+        name: class
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 主页根据分类获取视频列表
       tags:
       - Video API
 swagger: "2.0"

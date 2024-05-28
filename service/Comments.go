@@ -75,6 +75,7 @@ func LikeOrDislikeComment(c *gin.Context) {
 	u, _ := c.Get("user")
 	UID := u.(*logic.UserClaims).UserId
 	commentID := Utilities.String2Int64(c.Query("CommentID"))
+	videoID := Utilities.String2Int64(c.Param("VideoID"))
 	Like := c.Query("isLike")
 	var isLike bool
 	if Like == "true" {
@@ -83,7 +84,7 @@ func LikeOrDislikeComment(c *gin.Context) {
 		isLike = false
 	}
 
-	err := logic.LikeOrDislikeComment(c, UID, commentID, isLike)
+	err := logic.LikeOrDislikeComment(c, UID, commentID, videoID, isLike)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return
@@ -106,6 +107,7 @@ func UndoLikeOrDislikeComment(c *gin.Context) {
 	u, _ := c.Get("user")
 	UID := u.(*logic.UserClaims).UserId
 	commentID := Utilities.String2Int64(c.Query("CommentID"))
+	videoID := Utilities.String2Int64(c.Param("VideoID"))
 	Like := c.Query("isLike")
 	var isLike bool
 	if Like == "true" {
@@ -114,7 +116,7 @@ func UndoLikeOrDislikeComment(c *gin.Context) {
 		isLike = false
 	}
 
-	err := logic.UndoLikeOrDislikeComment(c, UID, commentID, isLike)
+	err := logic.UndoLikeOrDislikeComment(c, UID, commentID, videoID, isLike)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return

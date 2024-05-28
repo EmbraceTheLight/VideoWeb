@@ -7,18 +7,20 @@ import (
 
 type UserLikedComments struct {
 	define.MyModel
-	UID int64 `json:"uid" gorm:"primaryKey;column:user_id;type:bigint;index:idx_uid_cid"`
-	CID int64 `json:"vid" gorm:"primaryKey;column:comment_id;type:bigint;index:idx_uid_cid"`
+	UID int64 `json:"uid" gorm:"primaryKey;column:user_id;type:bigint;index:idx_uid_vid_cid"`
+	VID int64 `json:"vid" gorm:"primaryKey;column:video_id;type:bigint;index:idx_uid_vid_cid"`
+	CID int64 `json:"cid" gorm:"primaryKey;column:comment_id;type:bigint;index:idx_uid_vid_cid"`
 }
 
 func (*UserLikedComments) TableName() string {
 	return "user_liked_comments"
 }
 
-func InsertUserLikedCommentRecord(db *gorm.DB, uid, cid int64) error {
+func InsertUserLikedCommentRecord(db *gorm.DB, uid, vid, cid int64) error {
 	ulc := &UserLikedComments{
 		MyModel: define.MyModel{},
 		UID:     uid,
+		VID:     vid,
 		CID:     cid,
 	}
 	return db.Model(&UserLikedComments{}).Create(ulc).Error
@@ -30,18 +32,20 @@ func DeleteUserLikedCommentRecord(db *gorm.DB, uid, cid int64) error {
 
 type UserDislikedComments struct {
 	define.MyModel
-	UID int64 `json:"uid" gorm:"primaryKey;column:user_id;type:bigint;index:idx_uid_cid"`
-	CID int64 `json:"vid" gorm:"primaryKey;column:comment_id;type:bigint;index:idx_uid_cid"`
+	UID int64 `json:"uid" gorm:"primaryKey;column:user_id;type:bigint;index:idx_uid_vid_cid"`
+	VID int64 `json:"vid" gorm:"primaryKey;column:video_id;type:bigint;index:idx_uid_vid_cid"`
+	CID int64 `json:"cid" gorm:"primaryKey;column:comment_id;type:bigint;index:idx_uid_vid_cid"`
 }
 
 func (*UserDislikedComments) TableName() string {
 	return "user_unliked_comments"
 }
 
-func InsertUserDislikedCommentRecord(db *gorm.DB, uid, cid int64) error {
+func InsertUserDislikedCommentRecord(db *gorm.DB, uid, vid, cid int64) error {
 	udlc := &UserLikedComments{
 		MyModel: define.MyModel{},
 		UID:     uid,
+		VID:     vid,
 		CID:     cid,
 	}
 	return db.Model(&UserDislikedComments{}).Create(udlc).Error
