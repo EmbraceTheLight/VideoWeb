@@ -33,7 +33,7 @@ import (
 // @Router /video/Upload [post]
 func UploadVideo(c *gin.Context) {
 	u, _ := c.Get("user")
-	UserID := u.(*logic.UserClaims).UserId
+	UserID := logic.GetUserID(u)
 	/*检查视频后缀名*/
 	FH, _ := c.FormFile("uploadVideo")
 	if err := Utilities.CheckVideoExt(FH.Filename); err != nil {
@@ -51,7 +51,7 @@ func UploadVideo(c *gin.Context) {
 	/*在对应目录下创建并写入文件*/
 	baseVideoName := path.Base(videoPath)                              //获得刚才创建的目录名作为文件名
 	videoFileName := videoPath + baseVideoName + path.Ext(FH.Filename) //拼接视频文件名
-	defer func() { //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
+	defer func() {                                                     //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
 		if err != nil {
 			e := os.RemoveAll(videoPath)
 			if e == nil {
@@ -332,7 +332,7 @@ func GetVideoInfo(c *gin.Context) {
 func LikeOrUndoLike(c *gin.Context) {
 	Utilities.AddFuncName(c, "Service::Videos::LikeOrUndoLike")
 	u, _ := c.Get("user")
-	UserID := u.(*logic.UserClaims).UserId
+	UserID := logic.GetUserID(u)
 	VideoID := Utilities.String2Int64(c.Param("ID"))
 
 	/*查找对应的UserVideo记录*/
@@ -371,7 +371,7 @@ func ThrowShell(c *gin.Context) {
 	Utilities.AddFuncName(c, "Service::Videos::ThrowShell")
 	VID := Utilities.String2Int64(c.Param("ID"))
 	u, _ := c.Get("user")
-	TSUID := u.(*logic.UserClaims).UserId
+	TSUID := logic.GetUserID(u)
 	tmpShells := c.Query("shells")
 
 	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, VID)
@@ -410,7 +410,6 @@ func ThrowShell(c *gin.Context) {
 // @Router /video/VideoList [get]
 func GetVideoList(c *gin.Context) {
 	class := c.DefaultQuery("class", "recommend")
-	println("class is", class)
 	videoInfo, err := logic.GetVideoListByClass(c, class)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
@@ -428,6 +427,7 @@ func GetVideoList(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param ID path string true "视频ID"
+// @Param Authorization header string true "token"
 // @Param commentNums query int true "请求的评论数量"
 // @Param offset query int true "评论的偏移量"
 // @Param order query string false "评论排序方式"
@@ -435,12 +435,14 @@ func GetVideoList(c *gin.Context) {
 // @Router /video/{ID}/Comments [get]
 func GetVideoComments(c *gin.Context) {
 	Utilities.AddFuncName(c, "Service::Videos::GetVideoComments")
+	u, _ := c.Get("user")
+	UID := logic.GetUserID(u)
 	VID := Utilities.String2Int64(c.Param("ID"))
 	Offset := Utilities.String2Int64(c.Query("offset"))
 	CommentNums := Utilities.String2Int64(c.Query("commentNums"))
 	order := c.DefaultQuery("order", "default")
 
-	comments, err := logic.GetVideoCommentsList(c, VID, order, Offset, CommentNums)
+	comments, err := logic.GetVideoCommentsList(c, VID, UID, order, Offset, CommentNums)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return

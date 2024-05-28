@@ -190,7 +190,7 @@ func Login(c *gin.Context) {
 func Logout(c *gin.Context) {
 	Utilities.AddFuncName(c, "service::Users::Logout")
 	u, _ := c.Get("user")
-	id := u.(*logic.UserClaims).UserId
+	id := logic.GetUserID(u)
 	///*删除用户磁盘资源，如视频、图片、音频等*/
 	//err := logic.RemoveUserResource(strconv.FormatInt(id, 10))
 	//if err != nil {
@@ -218,7 +218,7 @@ func Logout(c *gin.Context) {
 // @Router /User/User-detail [get]
 func GetUserDetail(c *gin.Context) {
 	u, _ := c.Get("user")
-	userID := u.(*logic.UserClaims).UserId
+	userID := logic.GetUserID(u)
 
 	var userInfo = new(EntitySets.User)
 	err := DAO.DB.Omit("password").Where("user_id=?", userID).Preload("Videos").Preload("Favorites").
@@ -246,7 +246,7 @@ func GetUserDetail(c *gin.Context) {
 // @Router /User/ModifySignature [put]
 func ModifyUserSignature(c *gin.Context) {
 	u, _ := c.Get("user")
-	id := u.(*logic.UserClaims).UserId
+	id := logic.GetUserID(u)
 	signature := c.PostForm("userSignature")
 	if utf8.RuneCountInString(signature) > 25 {
 		Utilities.SendErrMsg(c, "service::Users::ModifySignature", define.SignatureTooLong, "个性签名过长，请重新输入")
@@ -275,7 +275,7 @@ func ModifyUserSignature(c *gin.Context) {
 func ModifyUserEmail(c *gin.Context) {
 	//获取用户id,email,验证码
 	u, _ := c.Get("user")
-	id := u.(*logic.UserClaims).UserId
+	id := logic.GetUserID(u)
 	userEmail := c.PostForm("userEmail")
 	verify := c.PostForm("Code")
 
@@ -313,7 +313,7 @@ func ModifyUserEmail(c *gin.Context) {
 // @Router /User/ForgetPassword [put]
 func ForgetPassword(c *gin.Context) {
 	u, _ := c.Get("user")
-	id := u.(*logic.UserClaims).UserId
+	id := logic.GetUserID(u)
 	userEmail := c.PostForm("userEmail")
 	Code := c.PostForm("Code")
 	newPassword := c.PostForm("newPassword")
@@ -358,7 +358,7 @@ func ForgetPassword(c *gin.Context) {
 // @Router /User/ModifyPassword [put]
 func ModifyPassword(c *gin.Context) {
 	u, _ := c.Get("user")
-	id := u.(*logic.UserClaims).UserId
+	id := logic.GetUserID(u)
 	password := c.PostForm("password")
 	newPassword := c.PostForm("newPassword")
 	repeatPassword := c.PostForm("repeatPassword")
@@ -394,7 +394,7 @@ func ModifyPassword(c *gin.Context) {
 // @Router /User/ModifyUserName [put]
 func ModifyUserName(c *gin.Context) {
 	u, _ := c.Get("user")
-	id := u.(*logic.UserClaims).UserId
+	id := logic.GetUserID(u)
 	userName := c.PostForm("userName")
 
 	userInfo, err := EntitySets.GetUserInfoByID(DAO.DB, id)
@@ -431,7 +431,7 @@ func ModifyUserName(c *gin.Context) {
 // @Router /User/Face/Upload/Avatar [put]
 func UploadUserAvatar(c *gin.Context) {
 	u, _ := c.Get("user")
-	userID := u.(*logic.UserClaims).UserId
+	userID := logic.GetUserID(u)
 	FH, _ := c.FormFile("file") //FH=FileHeader
 
 	//检查文件后缀名是否为 .jpg/.jpeg/.png/.jfif
@@ -476,7 +476,7 @@ func UploadUserAvatar(c *gin.Context) {
 // @Router /User/AddSearchHistory [post]
 func AddSearchHistory(c *gin.Context) {
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	searchString := c.Query("searchString")
 	SearchHistory := &EntitySets.SearchHistory{
 		Model:        gorm.Model{},
@@ -502,7 +502,7 @@ func AddSearchHistory(c *gin.Context) {
 // @Router /User/AddVideoHistory [post]
 func AddVideoHistory(c *gin.Context) {
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	VID := Utilities.String2Int64(c.Query("VID"))
 	VideoHistory := &EntitySets.VideoHistory{
 		MyModel: define.MyModel{},

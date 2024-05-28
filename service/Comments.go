@@ -73,7 +73,7 @@ func PostComment(c *gin.Context) {
 func LikeOrDislikeComment(c *gin.Context) {
 	Utilities.AddFuncName(c, "service::Comments::LikeOrDislikeComment")
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	commentID := Utilities.String2Int64(c.Query("CommentID"))
 	videoID := Utilities.String2Int64(c.Param("VideoID"))
 	Like := c.Query("isLike")
@@ -105,7 +105,7 @@ func LikeOrDislikeComment(c *gin.Context) {
 func UndoLikeOrDislikeComment(c *gin.Context) {
 	Utilities.AddFuncName(c, "service::Comments::LikeOrDislikeComment")
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	commentID := Utilities.String2Int64(c.Query("CommentID"))
 	videoID := Utilities.String2Int64(c.Param("VideoID"))
 	Like := c.Query("isLike")

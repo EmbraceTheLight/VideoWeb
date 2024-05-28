@@ -8,7 +8,7 @@ import (
 type CommentSummary struct {
 	Comments
 	Like    bool              `json:"Like" gorm:"-"`
-	UnLike  bool              `json:"UnLike" gorm:"-"`
+	Dislike bool              `json:"Dislike" gorm:"-"`
 	Replies []*CommentSummary `json:"Replies" gorm:"-"` //回复这条评论的评论，可能包含多重嵌套
 }
 

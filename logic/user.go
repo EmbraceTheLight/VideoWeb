@@ -17,6 +17,15 @@ import (
 	"unicode/utf8"
 )
 
+// GetUserID 获取用户ID
+func GetUserID(u any) int64 {
+	if u != nil {
+		return u.(*UserClaims).UserId
+	} else {
+		return 0
+	}
+}
+
 func InsertInitRecords(defaultFavorites, privateFavorites *EntitySets.Favorites,
 	userLevel *EntitySets.Level,
 	defaultFollowList *EntitySets.FollowList,

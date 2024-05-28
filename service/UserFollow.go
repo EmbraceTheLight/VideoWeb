@@ -21,7 +21,7 @@ import (
 // @Router /User/Fans/Follows [post]
 func FollowOtherUser(c *gin.Context) {
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	FID := Utilities.String2Int64(c.Query("FID"))
 	FollowListID := Utilities.String2Int64(c.Query("FollowListID"))
 	err := logic.FollowOtherUser(c, FollowListID, UID, FID)
@@ -43,7 +43,7 @@ func FollowOtherUser(c *gin.Context) {
 // @Router /User/Fans/Unfollows [delete]
 func UnFollowOtherUser(c *gin.Context) {
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	FID := Utilities.String2Int64(c.Query("FID"))
 	FollowListID := Utilities.String2Int64(c.Query("FollowListID"))
 

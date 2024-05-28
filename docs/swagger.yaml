@@ -724,6 +724,11 @@ paths:
         name: ID
         required: true
         type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 请求的评论数量
         in: query
         name: commentNums

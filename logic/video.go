@@ -372,21 +372,36 @@ func GetVideoListByClass(c *gin.Context, class string) (videos []*EntitySets.Vid
 }
 
 // GetVideoCommentsList 获取视频评论列表
-func GetVideoCommentsList(c *gin.Context, videoID int64, order string, Page, CommentsNumbers int64) (ret []*EntitySets.CommentSummary, err error) {
+func GetVideoCommentsList(c *gin.Context, videoID, UserID int64, order string, Page, CommentsNumbers int64) (ret []*EntitySets.CommentSummary, err error) {
+	defer func() {
+		if err != nil {
+			Utilities.AddFuncName(c, "GetVideoCommentsList")
+		}
+	}()
+	//获取视频的根评论列表
 	comments, err := helper.GetRootCommentsSummariesByVideoID(videoID, order, Page, CommentsNumbers)
 	if err != nil {
-		Utilities.AddFuncName(c, "GetVideoCommentsList")
 		return nil, err
 	}
 
+	//递归获取每个根评论的回复列表
+	var replies []*EntitySets.CommentSummary
 	for _, comment := range comments {
-		replies, err := helper.GetCommentReplies(videoID, comment.UID)
+		replies, err = helper.GetCommentReplies(videoID, comment.UID)
 		if err != nil {
-			Utilities.AddFuncName(c, "GetVideoCommentsList")
 			return nil, err
 		}
 		comment.Replies = replies
 		ret = append(ret, comment)
 	}
+
+	//获取用户对这些评论的点赞/点踩信息
+	likes, dislikes, err := helper.GetUserCommentRecords(UserID, videoID, DAO.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	//遍历获得的评论，递归更新点赞/点踩信息
+	helper.UpdateCommentsStatus(likes, dislikes, ret)
 	return
 }

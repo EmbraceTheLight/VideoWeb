@@ -23,7 +23,7 @@ func GetCommentReplies(videoID, to int64) (ret []*EntitySets.CommentSummary, err
 // GetRootCommentsSummariesByVideoID 获得Root评论，即该评论不是回复其他评论的评论
 func GetRootCommentsSummariesByVideoID(videoID int64, order string, Page, CommentsNumbers int64) (ret []*EntitySets.CommentSummary, err error) {
 	if order == "default" || order == "likes" {
-		err = DAO.DB.Debug().Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, -1).
+		err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, -1).
 			Order("likes DESC").Offset(int(Page)).Limit(int(CommentsNumbers)).Find(&ret).Error
 	} else if order == "newest" {
 		err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, -1).
@@ -68,4 +68,33 @@ func UpdateUserCommentRecord(uid, cid, vid int64, isLike, isUndo bool, tx *gorm.
 		}
 	}
 	return err
+}
+
+// GetUserCommentRecords 获取用户对评论的点赞/踩状态(只有赞/踩过的评论才有状态记录)
+func GetUserCommentRecords(uid, vid int64, tx *gorm.DB) (likes, dislikes map[int64]bool, err error) {
+	l, err := RelationshipSets.GetUserLikedCommentRecordByUidVid(tx, uid, vid)
+	dl, err := RelationshipSets.GetUserDislikedCommentRecordByUidVid(tx, uid, vid)
+	likes = make(map[int64]bool)
+	dislikes = make(map[int64]bool)
+	for _, like := range l {
+		likes[like.CID] = true
+	}
+	for _, dislike := range dl {
+		dislikes[dislike.CID] = true
+	}
+	return
+}
+
+// UpdateCommentsStatus 更新CommentSummary的like/dislike状态
+func UpdateCommentsStatus(likes, dislikes map[int64]bool, comments []*EntitySets.CommentSummary) {
+	for _, cs := range comments {
+		if likes[cs.CommentID] {
+			cs.Like = true
+		} else if dislikes[cs.CommentID] {
+			cs.Dislike = true
+		}
+		if len(cs.Replies) > 0 {
+			UpdateCommentsStatus(likes, dislikes, cs.Replies)
+		}
+	}
 }

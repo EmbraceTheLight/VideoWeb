@@ -30,7 +30,7 @@ func CreateFavorites(c *gin.Context) {
 		}
 	}()
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	IsPrivate := logic.String2Int8(c.Query("IsPrivate"))
 	FavoriteID := logic.GetUUID()
 	FName := c.PostForm("FName")
@@ -72,7 +72,7 @@ func CreateFavorites(c *gin.Context) {
 // @Router /User/Favorites/Delete [delete]
 func DeleteFavorites(c *gin.Context) {
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	FName := c.Query("FName")
 
 	err := logic.DeleteFavoritesRecordsByNameUserID(FName, UID)

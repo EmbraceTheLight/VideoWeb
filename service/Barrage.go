@@ -28,7 +28,7 @@ func AddBarrage(c *gin.Context) {
 	var err error
 	VID := Utilities.String2Int64(c.Param("ID"))
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	color := c.Query("Color")
 	seconds := c.Query("Time")
 	content := c.PostForm("Content")

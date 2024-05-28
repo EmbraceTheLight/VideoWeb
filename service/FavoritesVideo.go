@@ -21,7 +21,7 @@ func BookmarkVideo(c *gin.Context) {
 	Utilities.AddFuncName(c, "Service::Video::BookmarkVideo")
 	VID := Utilities.String2Int64(c.Param("ID"))
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	FID := Utilities.String2Int64(c.Query("FID"))
 
 	err := logic.UpdateVideoFavorite(c, VID, FID, UID, 1)
@@ -45,7 +45,7 @@ func UnBookmarkVideo(c *gin.Context) {
 	Utilities.AddFuncName(c, "Service::Video::BookmarkVideo")
 	VID := Utilities.String2Int64(c.Param("ID"))
 	u, _ := c.Get("user")
-	UID := u.(*logic.UserClaims).UserId
+	UID := logic.GetUserID(u)
 	var FID int64 = 0 // 取消收藏时，用不到收藏夹，其ID置为0
 	err := logic.UpdateVideoFavorite(c, VID, FID, UID, -1)
 	if err != nil {
