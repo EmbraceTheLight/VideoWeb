@@ -54,17 +54,17 @@ func UpdateComment(commentID int64, isLike, isUndo bool, tx *gorm.DB) error {
 // UpdateUserCommentRecord 根据用户的点赞/踩操作，插入/删除用户点赞/踩状态
 func UpdateUserCommentRecord(uid, cid int64, isLike, isUndo bool, tx *gorm.DB) error {
 	var err error
-	if isUndo {
-		if isLike {
-			err = RelationshipSets.InsertUserLikedCommentRecord(tx, uid, cid)
-		} else {
-			err = RelationshipSets.InsertUserDislikedCommentRecord(tx, uid, cid)
-		}
-	} else {
+	if isUndo { //若是撤销操作，则删除用户点赞/踩记录，否则插入
 		if isLike {
 			err = RelationshipSets.DeleteUserLikedCommentRecord(tx, uid, cid)
 		} else {
 			err = RelationshipSets.DeleteUserDislikedCommentRecord(tx, uid, cid)
+		}
+	} else {
+		if isLike {
+			err = RelationshipSets.InsertUserLikedCommentRecord(tx, uid, cid)
+		} else {
+			err = RelationshipSets.InsertUserDislikedCommentRecord(tx, uid, cid)
 		}
 	}
 	return err
