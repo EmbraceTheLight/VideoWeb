@@ -86,7 +86,7 @@ func UndoLikeOrDislikeComment(c *gin.Context, userID, commentID int64, isLike bo
 		return err
 	}
 
-	//插入点赞/点踩记录
+	//删除点赞/点踩记录
 	err = helper.UpdateUserCommentRecord(userID, commentID, isLike, true, tx)
 	if err != nil {
 		return err
