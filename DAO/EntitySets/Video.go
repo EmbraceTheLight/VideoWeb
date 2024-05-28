@@ -75,8 +75,8 @@ func DeleteVideoInfoByUserID(db *gorm.DB, UID int64) error {
 }
 
 // UpdateVideoField 根据视频ID以及字段名更新视频某字段
-func UpdateVideoField(db *gorm.DB, VID int64, fields string, change int) error {
-	return db.Model(&Video{}).Where("video_id=?", VID).Update(fields, gorm.Expr(fields+"+?", change)).Error
+func UpdateVideoField(db *gorm.DB, VID int64, field string, change int) error {
+	return db.Model(&Video{}).Where("video_id=?", VID).Update(field, gorm.Expr(field+"+?", change)).Error
 }
 
 func UpdateVideoCover(db *gorm.DB, VID int64, coverData []byte) error {

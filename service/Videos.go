@@ -30,7 +30,7 @@ import (
 // @Param class formData string true "视频分类"  Enums(娱乐,教育,科技,知识,健康,旅行,探险,美食,时尚,音乐,舞蹈,体育,健身,历史,文化,游戏,电影,搞笑,资讯)
 // @Param tags formData []string false "视频标签"  collectionFormat(multi)
 // @Param  description formData string false "视频描述"
-// @Router /video/upload [post]
+// @Router /video/Upload [post]
 func UploadVideo(c *gin.Context) {
 	u, _ := c.Get("user")
 	UserID := u.(*logic.UserClaims).UserId
@@ -51,7 +51,7 @@ func UploadVideo(c *gin.Context) {
 	/*在对应目录下创建并写入文件*/
 	baseVideoName := path.Base(videoPath)                              //获得刚才创建的目录名作为文件名
 	videoFileName := videoPath + baseVideoName + path.Ext(FH.Filename) //拼接视频文件名
-	defer func() {                                                     //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
+	defer func() { //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
 		if err != nil {
 			e := os.RemoveAll(videoPath)
 			if e == nil {
@@ -118,6 +118,7 @@ func UploadVideo(c *gin.Context) {
 		tx.Rollback()
 		return
 	}
+
 	//打开并读取视频封面文件
 	coverData, err := logic.OpenAndReadFile(Cover)
 	if err != nil {
@@ -125,6 +126,7 @@ func UploadVideo(c *gin.Context) {
 		tx.Rollback()
 		return
 	}
+
 	//将视频封面图片信息插入数据库
 	err = EntitySets.UpdateVideoCover(tx, VID, coverData)
 	if err != nil {
@@ -144,7 +146,7 @@ func UploadVideo(c *gin.Context) {
 // @Accept multipart/form-data
 // @Produce json
 // @Param ID path string true "视频ID"
-// @Router /video/{ID}/delete [Delete]
+// @Router /video/{ID}/Delete [Delete]
 func DeleteVideo(c *gin.Context) {
 	VID := Utilities.String2Int64(c.Param("ID"))
 	var del, err = EntitySets.GetVideoInfoByID(DAO.DB, VID)
@@ -166,7 +168,7 @@ func DeleteVideo(c *gin.Context) {
 // @Accept json
 // @Produce octet-stream
 // @Param ID path string true "用户要下载的视频ID"
-// @Router /video/{ID}/download [get]
+// @Router /video/{ID}/Download [get]
 func DownloadVideo(c *gin.Context) {
 	VID := c.Param("ID")
 	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, Utilities.String2Int64(VID))
@@ -280,7 +282,7 @@ func OfferMpd(c *gin.Context) {
 // @Produce octet-stream
 // @Param ID path string true "要获取的视频ID"
 // @Param Authorization header string true "token"
-// @Router /video/{ID}/getVideoDetail [get]
+// @Router /video/{ID}/VideoDetail [get]
 func GetVideoInfo(c *gin.Context) {
 	c.Set("funcName", "Service::Videos::GetVideoInfo")
 	VID := Utilities.String2Int64(c.Param("ID"))
@@ -293,7 +295,7 @@ func GetVideoInfo(c *gin.Context) {
 		return
 	}
 
-	/*更新UserVideo表：若没有对应记录则插入*/
+	//更新UserVideo表：若没有对应记录则插入
 	u, _ := c.Get("user")
 	if u != nil {
 		UID := u.(*logic.UserClaims).UserId
@@ -302,14 +304,16 @@ func GetVideoInfo(c *gin.Context) {
 			Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
 			return
 		}
-
 	}
 
-	/*该视频观看次数+1*/
+	//该视频观看次数+1
 	err = logic.AddVideoViewCount(c, videoInfo.VideoID)
 	if err != nil {
 		return
 	}
+
+	//TODO:添加历史观看记录
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":     http.StatusOK,
 		"data":     videoInfo,
@@ -324,7 +328,7 @@ func GetVideoInfo(c *gin.Context) {
 // @Produce json
 // @Param ID path string true "要获取的视频ID"
 // @Param Authorization header string true "token"
-// @Router /video/{ID}/likeOrUndoLike [put]
+// @Router /video/{ID}/LikeOrUndoLike [put]
 func LikeOrUndoLike(c *gin.Context) {
 	Utilities.AddFuncName(c, "Service::Videos::LikeOrUndoLike")
 	u, _ := c.Get("user")
@@ -362,7 +366,7 @@ func LikeOrUndoLike(c *gin.Context) {
 // @Param ID path string true "要获取的视频ID"
 // @Param Authorization header string true "token"
 // @Param shells query int true "投贝壳的贝壳数量"
-// @Router /video/{ID}/throwShell [put]
+// @Router /video/{ID}/ThrowShell [put]
 func ThrowShell(c *gin.Context) {
 	Utilities.AddFuncName(c, "Service::Videos::ThrowShell")
 	VID := Utilities.String2Int64(c.Param("ID"))
@@ -403,7 +407,7 @@ func ThrowShell(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param class query string false "根据分类给出视频列表"
-// @Router /video/getVideoList [get]
+// @Router /video/VideoList [get]
 func GetVideoList(c *gin.Context) {
 	class := c.DefaultQuery("class", "recommend")
 	println("class is", class)
@@ -428,7 +432,7 @@ func GetVideoList(c *gin.Context) {
 // @Param offset query int true "评论的偏移量"
 // @Param order query string false "评论排序方式"
 // @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
-// @Router /video/{ID}/getVideoComments [get]
+// @Router /video/{ID}/Comments [get]
 func GetVideoComments(c *gin.Context) {
 	Utilities.AddFuncName(c, "Service::Videos::GetVideoComments")
 	VID := Utilities.String2Int64(c.Param("ID"))

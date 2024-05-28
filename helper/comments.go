@@ -3,6 +3,8 @@ package helper
 import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
+	RelationshipSets "VideoWeb/DAO/RelationshipSets"
+	"gorm.io/gorm"
 )
 
 // GetCommentReplies 根据To字段获取当前评论的所有回复评论
@@ -28,4 +30,42 @@ func GetRootCommentsSummariesByVideoID(videoID int64, order string, Page, Commen
 			Order("created_at DESC").Offset(int(Page)).Limit(int(CommentsNumbers)).Find(&ret).Error
 	}
 	return
+}
+
+// UpdateComment 更新评论的点赞/踩数
+func UpdateComment(commentID int64, isLike, isUndo bool, tx *gorm.DB) error {
+	var err error
+	if isUndo {
+		if isLike {
+			err = EntitySets.UpdateCommentField(tx, commentID, "likes", +1)
+		} else {
+			err = EntitySets.UpdateCommentField(tx, commentID, "dislikes", +1)
+		}
+	} else {
+		if isLike {
+			err = EntitySets.UpdateCommentField(tx, commentID, "likes", -1)
+		} else {
+			err = EntitySets.UpdateCommentField(tx, commentID, "dislikes", -1)
+		}
+	}
+	return err
+}
+
+// UpdateUserCommentRecord 根据用户的点赞/踩操作，插入/删除用户点赞/踩状态
+func UpdateUserCommentRecord(uid, cid int64, isLike, isUndo bool, tx *gorm.DB) error {
+	var err error
+	if isUndo {
+		if isLike {
+			err = RelationshipSets.InsertUserLikedCommentRecord(tx, uid, cid)
+		} else {
+			err = RelationshipSets.InsertUserDislikedCommentRecord(tx, uid, cid)
+		}
+	} else {
+		if isLike {
+			err = RelationshipSets.DeleteUserLikedCommentRecord(tx, uid, cid)
+		} else {
+			err = RelationshipSets.DeleteUserDislikedCommentRecord(tx, uid, cid)
+		}
+	}
+	return err
 }

@@ -71,30 +71,31 @@ func CollectRouter(r *gin.Engine) {
 	{
 		video.GET("/OfferMpd", service.OfferMpd)
 		video.GET("/DASHStreamTransmission", service.DASHStreamTransmission)
-		video.GET("/getVideoList", middlewares.CheckIfUserLogin(), service.GetVideoList)
-		video.POST("/upload", middlewares.CheckIfUserLogin(), service.UploadVideo)
+		video.GET("/VideoList", middlewares.CheckIfUserLogin(), service.GetVideoList)
+		video.POST("/Upload", middlewares.CheckIfUserLogin(), service.UploadVideo)
 
 		videoInfo := video.Group("/:ID", middlewares.CheckIfUserLogin()) //ID为视频ID
 		{
 			videoInfo.POST("/AddBarrage", service.AddBarrage)
 			videoInfo.POST("/Bookmark", service.BookmarkVideo)
-			videoInfo.DELETE("/UnBookmark", service.UnBookmarkVideo)
-			videoInfo.PUT("/likeOrUndoLike", service.LikeOrUndoLike)
-			videoInfo.PUT("/throwShell", service.ThrowShell)
+			videoInfo.DELETE("/Bookmark", service.UnBookmarkVideo)
+			videoInfo.PUT("/LikeOrUndoLike", service.LikeOrUndoLike)
+			videoInfo.PUT("/ThrowShell", service.ThrowShell)
 			videoInfo.GET("/StreamTransmission", service.StreamTransmission)
-			videoInfo.GET("/getVideoComments", service.GetVideoComments)
-			videoInfo.GET("/download", service.DownloadVideo)
-			videoInfo.GET("/getVideoDetail", service.GetVideoInfo)
+			videoInfo.GET("/Comments", service.GetVideoComments)
+			videoInfo.GET("/Download", service.DownloadVideo)
+			videoInfo.GET("/VideoDetail", service.GetVideoInfo)
 			//videoInfo.GET("/test", service.Test)
-			videoInfo.DELETE("/delete", service.DeleteVideo)
+			videoInfo.DELETE("/Delete", service.DeleteVideo)
 		}
 	}
 
 	//评论相关接口
-	comment := r.Group("/Comment", middlewares.CheckIfUserLogin())
+	comment := r.Group("/Comment/:VideoID", middlewares.CheckIfUserLogin())
 	{
-		comment.POST("/ToVideo", service.CommentToVideo)
-		comment.POST("/ToUser", service.CommentToOtherUser)
+		comment.POST("/Comment", service.PostComment)
+		comment.PUT("/LikeOrDislikeComment", service.LikeOrDislikeComment)
+		comment.PUT("/UndoLikeOrDislikeComment", service.UndoLikeOrDislikeComment)
 	}
 
 }

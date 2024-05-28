@@ -225,7 +225,7 @@ func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, 
 	}()
 	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
 
-	//更新视频点赞数
+	//更新视频点赞数以及视频热度
 	if isLiked {
 		err = helper.UpdateVideoFieldForUpdate(VideoID, field, -1, tx)
 		if err != nil {

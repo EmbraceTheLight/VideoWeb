@@ -165,13 +165,26 @@ func checkAndCreateTable() {
 			panic(err)
 		}
 	}
-
+	if exist := DB.Migrator().HasTable("user_liked_comments"); !exist {
+		err = DB.Debug().AutoMigrate(&RelationshipSets.UserLikedComments{})
+		if err != nil {
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&RelationshipSets.UserComments{}):", err))
+			panic(err)
+		}
+	}
+	if exist := DB.Migrator().HasTable("user_unliked_comments"); !exist {
+		err = DB.Debug().AutoMigrate(&RelationshipSets.UserDislikedComments{})
+		if err != nil {
+			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&RelationshipSets.UserDislikedComments{}):", err))
+			panic(err)
+		}
+	}
 }
 func initMysql() {
 	createDatabase()
 	connectMysql()
 	checkAndCreateTable()
-	//// 设置锁等待超时时间为 10 秒
+	// 设置锁等待超时时间为 10 秒
 	if err := DB.Exec("SET innodb_lock_wait_timeout = 10").Error; err != nil {
 		fmt.Println("Failed to set innodb_lock_wait_timeout:", err)
 		panic(err)

@@ -10,9 +10,9 @@ type UserVideo struct {
 	UID int64 `json:"uid" gorm:"primaryKey;column:user_id;type:bigint;index:idx_uid_vid"`
 	VID int64 `json:"vid" gorm:"primaryKey;column:video_id;type:bigint;index:idx_uid_vid"`
 
-	IsLike   bool `json:"is_like" gorm:"column:is_like;type:tinyint(1);default:0"`
-	IsUnlike bool `json:"is_unlike" gorm:"column:is_unlike;type:tinyint(1);default:0"`
-	IsFavor  bool `json:"is_favor" gorm:"column:is_favor;type:tinyint(1);default:0"`
+	IsLike    bool `json:"is_like" gorm:"column:is_like;type:tinyint(1);default:0"`
+	IsDislike bool `json:"is_unlike" gorm:"column:is_dislike;type:tinyint(1);default:0"`
+	IsFavor   bool `json:"is_favor" gorm:"column:is_favor;type:tinyint(1);default:0"`
 }
 
 func (*UserVideo) TableName() string {

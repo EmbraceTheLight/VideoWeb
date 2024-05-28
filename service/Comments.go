@@ -9,28 +9,27 @@ import (
 	"net/http"
 )
 
-// CommentToVideo
+// PostComment
 // @Tags Comment API
 // @summary 用户评论视频
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
-// @Param VideoID query string true "用户要评论的视频ID"
-// @Param To query string true "用户要评论的对象ID"
+// @Param VideoID path string true "用户要评论的视频ID"
+// @Param To query string false "用户要评论的对象ID"
 // @Param Authorization header string true "token"
 // @Param CommentContent formData string true "用户要评论的内容"
 // @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
-// @Router /Comment/ToVideo [post]
-func CommentToVideo(c *gin.Context) {
-	VID := c.Query("VideoID")
+// @Router /Comment/{VideoID}/Comment [post]
+func PostComment(c *gin.Context) {
+	Utilities.AddFuncName(c, "service::Comments::PostComment")
+	videoID := Utilities.String2Int64(c.Param("VideoID"))
 	u, _ := c.Get("user")
 	UID := u.(*logic.UserClaims).UserId
 	userID := UID
 	Content := c.PostForm("CommentContent")
 	To := Utilities.String2Int64(c.DefaultQuery("To", "-1"))
-	videoID := Utilities.String2Int64(VID)
 
 	Country, City := logic.GetUserIpInfo(c)
-
 	if Country == "" {
 		Country = "未知地区"
 	}
@@ -51,7 +50,7 @@ func CommentToVideo(c *gin.Context) {
 	//根据视频ID获得视频Up主ID
 	//up, err := EntitySets.GetVideoInfoByID(tx, videoID)
 	//if err != nil {
-	//	Utilities.SendErrMsg(c, "service::Comments::CommentToVideo", define.QueryUserError, "获取用户信息失败:"+err.Error())
+	//	Utilities.SendErrMsg(c, "service::Comments::PostComment", define.QueryUserError, "获取用户信息失败:"+err.Error())
 	//	tx.Rollback()
 	//	return
 	//}
@@ -61,17 +60,64 @@ func CommentToVideo(c *gin.Context) {
 	Utilities.SendJsonMsg(c, http.StatusOK, "发送评论成功")
 }
 
-// CommentToOtherUser
+// LikeOrDislikeComment
 // @Tags Comment API
-// @summary 用户评论其他用户
+// @summary 用户点赞评论
 // @Accept json
 // @Produce json
-// @Param VideoID query string true "用户要评论的视频ID"
 // @Param Authorization header string true "token"
-// @Param CommentID query string true "用户要评论的评论ID"
-// @Param CommentContent formData string true "用户要评论的内容"
-// @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
-// @Router /Comment/ToUser [post]
-func CommentToOtherUser(c *gin.Context) {
+// @Param IsLike query bool true "是点赞还是点踩"
+// @Param CommentID query string true "用户要点赞/点踩的评论ID"
+// @Success 200 {string}  json "{"code":"200","msg":"操作成功"}"
+// @Router /Comment/{VideoID}/LikeOrDislikeComment [put]
+func LikeOrDislikeComment(c *gin.Context) {
+	Utilities.AddFuncName(c, "service::Comments::LikeOrDislikeComment")
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
+	commentID := Utilities.String2Int64(c.Query("CommentID"))
+	Like := c.Query("isLike")
+	var isLike bool
+	if Like == "true" {
+		isLike = true
+	} else {
+		isLike = false
+	}
 
+	err := logic.LikeOrDislikeComment(c, UID, commentID, isLike)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+	Utilities.SendJsonMsg(c, http.StatusOK, "操作成功")
+}
+
+// UndoLikeOrDislikeComment
+// @Tags Comment API
+// @summary 用户撤销点赞/点踩评论
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param IsLike query bool true "是点赞还是点踩"
+// @Param CommentID query string true "用户撤销点赞/点踩的评论ID"
+// @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
+// @Router /Comment/{VideoID}/UndoLikeOrDislikeComment [put]
+func UndoLikeOrDislikeComment(c *gin.Context) {
+	Utilities.AddFuncName(c, "service::Comments::LikeOrDislikeComment")
+	u, _ := c.Get("user")
+	UID := u.(*logic.UserClaims).UserId
+	commentID := Utilities.String2Int64(c.Query("CommentID"))
+	Like := c.Query("isLike")
+	var isLike bool
+	if Like == "true" {
+		isLike = true
+	} else {
+		isLike = false
+	}
+
+	err := logic.UndoLikeOrDislikeComment(c, UID, commentID, isLike)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+	Utilities.SendJsonMsg(c, http.StatusOK, "点赞成功")
 }
