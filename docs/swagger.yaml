@@ -125,10 +125,34 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code":"200","msg":"发送评论成功"}'
+          description: '{"code":"200","msg":"操作成功"}'
           schema:
             type: string
       summary: 用户撤销点赞/点踩评论
+      tags:
+      - Comment API
+  /Comment/{VideoID}/UserBasicInfo:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 要获取用户信息的视频ID
+        in: path
+        name: VideoID
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: 用户ID列表
+        in: query
+        items:
+          type: string
+        name: UserIDs
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取用户基本信息
       tags:
       - Comment API
   /User/AddSearchHistory:

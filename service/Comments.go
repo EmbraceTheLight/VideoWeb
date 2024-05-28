@@ -9,6 +9,29 @@ import (
 	"net/http"
 )
 
+// GetUsersBasicInfo
+// @Tags Comment API
+// @summary 获取用户基本信息
+// @Produce json
+// @Accept json
+// @Param VideoID path string true "要获取用户信息的视频ID"
+// @Param UserIDs query []string true "用户ID列表"  collectionFormat(multi)
+// @Router /Comment/{VideoID}/UserBasicInfo [get]
+func GetUsersBasicInfo(c *gin.Context) {
+	Utilities.AddFuncName(c, "service::Comments::GetUsersBasicInfo")
+	uids := c.QueryArray("UserIDs")
+	infos, err := logic.GetUsersBasicInfo(c, uids)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "获取用户基本信息成功",
+		"data": infos,
+	})
+}
+
 // PostComment
 // @Tags Comment API
 // @summary 用户评论视频
@@ -100,7 +123,7 @@ func LikeOrDislikeComment(c *gin.Context) {
 // @Param Authorization header string true "token"
 // @Param IsLike query bool true "是点赞还是点踩"
 // @Param CommentID query string true "用户撤销点赞/点踩的评论ID"
-// @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
+// @Success 200 {string}  json "{"code":"200","msg":"操作成功"}"
 // @Router /Comment/{VideoID}/UndoLikeOrDislikeComment [put]
 func UndoLikeOrDislikeComment(c *gin.Context) {
 	Utilities.AddFuncName(c, "service::Comments::LikeOrDislikeComment")

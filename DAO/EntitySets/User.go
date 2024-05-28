@@ -6,6 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
+type UserSummary struct {
+	UserID    int64  `json:"userID" `
+	UserName  string `json:"userName" `
+	Avatar    []byte `json:"avatar"`
+	UserLevel uint16 `json:"userLevel" `
+}
 type User struct {
 	define.MyModel
 	UserID    int64  `json:"userID" gorm:"column:user_id;type:bigint;primaryKey"` //用户ID

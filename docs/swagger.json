@@ -191,12 +191,47 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"发送评论成功\"}",
+                        "description": "{\"code\":\"200\",\"msg\":\"操作成功\"}",
                         "schema": {
                             "type": "string"
                         }
                     }
                 }
+            }
+        },
+        "/Comment/{VideoID}/UserBasicInfo": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comment API"
+                ],
+                "summary": "获取用户基本信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "要获取用户信息的视频ID",
+                        "name": "VideoID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "用户ID列表",
+                        "name": "UserIDs",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/User/AddSearchHistory": {

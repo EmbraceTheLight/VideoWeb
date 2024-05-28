@@ -4,6 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// DeferFunc 用于defer函数的调用来处理错误
+func DeferFunc(c *gin.Context, err error, s string) {
+	if err != nil {
+		AddFuncName(c, s)
+	}
+}
+
 // AddFuncName 给上下文添加函数名,便于处理错误时记录日志
 func AddFuncName(c *gin.Context, funcName string) {
 	fname, exist := c.Get("funcName")

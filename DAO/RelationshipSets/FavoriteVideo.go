@@ -31,5 +31,5 @@ func DeleteFavoriteVideoRecordsByUserID(db *gorm.DB, uid int64) error {
 
 // DeleteFavoriteVideoRecordByUserIDVideoID 根据用户ID和视频ID删除收藏记录，涉及到删除一个收藏记录的操作
 func DeleteFavoriteVideoRecordByUserIDVideoID(db *gorm.DB, uid, vid int64) error {
-	return db.Debug().Model(&FavoriteVideo{}).Where("user_id = ? and video_id = ?", uid, vid).Delete(&FavoriteVideo{}).Error
+	return db.Model(&FavoriteVideo{}).Where("user_id = ? and video_id = ?", uid, vid).Delete(&FavoriteVideo{}).Error
 }

@@ -71,3 +71,10 @@ func String2Int64(str string) int64 {
 	i, _ := strconv.ParseInt(str, 10, 64)
 	return i
 }
+
+func Strings2Int64s(sli []string) (ret []int64) {
+	for _, str := range sli {
+		ret = append(ret, String2Int64(str))
+	}
+	return
+}

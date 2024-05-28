@@ -93,6 +93,7 @@ func CollectRouter(r *gin.Engine) {
 	//评论相关接口
 	comment := r.Group("/Comment/:VideoID", middlewares.CheckIfUserLogin())
 	{
+		comment.GET("/UserBasicInfo", service.GetUsersBasicInfo)
 		comment.POST("/Comment", service.PostComment)
 		comment.PUT("/LikeOrDislikeComment", service.LikeOrDislikeComment)
 		comment.PUT("/UndoLikeOrDislikeComment", service.UndoLikeOrDislikeComment)

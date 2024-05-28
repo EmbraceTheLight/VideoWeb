@@ -26,6 +26,7 @@ func GetUserID(u any) int64 {
 	}
 }
 
+// InsertInitRecords 插入初始始数据
 func InsertInitRecords(defaultFavorites, privateFavorites *EntitySets.Favorites,
 	userLevel *EntitySets.Level,
 	defaultFollowList *EntitySets.FollowList,
@@ -234,4 +235,12 @@ func FollowOtherUser(c *gin.Context, followlistID, UID, followsID int64) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+// GetUsersBasicInfo 获取一批用户的基本信息
+func GetUsersBasicInfo(c *gin.Context, uids []string) (UBInfos []*EntitySets.UserSummary, err error) {
+	ids := Utilities.Strings2Int64s(uids)
+	defer Utilities.DeferFunc(c, err, "GetUsersBasicInfo")
+	UBInfos, err = helper.GetUserBasicInfo(ids)
+	return
 }
