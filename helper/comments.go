@@ -24,7 +24,7 @@ func GetRootCommentsSummariesByVideoID(videoID int64, order string, Page, Commen
 		err = DAO.DB.Debug().Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, -1).
 			Order("likes DESC").Offset(int(Page)).Limit(int(CommentsNumbers)).Find(&ret).Error
 	} else if order == "newest" {
-		err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `To` = ?", videoID, -1).
+		err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, -1).
 			Order("created_at DESC").Offset(int(Page)).Limit(int(CommentsNumbers)).Find(&ret).Error
 	}
 	return
