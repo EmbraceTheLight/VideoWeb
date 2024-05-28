@@ -51,8 +51,8 @@ func UpdateComment(commentID int64, isLike, isUndo bool, tx *gorm.DB) error {
 	return err
 }
 
-// UpdateUserCommentRecord 根据用户的点赞/踩操作，删除/删除用户点赞/踩状态
-func UpdateUserCommentRecord(uid, cid int64, isLike bool, tx *gorm.DB) error {
+// DeleteUserCommentRecord 根据用户的点赞/踩操作，删除/删除用户点赞/踩状态
+func DeleteUserCommentRecord(uid, cid int64, isLike bool, tx *gorm.DB) error {
 	var err error
 	if isLike {
 		err = RelationshipSets.DeleteUserLikedCommentRecord(tx, uid, cid)
