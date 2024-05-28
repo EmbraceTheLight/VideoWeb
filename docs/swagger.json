@@ -80,15 +80,15 @@
                     },
                     {
                         "type": "string",
-                        "description": "用户ID",
-                        "name": "UserID",
-                        "in": "query",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "用户要评论的评论ID",
-                        "name": "UserID",
+                        "name": "CommentID",
                         "in": "query",
                         "required": true
                     },
@@ -100,7 +100,14 @@
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"发送评论成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/Comment/ToVideo": {
@@ -125,9 +132,16 @@
                     },
                     {
                         "type": "string",
-                        "description": "用户ID",
-                        "name": "UserID",
+                        "description": "用户要评论的对象ID",
+                        "name": "To",
                         "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
@@ -138,7 +152,14 @@
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"发送评论成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/User/AddSearchHistory": {
@@ -918,7 +939,7 @@
                 "responses": {}
             }
         },
-        "/video/getHomeVideoList": {
+        "/video/getVideoList": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -1250,6 +1271,57 @@
                     }
                 ],
                 "responses": {}
+            }
+        },
+        "/video/{ID}/getVideoComments": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comment API"
+                ],
+                "summary": "获取视频评论列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "请求的评论数量",
+                        "name": "commentNums",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "评论的偏移量",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "评论排序方式",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"发送评论成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/video/{ID}/getVideoDetail": {

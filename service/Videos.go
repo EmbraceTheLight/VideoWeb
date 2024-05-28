@@ -85,7 +85,6 @@ func UploadVideo(c *gin.Context) {
 	}()
 
 	//将视频数据插入数据库
-
 	VID, err := logic.CreateVideoRecord(tx, c, UserID, videoFileName, FH.Size)
 	if err != nil {
 		tx.Rollback()
@@ -397,15 +396,15 @@ func ThrowShell(c *gin.Context) {
 	Utilities.SendJsonMsg(c, http.StatusOK, "投贝壳成功")
 }
 
-// GetHomeVideoList
+// GetVideoList
 // @Tags Video API
 // @summary 主页根据分类获取视频列表
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param class query string false "根据分类给出视频列表"
-// @Router /video/getHomeVideoList [get]
-func GetHomeVideoList(c *gin.Context) {
+// @Router /video/getVideoList [get]
+func GetVideoList(c *gin.Context) {
 	class := c.DefaultQuery("class", "recommend")
 	println("class is", class)
 	videoInfo, err := logic.GetVideoListByClass(c, class)
@@ -416,6 +415,37 @@ func GetHomeVideoList(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"data": videoInfo,
+	})
+}
+
+// GetVideoComments
+// @Tags Comment API
+// @summary 获取视频评论列表
+// @Accept json
+// @Produce json
+// @Param ID path string true "视频ID"
+// @Param commentNums query int true "请求的评论数量"
+// @Param offset query int true "评论的偏移量"
+// @Param order query string false "评论排序方式"
+// @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
+// @Router /video/{ID}/getVideoComments [get]
+func GetVideoComments(c *gin.Context) {
+	Utilities.AddFuncName(c, "Service::Videos::GetVideoComments")
+	VID := Utilities.String2Int64(c.Param("ID"))
+	Offset := Utilities.String2Int64(c.Query("offset"))
+	CommentNums := Utilities.String2Int64(c.Query("commentNums"))
+	order := c.DefaultQuery("order", "default")
+
+	comments, err := logic.GetVideoCommentsList(c, VID, order, Offset, CommentNums)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"msg":  "获取评论成功",
+		"data": comments,
 	})
 }
 

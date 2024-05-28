@@ -40,9 +40,9 @@ func NewConnection(UserID string, ctx *gin.Context) (*ClientConnection, error) {
 }
 
 func (c *ClientConnection) ReadFromClient() {
-	defer func() {
-		c.hub1.unregister <- c
-	}()
+	//defer func() {
+	//	c.hub1.unregister <- c
+	//}()
 	//设置读取Pong消息的超时时间以及设置Pong消息的处理函数
 	c.Conn.SetReadDeadline(time.Now().Add(define.PongWait))
 	c.Conn.SetPongHandler(func(string) error { c.Conn.SetReadDeadline(time.Now().Add(define.PongWait)); return nil })
@@ -69,7 +69,6 @@ func (c *ClientConnection) WriteToClient() {
 	defer func() {
 		ticker.Stop()
 		c.hub1.unregister <- c
-
 	}()
 	for {
 		select {
@@ -89,12 +88,6 @@ func (c *ClientConnection) WriteToClient() {
 			}
 			c.Conn.SetWriteDeadline(time.Now().Add(define.WriteWait))
 			fmt.Printf("[WriteToClient] msg from %v:%v:%s\n", c.UserID, c.CreateTime, msg)
-			//if msg != nil {
-			//	w.Write([]byte(msg.Title + " " + msg.Body))
-			//}
-			//if err := w.Close(); err != nil {
-			//	return
-			//}
 			err := c.Conn.WriteJSON(msg)
 			if err != nil {
 				log.Printf("[WriteToClient] error at WriteMessage from %v:%v:%s\n", c.UserID, c.CreateTime, err)

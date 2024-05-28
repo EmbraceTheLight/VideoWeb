@@ -47,14 +47,14 @@ paths:
         name: VideoID
         required: true
         type: string
-      - description: 用户ID
-        in: query
-        name: UserID
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 用户要评论的评论ID
         in: query
-        name: UserID
+        name: CommentID
         required: true
         type: string
       - description: 用户要评论的内容
@@ -64,7 +64,11 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: '{"code":"200","msg":"发送评论成功"}'
+          schema:
+            type: string
       summary: 用户评论其他用户
       tags:
       - Comment API
@@ -78,9 +82,14 @@ paths:
         name: VideoID
         required: true
         type: string
-      - description: 用户ID
+      - description: 用户要评论的对象ID
         in: query
-        name: UserID
+        name: To
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: Authorization
         required: true
         type: string
       - description: 用户要评论的内容
@@ -90,7 +99,11 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: '{"code":"200","msg":"发送评论成功"}'
+          schema:
+            type: string
       summary: 用户评论视频
       tags:
       - Comment API
@@ -726,6 +739,40 @@ paths:
       summary: 用户下载视频(根据视频ID下载视频)
       tags:
       - Video API
+  /video/{ID}/getVideoComments:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: 请求的评论数量
+        in: query
+        name: commentNums
+        required: true
+        type: integer
+      - description: 评论的偏移量
+        in: query
+        name: offset
+        required: true
+        type: integer
+      - description: 评论排序方式
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"发送评论成功"}'
+          schema:
+            type: string
+      summary: 获取视频评论列表
+      tags:
+      - Comment API
   /video/{ID}/getVideoDetail:
     get:
       consumes:
@@ -826,7 +873,7 @@ paths:
       summary: 提供DASH所需的.mpd文件
       tags:
       - Video API
-  /video/getHomeVideoList:
+  /video/getVideoList:
     get:
       consumes:
       - application/json

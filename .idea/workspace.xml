@@ -5,23 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b03ac556-b29e-4ae2-8b6e-8a7be861813c" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/helper/comments.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Video.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/FavoriteVideo.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/FavoriteVideo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Comments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utilities/WebSocket/Client.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/WebSocket/Client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper/UserVideo.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/UserVideo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/barrage.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/barrage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/VideoWeb.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/VideoWeb.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/VideoWeb.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/middlewares/auth_user.go" beforeDir="false" afterPath="$PROJECT_DIR$/middlewares/auth_user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/routers.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/routers.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Comments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/FavoritesVideo.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/FavoritesVideo.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -95,7 +94,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.editor&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.goide.configuration.GoLibrariesConfigurableProvider&quot;
   },
   &quot;keyToStringList&quot;: {
     &quot;DatabaseDriversLRU&quot;: [

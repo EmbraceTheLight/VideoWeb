@@ -71,7 +71,7 @@ func CollectRouter(r *gin.Engine) {
 	{
 		video.GET("/OfferMpd", service.OfferMpd)
 		video.GET("/DASHStreamTransmission", service.DASHStreamTransmission)
-		video.GET("/getHomeVideoList", middlewares.CheckIfUserLogin(), service.GetHomeVideoList)
+		video.GET("/getVideoList", middlewares.CheckIfUserLogin(), service.GetVideoList)
 		video.POST("/upload", middlewares.CheckIfUserLogin(), service.UploadVideo)
 
 		videoInfo := video.Group("/:ID", middlewares.CheckIfUserLogin()) //ID为视频ID
@@ -82,6 +82,7 @@ func CollectRouter(r *gin.Engine) {
 			videoInfo.PUT("/likeOrUndoLike", service.LikeOrUndoLike)
 			videoInfo.PUT("/throwShell", service.ThrowShell)
 			videoInfo.GET("/StreamTransmission", service.StreamTransmission)
+			videoInfo.GET("/getVideoComments", service.GetVideoComments)
 			videoInfo.GET("/download", service.DownloadVideo)
 			videoInfo.GET("/getVideoDetail", service.GetVideoInfo)
 			//videoInfo.GET("/test", service.Test)

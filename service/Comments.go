@@ -15,6 +15,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param VideoID query string true "用户要评论的视频ID"
+// @Param To query string true "用户要评论的对象ID"
 // @Param Authorization header string true "token"
 // @Param CommentContent formData string true "用户要评论的内容"
 // @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
@@ -23,8 +24,9 @@ func CommentToVideo(c *gin.Context) {
 	VID := c.Query("VideoID")
 	u, _ := c.Get("user")
 	UID := u.(*logic.UserClaims).UserId
-	Content := c.PostForm("CommentContent")
 	userID := UID
+	Content := c.PostForm("CommentContent")
+	To := Utilities.String2Int64(c.DefaultQuery("To", "-1"))
 	videoID := Utilities.String2Int64(VID)
 
 	Country, City := logic.GetUserIpInfo(c)
@@ -36,7 +38,7 @@ func CommentToVideo(c *gin.Context) {
 		MyModel:   define.MyModel{},
 		CommentID: logic.GetUUID(),
 		UID:       userID,
-		To:        -1,
+		To:        To,
 		VID:       videoID,
 		Content:   Content,
 		IPAddress: Country + " " + City,

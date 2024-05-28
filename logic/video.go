@@ -362,11 +362,31 @@ func GetVideoListByClass(c *gin.Context, class string) (videos []*EntitySets.Vid
 		}
 	}()
 	if class == "recommend" {
-		err = DAO.DB.Model(&EntitySets.Video{}).Debug().
+		err = DAO.DB.Model(&EntitySets.Video{}).
 			Order("hot desc").Limit(define.DefaultSize).Omit("class").Find(&videos).Error
 	} else {
 		err = DAO.DB.Model(&EntitySets.Video{}).Where("class=?", class).
 			Order("hot desc").Limit(define.DefaultSize).Find(&videos).Error
+	}
+	return
+}
+
+// GetVideoCommentsList 获取视频评论列表
+func GetVideoCommentsList(c *gin.Context, videoID int64, order string, Page, CommentsNumbers int64) (ret []*EntitySets.CommentSummary, err error) {
+	comments, err := helper.GetRootCommentsSummariesByVideoID(videoID, order, Page, CommentsNumbers)
+	if err != nil {
+		Utilities.AddFuncName(c, "GetVideoCommentsList")
+		return nil, err
+	}
+
+	for _, comment := range comments {
+		replies, err := helper.GetCommentReplies(videoID, comment.UID)
+		if err != nil {
+			Utilities.AddFuncName(c, "GetVideoCommentsList")
+			return nil, err
+		}
+		comment.Replies = replies
+		ret = append(ret, comment)
 	}
 	return
 }
