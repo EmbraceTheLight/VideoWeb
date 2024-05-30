@@ -139,6 +139,7 @@ func Register(c *gin.Context) {
 // @Router /User/Login [post]
 func Login(c *gin.Context) {
 	var err error
+	Utilities.AddFuncName(c, "service::Users::Login")
 	Username := c.PostForm("Username")
 	password := c.PostForm("password")
 	fmt.Println("Account:", Username)
@@ -167,6 +168,11 @@ func Login(c *gin.Context) {
 	token, err := logic.CreateToken(userInfo.UserID, userInfo.UserName, userInfo.IsAdmin)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Login", define.CreateTokenError, "CreateToken error:"+err.Error())
+		return
+	}
+	err = logic.AddExpForLogin(c, userInfo.UserID, DAO.DB)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
 

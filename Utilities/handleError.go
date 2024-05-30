@@ -5,9 +5,9 @@ import (
 )
 
 // DeferFunc 用于defer函数的调用来处理错误
-func DeferFunc(c *gin.Context, err error, s string) {
+func DeferFunc(c *gin.Context, err error, funcName string) {
 	if err != nil {
-		AddFuncName(c, s)
+		AddFuncName(c, funcName)
 	}
 }
 

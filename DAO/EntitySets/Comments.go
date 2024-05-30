@@ -17,7 +17,7 @@ type Comments struct {
 
 	CommentID int64  `json:"CommentID" gorm:"column:comment_id;type:bigint;primaryKey"`   //评论唯一标识
 	UID       int64  `json:"UID" gorm:"column:user_id;type:bigint"`                       //评论者ID
-	To        int64  `json:"To" gorm:"column:to;type:bigint;default:-1;index:idx_to_vid"` //若是回复评论，则To为被回复评论ID，否则为Null
+	To        int64  `json:"To" gorm:"column:to;type:bigint;default:-1;index:idx_to_vid"` //若是回复评论，则To为被回复评论ID，否则为-1
 	VID       int64  `json:"VID" gorm:"column:video_id;type:bigint;index:idx_to_vid"`     //视频ID
 	Content   string `json:"Content" gorm:"column:content;type:text"`                     //评论内容
 	Likes     uint32 `json:"Likes" gorm:"column:likes;type:int unsigned;default:0"`       //评论被点赞数

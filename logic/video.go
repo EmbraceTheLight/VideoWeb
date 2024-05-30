@@ -290,6 +290,17 @@ func UpdateShells(c *gin.Context, videoInfo *EntitySets.Video, TSUID int64, thro
 	if err != nil {
 		return err
 	}
+	//增加投贝壳者经验
+	err = AddExpForThrowShells(c, TSUID, throws, tx)
+	if err != nil {
+		return err
+	}
+	//增加作者经验
+	err = AddExpForGainShells(c, videoInfo.UID, throws, tx)
+	if err != nil {
+		return err
+	}
+	
 	tx.Commit()
 	return nil
 }
@@ -387,7 +398,7 @@ func GetVideoCommentsList(c *gin.Context, videoID, UserID int64, order string, P
 	//递归获取每个根评论的回复列表
 	var replies []*EntitySets.CommentSummary
 	for _, comment := range comments {
-		replies, err = helper.GetCommentReplies(videoID, comment.UID)
+		replies, err = helper.GetCommentReplies(videoID, comment.CommentID)
 		if err != nil {
 			return nil, err
 		}

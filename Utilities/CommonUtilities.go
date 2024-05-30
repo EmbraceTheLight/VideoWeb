@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"time"
 )
 
 // WriteToNewFile 写入新文件,src为源文件,dst为目标文件路径
@@ -77,4 +78,10 @@ func Strings2Int64s(sli []string) (ret []int64) {
 		ret = append(ret, String2Int64(str))
 	}
 	return
+}
+
+func GetTomorrowTime() time.Duration {
+	now := time.Now()
+	t := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
+	return t.Sub(now)
 }

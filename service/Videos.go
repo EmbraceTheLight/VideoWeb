@@ -32,6 +32,9 @@ import (
 // @Param  description formData string false "视频描述"
 // @Router /video/Upload [post]
 func UploadVideo(c *gin.Context) {
+	Utilities.AddFuncName(c, "Service::videos::UploadVideo")
+	var err error
+
 	u, _ := c.Get("user")
 	UserID := logic.GetUserID(u)
 	/*检查视频后缀名*/
@@ -79,6 +82,9 @@ func UploadVideo(c *gin.Context) {
 	/*开启事务,将对应数据插入数据库*/
 	tx := DAO.DB.Begin()
 	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
@@ -87,7 +93,6 @@ func UploadVideo(c *gin.Context) {
 	//将视频数据插入数据库
 	VID, err := logic.CreateVideoRecord(tx, c, UserID, videoFileName, FH.Size)
 	if err != nil {
-		tx.Rollback()
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 		return
 	}
@@ -104,7 +109,6 @@ func UploadVideo(c *gin.Context) {
 		}
 		err = EntitySets.InsertTags(tx, tags)
 		if err != nil {
-			tx.Rollback()
 			Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 			return
 		}
@@ -115,7 +119,6 @@ func UploadVideo(c *gin.Context) {
 	Cover, _ := c.FormFile("videoCover")
 	if err = Utilities.CheckPicExt(Cover.Filename); err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ImageFormatError, err.Error())
-		tx.Rollback()
 		return
 	}
 
@@ -123,7 +126,6 @@ func UploadVideo(c *gin.Context) {
 	coverData, err := logic.OpenAndReadFile(Cover)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo::Utilities.OpenAndReadFile", define.OpenFileFailed, "打开或读取文件失败:"+err.Error())
-		tx.Rollback()
 		return
 	}
 
@@ -131,10 +133,14 @@ func UploadVideo(c *gin.Context) {
 	err = EntitySets.UpdateVideoCover(tx, VID, coverData)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.CreateVideoCoverFailed, "上传视频封面失败")
-		tx.Rollback()
 		return
 	}
-	//TODO:更新用户经验值
+	//更新用户经验值
+	err = logic.AddExpForUploadVideo(c, UserID, tx)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", 500, "更新用户经验值失败")
+		return
+	}
 
 	tx.Commit()
 	Utilities.SendJsonMsg(c, http.StatusOK, "上传视频成功")
@@ -391,7 +397,7 @@ func ThrowShell(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Videos::ThrowShell", 4000, "贝壳数量不足")
 		return
 	}
-	//更新视频，用户贝壳数量
+	//更新视频，用户贝壳数量以及经验值相关信息
 	err = logic.UpdateShells(c, videoInfo, TSUID, shells)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)

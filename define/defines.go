@@ -18,11 +18,12 @@ const (
 	KiB = int64(1024)
 	MiB = 1024 * KiB
 	GiB = 1024 * MiB
-
-	// BaseTime 时间戳基准点，2024-01-01 00:00:00, UTC 时间
-	BaseTime int64 = 1704067200000000000 / 1e6
 )
 
+// BaseTime 时间戳基准点，2024-01-01 00:00:00, UTC 时间
+const BaseTime int64 = 1704067200000000000 / 1e6
+
+// Hot 视频热度相关
 const (
 	// AddHotEachView 每访问一次增加的热度
 	AddHotEachView = 1
@@ -44,6 +45,24 @@ const (
 
 	// AddHotEachShare 每分享一次增加的热度
 	AddHotEachShare = 50 * AddHotEachView
+)
+
+// Level 等级相关
+const (
+	ToLevel2 = 200
+	ToLevel3 = 1500
+	ToLevel4 = 4500
+	ToLevel5 = 10800
+	ToLevel6 = 28800
+
+	ExpLoginOneDay     = 5
+	ExpEachUploadVideo = 10
+	ExpEachShellGain   = 1
+	ExpEachShellThrow  = 5 //投递一次贝壳获得经验值。上限：一天5次
+	ExpEachShare       = 5
+
+	LimitShellsPerDay = 5 //每天投递贝壳获得经验的上限
+	LimitSharesPerDay = 10
 )
 
 // MyModel 不包含 gorm.Model 中的默认id字段

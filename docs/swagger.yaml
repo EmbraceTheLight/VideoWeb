@@ -42,7 +42,7 @@ paths:
       consumes:
       - multipart/form-data
       parameters:
-      - description: 用户要评论的视频ID
+      - description: 视频ID
         in: path
         name: VideoID
         required: true
@@ -91,6 +91,11 @@ paths:
         name: CommentID
         required: true
         type: string
+      - description: 视频ID
+        in: path
+        name: VideoID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -119,6 +124,11 @@ paths:
       - description: 用户撤销点赞/点踩的评论ID
         in: query
         name: CommentID
+        required: true
+        type: string
+      - description: 视频ID
+        in: path
+        name: VideoID
         required: true
         type: string
       produces:

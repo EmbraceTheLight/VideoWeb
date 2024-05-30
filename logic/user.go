@@ -62,7 +62,7 @@ func InsertInitRecords(defaultFavorites, privateFavorites *EntitySets.Favorites,
 		return err
 	}
 
-	err = EntitySets.InsertLevelRecords(tx, userLevel)
+	err = EntitySets.SaveLevelRecords(tx, userLevel)
 	if err != nil {
 		return err
 	}

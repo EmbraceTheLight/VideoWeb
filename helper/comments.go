@@ -11,7 +11,7 @@ import (
 func GetCommentReplies(videoID, to int64) (ret []*EntitySets.CommentSummary, err error) {
 	err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, to).Order("likes DESC").Find(&ret).Error
 	for _, comment := range ret {
-		replies, err := GetCommentReplies(videoID, comment.UID)
+		replies, err := GetCommentReplies(videoID, comment.CommentID)
 		if err != nil {
 			return nil, err
 		}
@@ -35,7 +35,7 @@ func GetRootCommentsSummariesByVideoID(videoID int64, order string, Page, Commen
 // UpdateComment 更新评论的点赞/踩数
 func UpdateComment(commentID int64, isLike, isUndo bool, tx *gorm.DB) error {
 	var err error
-	if isUndo {
+	if !isUndo { //不是撤销，增加点赞/踩数
 		if isLike {
 			err = EntitySets.UpdateCommentField(tx, commentID, "likes", +1)
 		} else {

@@ -45,7 +45,7 @@ type UserDislikedComments struct {
 }
 
 func (*UserDislikedComments) TableName() string {
-	return "user_unliked_comments"
+	return "user_disliked_comments"
 }
 
 func GetUserDislikedCommentRecordByUidVid(db *gorm.DB, uid, vid int64) (udlc []*UserDislikedComments, err error) {

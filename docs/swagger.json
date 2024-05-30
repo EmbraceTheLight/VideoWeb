@@ -73,7 +73,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户要评论的视频ID",
+                        "description": "视频ID",
                         "name": "VideoID",
                         "in": "path",
                         "required": true
@@ -142,6 +142,13 @@
                         "name": "CommentID",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "VideoID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -186,6 +193,13 @@
                         "description": "用户撤销点赞/点踩的评论ID",
                         "name": "CommentID",
                         "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "VideoID",
+                        "in": "path",
                         "required": true
                     }
                 ],

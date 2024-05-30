@@ -172,7 +172,7 @@ func checkAndCreateTable() {
 			panic(err)
 		}
 	}
-	if exist := DB.Migrator().HasTable("user_unliked_comments"); !exist {
+	if exist := DB.Migrator().HasTable("user_Disliked_comments"); !exist {
 		err = DB.Debug().AutoMigrate(&RelationshipSets.UserDislikedComments{})
 		if err != nil {
 			logf.WriteErrLog("initMysql::checkAndCreateTable", fmt.Sprintln("Err in AutoMigrate(&RelationshipSets.UserDislikedComments{}):", err))

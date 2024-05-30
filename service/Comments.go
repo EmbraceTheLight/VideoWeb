@@ -37,7 +37,7 @@ func GetUsersBasicInfo(c *gin.Context) {
 // @summary 用户评论视频
 // @Accept multipart/form-data
 // @Produce json
-// @Param VideoID path string true "用户要评论的视频ID"
+// @Param VideoID path string true "视频ID"
 // @Param To query string false "用户要评论的对象ID"
 // @Param Authorization header string true "token"
 // @Param CommentContent formData string true "用户要评论的内容"
@@ -91,6 +91,7 @@ func PostComment(c *gin.Context) {
 // @Param Authorization header string true "token"
 // @Param IsLike query bool true "是点赞还是点踩"
 // @Param CommentID query string true "用户要点赞/点踩的评论ID"
+// @Param VideoID path string true "视频ID"
 // @Success 200 {string}  json "{"code":"200","msg":"操作成功"}"
 // @Router /Comment/{VideoID}/LikeOrDislikeComment [put]
 func LikeOrDislikeComment(c *gin.Context) {
@@ -99,9 +100,9 @@ func LikeOrDislikeComment(c *gin.Context) {
 	UID := logic.GetUserID(u)
 	commentID := Utilities.String2Int64(c.Query("CommentID"))
 	videoID := Utilities.String2Int64(c.Param("VideoID"))
-	Like := c.Query("isLike")
+	like := c.Query("IsLike")
 	var isLike bool
-	if Like == "true" {
+	if like == "true" {
 		isLike = true
 	} else {
 		isLike = false
@@ -123,6 +124,7 @@ func LikeOrDislikeComment(c *gin.Context) {
 // @Param Authorization header string true "token"
 // @Param IsLike query bool true "是点赞还是点踩"
 // @Param CommentID query string true "用户撤销点赞/点踩的评论ID"
+// @Param VideoID path string true "视频ID"
 // @Success 200 {string}  json "{"code":"200","msg":"操作成功"}"
 // @Router /Comment/{VideoID}/UndoLikeOrDislikeComment [put]
 func UndoLikeOrDislikeComment(c *gin.Context) {

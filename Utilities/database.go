@@ -31,6 +31,8 @@ const (
 	follows
 	//followList
 	userVideo
+	userLikedComments
+	userDislikedComments
 )
 
 var idToFunc = make(map[int]string)
@@ -62,6 +64,8 @@ func initNecessary() error {
 	idToFunc[follows] = "HDFollows"
 	//idToFunc[followList] = "HDFollowList"
 	idToFunc[userVideo] = "HDUserVideo"
+	idToFunc[userLikedComments] = "userLikedComments"
+	idToFunc[userDislikedComments] = "userDislikedComments"
 	return nil
 }
 
@@ -103,6 +107,8 @@ func HDHelper() {
 	go HDFollowed()
 	go HDFollows()
 	go HDUserVideo()
+	go HDUserLikedComments()
+	go HDUserDislikedComments()
 	//go HDFollowList()
 }
 
@@ -190,7 +196,23 @@ func HDFollows() {
 func HDUserVideo() {
 	err := db.Unscoped().Delete(&RelationshipSets.UserVideo{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
-		id:  barrage,
+		id:  userVideo,
+		err: err,
+	}
+}
+
+func HDUserLikedComments() {
+	err := db.Unscoped().Delete(&RelationshipSets.UserLikedComments{}, "deleted_at IS NOT NULL").Error
+	errChannel <- &errInDelete{
+		id:  userLikedComments,
+		err: err,
+	}
+}
+
+func HDUserDislikedComments() {
+	err := db.Unscoped().Delete(&RelationshipSets.UserDislikedComments{}, "deleted_at IS NOT NULL").Error
+	errChannel <- &errInDelete{
+		id:  userDislikedComments,
 		err: err,
 	}
 }
