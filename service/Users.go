@@ -227,8 +227,7 @@ func GetUserDetail(c *gin.Context) {
 	userID := logic.GetUserID(u)
 
 	var userInfo = new(EntitySets.User)
-	err := DAO.DB.Omit("password").Where("user_id=?", userID).Preload("Videos").Preload("Favorites").
-		Preload("Favorites.Videos").Preload("Comments").
+	err := DAO.DB.Omit("password").Where("user_id=?", userID).Preload("Favorites").Preload("Comments").
 		Preload("Follows").Preload("Follows.Users").Preload("UserLevel").
 		Preload("Followed").Preload("UserWatch").Preload("UserSearch").First(&userInfo).Error
 	if err != nil {
@@ -472,53 +471,34 @@ func UploadUserAvatar(c *gin.Context) {
 	Utilities.SendJsonMsg(c, http.StatusOK, "上传用户头像成功")
 }
 
-// AddSearchHistory
+// SearchUsers
 // @Tags User API
-// @summary 增加搜索历史记录
+// @summary 获取搜索用户列表
 // @Accept json
 // @Produce json
+// @Param commentNums query int true "搜索的用户数量"
 // @Param Authorization header string true "token"
-// @Param searchString query string true "搜索记录"
-// @Router /User/AddSearchHistory [post]
-func AddSearchHistory(c *gin.Context) {
+// @Param offset query int true "搜索用户的偏移量"
+// @Param key query string true "搜索关键字"
+// @Param sortOrder query string false "用户的排序方式,default:按粉丝数量排序,mostFans:粉丝数由高到低,leastFans:粉丝数由低到高,highLevel:等级由高到低,lowLevel:等级由低到高"
+// @Success 200 {string}  json "{"code":"200","msg":"搜索用户成功"}"
+// @Router /User/SearchUsers [get]
+func SearchUsers(c *gin.Context) {
+	Utilities.AddFuncName(c, "service::Users::SearchUsers")
 	u, _ := c.Get("user")
 	UID := logic.GetUserID(u)
-	searchString := c.Query("searchString")
-	SearchHistory := &EntitySets.SearchHistory{
-		Model:        gorm.Model{},
-		UID:          UID,
-		SearchString: searchString,
-	}
-	err := EntitySets.InsertSearchRecord(DAO.DB, SearchHistory)
+	commentNums := Utilities.String2Int(c.Query("commentNums"))
+	offset := Utilities.String2Int(c.Query("offset"))
+	key := c.Query("key")
+	sortOrder := c.DefaultQuery("sortOrder", "default")
+	res, err := logic.GetSearchedUsers(c, key, sortOrder, UID, offset, commentNums)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::AddSearchHistory", 5019, "创建搜索历史失败:"+err.Error())
+		Utilities.HandleInternalServerError(c, err)
 		return
 	}
-	Utilities.SendJsonMsg(c, http.StatusOK, "创建搜索历史成功")
-
-}
-
-// AddVideoHistory
-// @Tags User API
-// @summary 增加视频历史记录
-// @Accept json
-// @Produce json
-// @Param Authorization header string true "token"
-// @Param VID query string true "视频ID"
-// @Router /User/AddVideoHistory [post]
-func AddVideoHistory(c *gin.Context) {
-	u, _ := c.Get("user")
-	UID := logic.GetUserID(u)
-	VID := Utilities.String2Int64(c.Query("VID"))
-	VideoHistory := &EntitySets.VideoHistory{
-		MyModel: define.MyModel{},
-		UID:     UID,
-		VID:     VID,
-	}
-	err := EntitySets.InsertVideoHistoryRecord(DAO.DB, VideoHistory)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::AddVideoHistory", 5020, "创建视频历史记录失败")
-		return
-	}
-	Utilities.SendJsonMsg(c, http.StatusOK, "创建视频历史记录成功")
+	//
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"data": res,
+	})
 }

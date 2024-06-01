@@ -13,6 +13,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -87,7 +88,6 @@ func checkAndCreateTable() {
 			panic(err)
 		}
 	}
-
 	if exist := DB.Migrator().HasTable("tags"); !exist {
 		err = DB.Debug().AutoMigrate(&EntitySets.Tags{})
 		if err != nil {
@@ -180,10 +180,33 @@ func checkAndCreateTable() {
 		}
 	}
 }
+func setIndexes() error {
+	err := DB.Exec("CREATE FULLTEXT INDEX idx_user_name ON user(user_name) with parser ngram;").Error
+	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate key name") {
+			return nil
+		}
+		return err
+	}
+	err = DB.Exec("CREATE FULLTEXT INDEX idx_fulltext_title_description ON video(title,description) with parser ngram;").Error
+	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate key name") {
+			return nil
+		}
+		return err
+	}
+
+	return err
+}
 func initMysql() {
 	createDatabase()
 	connectMysql()
 	checkAndCreateTable()
+	err := setIndexes()
+	if err != nil {
+		logf.WriteErrLog("setIndexes", err.Error())
+		panic(err)
+	}
 	// 设置锁等待超时时间为 10 秒
 	if err := DB.Exec("SET innodb_lock_wait_timeout = 10").Error; err != nil {
 		fmt.Println("Failed to set innodb_lock_wait_timeout:", err)

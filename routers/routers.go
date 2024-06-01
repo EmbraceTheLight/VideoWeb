@@ -42,10 +42,9 @@ func CollectRouter(r *gin.Engine) {
 		user.POST("/Login", service.Login)
 		userInfo := user.Group("", middlewares.CheckIfUserLogin()) //添加登录中间件
 		{
+			userInfo.GET("/SearchUsers", service.SearchUsers)
 			userInfo.GET("/User-detail", service.GetUserDetail)
 			userInfo.POST("/Fans/Follows", service.FollowOtherUser)
-			userInfo.POST("/AddSearchHistory", service.AddSearchHistory)
-			userInfo.POST("/AddVideoHistory", service.AddVideoHistory)
 			userInfo.PUT("/ModifySignature", service.ModifyUserSignature)
 			userInfo.PUT("/Face/Upload/Avatar", service.UploadUserAvatar)
 			userInfo.PUT("/ModifyEmail", service.ModifyUserEmail)
@@ -71,6 +70,7 @@ func CollectRouter(r *gin.Engine) {
 	{
 		video.GET("/OfferMpd", service.OfferMpd)
 		video.GET("/DASHStreamTransmission", service.DASHStreamTransmission)
+		video.GET("/SearchVideos", middlewares.CheckIfUserLogin(), service.SearchVideos)
 		video.GET("/VideoList", middlewares.CheckIfUserLogin(), service.GetVideoList)
 		video.POST("/Upload", middlewares.CheckIfUserLogin(), service.UploadVideo)
 

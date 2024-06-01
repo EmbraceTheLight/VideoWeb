@@ -300,7 +300,7 @@ func UpdateShells(c *gin.Context, videoInfo *EntitySets.Video, TSUID int64, thro
 	if err != nil {
 		return err
 	}
-	
+
 	tx.Commit()
 	return nil
 }
@@ -383,7 +383,7 @@ func GetVideoListByClass(c *gin.Context, class string) (videos []*EntitySets.Vid
 }
 
 // GetVideoCommentsList 获取视频评论列表
-func GetVideoCommentsList(c *gin.Context, videoID, UserID int64, order string, Page, CommentsNumbers int64) (ret []*EntitySets.CommentSummary, err error) {
+func GetVideoCommentsList(c *gin.Context, videoID, UserID int64, order string, Page, CommentsNumbers int) (ret []*EntitySets.CommentSummary, err error) {
 	defer func() {
 		if err != nil {
 			Utilities.AddFuncName(c, "GetVideoCommentsList")
@@ -414,5 +414,38 @@ func GetVideoCommentsList(c *gin.Context, videoID, UserID int64, order string, P
 
 	//遍历获得的评论，递归更新点赞/点踩信息
 	helper.UpdateCommentsStatus(likes, dislikes, ret)
+	return
+}
+
+// GetVideosByKey 获取视频列表
+func GetVideosByKey(c *gin.Context, key, order string, offset, videoNums int) (videos []*EntitySets.VideoSummary, err error) {
+	defer Utilities.DeferFunc(c, err, "GetVideosByKey")
+	switch order {
+	case "default":
+		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("hot desc").Limit(videoNums).Find(&videos).Error
+		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("hot desc").Limit(videoNums).Find(&videos).Error
+	case "mostPlay":
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_views desc").Limit(videoNums).Find(&videos).Error
+		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_views desc").Limit(videoNums).Find(&videos).Error
+	case "newest":
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("created_at desc").Limit(videoNums).Find(&videos).Error
+		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("created_at desc").Limit(videoNums).Find(&videos).Error
+	case "mostBarrage":
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_barrages desc").Limit(videoNums).Find(&videos).Error
+		//err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_barrages desc").Limit(videoNums).Find(&videos).Error
+	case "mostFavorite":
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_favorites desc").Limit(videoNums).Find(&videos).Error
+		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_favorites desc").Limit(videoNums).Find(&videos).Error
+	}
 	return
 }

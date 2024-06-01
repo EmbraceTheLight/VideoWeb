@@ -21,13 +21,13 @@ func GetCommentReplies(videoID, to int64) (ret []*EntitySets.CommentSummary, err
 }
 
 // GetRootCommentsSummariesByVideoID 获得Root评论，即该评论不是回复其他评论的评论
-func GetRootCommentsSummariesByVideoID(videoID int64, order string, Page, CommentsNumbers int64) (ret []*EntitySets.CommentSummary, err error) {
+func GetRootCommentsSummariesByVideoID(videoID int64, order string, Page, CommentsNumbers int) (ret []*EntitySets.CommentSummary, err error) {
 	if order == "default" || order == "likes" {
 		err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, -1).
-			Order("likes DESC").Offset(int(Page)).Limit(int(CommentsNumbers)).Find(&ret).Error
+			Order("likes DESC").Offset(Page).Limit(CommentsNumbers).Find(&ret).Error
 	} else if order == "newest" {
 		err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, -1).
-			Order("created_at DESC").Offset(int(Page)).Limit(int(CommentsNumbers)).Find(&ret).Error
+			Order("created_at DESC").Offset(Page).Limit(CommentsNumbers).Find(&ret).Error
 	}
 	return
 }

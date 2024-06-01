@@ -73,6 +73,9 @@ func String2Int64(str string) int64 {
 	return i
 }
 
+func String2Int(str string) int {
+	return int(String2Int64(str))
+}
 func Strings2Int64s(sli []string) (ret []int64) {
 	for _, str := range sli {
 		ret = append(ret, String2Int64(str))

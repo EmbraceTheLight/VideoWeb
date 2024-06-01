@@ -37,24 +37,24 @@ func UploadVideo(c *gin.Context) {
 
 	u, _ := c.Get("user")
 	UserID := logic.GetUserID(u)
-	/*检查视频后缀名*/
+	//检查视频后缀名
 	FH, _ := c.FormFile("uploadVideo")
 	if err := Utilities.CheckVideoExt(FH.Filename); err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ErrorVideoFormat, err.Error())
 		return
 	}
 
-	/*创建对应目录*/
+	//创建对应目录
 	videoPath, err := Utilities.Mkdir(strconv.FormatInt(UserID, 10))
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ReadFileFailed, "创建视频目录失败:"+err.Error())
 		return
 	}
 
-	/*在对应目录下创建并写入文件*/
+	//在对应目录下创建并写入文件
 	baseVideoName := path.Base(videoPath)                              //获得刚才创建的目录名作为文件名
 	videoFileName := videoPath + baseVideoName + path.Ext(FH.Filename) //拼接视频文件名
-	defer func() {                                                     //处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
+	defer func() {                                                     ////处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
 		if err != nil {
 			e := os.RemoveAll(videoPath)
 			if e == nil {
@@ -444,8 +444,8 @@ func GetVideoComments(c *gin.Context) {
 	u, _ := c.Get("user")
 	UID := logic.GetUserID(u)
 	VID := Utilities.String2Int64(c.Param("ID"))
-	Offset := Utilities.String2Int64(c.Query("offset"))
-	CommentNums := Utilities.String2Int64(c.Query("commentNums"))
+	Offset := Utilities.String2Int(c.Query("offset"))
+	CommentNums := Utilities.String2Int(c.Query("commentNums"))
 	order := c.DefaultQuery("order", "default")
 
 	comments, err := logic.GetVideoCommentsList(c, VID, UID, order, Offset, CommentNums)
@@ -458,6 +458,47 @@ func GetVideoComments(c *gin.Context) {
 		"code": http.StatusOK,
 		"msg":  "获取评论成功",
 		"data": comments,
+	})
+}
+
+// SearchVideos
+// @Tags Video API
+// @summary 根据关键字搜索视频
+// @Accept json
+// @Produce json
+// @Param videoNums query int true "搜索的视频数量"
+// @Param Authorization header string true "token"
+// @Param offset query int true "搜索视频的偏移量"
+// @Param key query string true "关键字"
+// @Param sortOrder query string false "视频的排序方式,default:按热度排序,newest:按最新发布排序,mostPlay:按播放量排序,mostBarrage:按弹幕数量排序,mostFavorite:按收藏数量排序"
+// @Success 200 {string}  json "{"code":"200","data": videoInfo,"msg":"搜索视频成功"}"
+// @Router /video/SearchVideos [get]
+func SearchVideos(c *gin.Context) {
+	Utilities.AddFuncName(c, "Service::Videos::SearchVideos")
+	u, _ := c.Get("user")
+	UID := logic.GetUserID(u)
+	offset := Utilities.String2Int(c.Query("offset"))
+	videoNums := Utilities.String2Int(c.Query("videoNums"))
+	key := c.Query("key")
+	sortOrder := c.DefaultQuery("sortOrder", "default")
+
+	videoInfo, err := logic.GetVideosByKey(c, key, sortOrder, offset, videoNums)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+
+	//添加搜索记录
+	err = EntitySets.InsertSearchRecord(DAO.DB, UID, key)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"data": videoInfo,
+		"msg":  "搜索视频成功",
 	})
 }
 

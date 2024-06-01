@@ -211,7 +211,8 @@ func FollowOtherUser(c *gin.Context, followlistID, UID, followsID int64) error {
 			tx.Rollback()
 		}
 	}()
-	/*更新关注用户的关注列表*/
+
+	//更新关注用户的关注列表
 	followsRecord := &RelationshipSets.UserFollows{
 		FollowListID: followlistID,
 		UID:          UID,
@@ -222,17 +223,23 @@ func FollowOtherUser(c *gin.Context, followlistID, UID, followsID int64) error {
 		return err
 	}
 
-	/*更新被关注用户的被关注（粉丝）列表*/
+	//更新被关注用户的被关注（粉丝）列表
 	followedRecord := &RelationshipSets.UserFollowed{
 		MyModel: define.MyModel{},
 		UID:     followsID,
 		FID:     UID,
 	}
-
 	err = RelationshipSets.InsertFollowedRecord(tx, followedRecord)
 	if err != nil {
 		return err
 	}
+
+	//更新被关注用户的粉丝数
+	err = helper.UpdateUserFieldForUpdate(followsID, "cnt_followers", 1, tx)
+	if err != nil {
+		return err
+	}
+
 	tx.Commit()
 	return nil
 }
@@ -242,5 +249,28 @@ func GetUsersBasicInfo(c *gin.Context, uids []string) (UBInfos []*EntitySets.Use
 	ids := Utilities.Strings2Int64s(uids)
 	defer Utilities.DeferFunc(c, err, "GetUsersBasicInfo")
 	UBInfos, err = helper.GetUserBasicInfo(ids)
+	return
+}
+
+// GetSearchedUsers 获取搜索结果
+func GetSearchedUsers(c *gin.Context, key, order string, uid int64, offset, nums int) (searchResult []*EntitySets.UserSearch, err error) {
+	defer Utilities.DeferFunc(c, err, "GetSearchedUsers")
+	//获取用户关注的用户的信息
+	followedUsers, err := RelationshipSets.GetUserFollows(DAO.DB, 0, uid)
+	mp := make(map[int64]bool)
+	for _, v := range followedUsers {
+		mp[v.FID] = true
+	}
+
+	//获取用户的搜索结果
+	searchResult, err = helper.GetSearchedUsers(key, nums, offset, order)
+
+	//根据关注的用户信息置searchResult中的is_followed字段
+	for _, v := range searchResult {
+		fmt.Printf("%d %s %s %d %d %t\n", v.UserID, v.UserName, v.UserSignature, v.UserLevel, v.FollowedCount, v.IsFollow)
+		if mp[v.UserID] == true {
+			v.IsFollow = true
+		}
+	}
 	return
 }

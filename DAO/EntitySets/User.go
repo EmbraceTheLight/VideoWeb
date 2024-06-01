@@ -12,26 +12,38 @@ type UserSummary struct {
 	Avatar    []byte `json:"avatar"`
 	UserLevel uint16 `json:"userLevel" `
 }
+
+type UserSearch struct {
+	UserID        int64  `json:"userID" `
+	UserName      string `json:"userName"`
+	Avatar        []byte `json:"avatar"`
+	UserLevel     uint16 `json:"userLevel"`
+	IsFollow      bool   `json:"isFollow" gorm:"-"`
+	UserSignature string `json:"signature" gorm:"column:signature;type:varchar(25)"`
+	FollowedCount uint32 `json:"followedCount" gorm:"column:cnt_followers;type:int unsigned;"`
+}
+
 type User struct {
 	define.MyModel
 	UserID    int64  `json:"userID" gorm:"column:user_id;type:bigint;primaryKey"` //用户ID
-	UserName  string `json:"userName" gorm:"column:user_name;type:varchar(40)"`   //用户名
+	UserName  string `json:"userName" gorm:"column:user_name;type:varchar(40);"`  //用户名
 	Password  string `json:"password" gorm:"column:password;type:varchar(72)"`    //用户密码,最多72位
 	Email     string `json:"email" gorm:"column:email;type:varchar(100)"`         //用户邮箱
 	Signature string `json:"signature" gorm:"column:signature;type:varchar(25)"`  //个性签名，至多25个字
 	//以下内容为数据库系统默认生成
-	Shells        uint32                           `json:"shells" gorm:"column:shells;type:int unsigned;default:1000"`       //用户拥有的贝壳数
-	IsAdmin       int                              `json:"isAdmin" gorm:"column:is_admin;type:tinyint;default:-1"`           //用户是否为管理员,-1表示不是管理员，1表示是管理员
-	CntMsgNotRead int32                            `json:"count" gorm:"column:cnt_msg_not_read;type:int unsigned;default:0"` //用户未读消息数
-	UserLevel     Level                            `json:"userLevel" gorm:"foreignKey:UID;references:UserID"`                //用户等级
-	Videos        []*Video                         `json:"videos" gorm:"foreignKey:UID;references:UserID;"`                  //has-many 一对多
-	UserWatch     []*VideoHistory                  `json:"userHistory" gorm:"foreignKey:UID;references:UserID"`              //用户观看记录,has-many
-	Favorites     []*Favorites                     `json:"favorites" gorm:"foreignKey:UID;references:UserID"`                //用户收藏夹has-many
-	Comments      []*Comments                      `json:"comments" gorm:"foreignKey:UID;references:UserID"`                 //用户评论has-many
-	UserSearch    []*SearchHistory                 `json:"userSearch" gorm:"foreignKey:UID;references:UserID"`               //用户搜索记录,has-many
-	Follows       []*FollowList                    `json:"follows" gorm:"foreignKey:UID;references:UserID"`                  //用户关注列表 has-many
-	Followed      []*RelationshipSets.UserFollowed `json:"followed" gorm:"foreignKey:UID;references:UserID"`                 //用户粉丝列表 has-many
-	Avatar        []byte                           `json:"avatar" gorm:"type:MediumBLOB;size:10240000"`                      //用户头像,最大为10MiB
+	Shells        uint32                           `json:"shells" gorm:"column:shells;type:int unsigned;default:1000"`           //用户拥有的贝壳数
+	IsAdmin       int                              `json:"isAdmin" gorm:"column:is_admin;type:tinyint;default:-1"`               //用户是否为管理员,-1表示不是管理员，1表示是管理员
+	CntMsgNotRead int32                            `json:"count_msg" gorm:"column:cnt_msg_not_read;type:int unsigned;default:0"` //用户未读消息数
+	CntFollowers  uint32                           `json:"followers" gorm:"column:cnt_followers;type:int unsigned;default:0;"`   //用户粉丝数
+	UserLevel     Level                            `json:"userLevel" gorm:"foreignKey:UID;references:UserID"`                    //用户等级
+	Videos        []*Video                         `json:"videos" gorm:"foreignKey:UID;references:UserID;"`                      //has-many 一对多
+	UserWatch     []*VideoHistory                  `json:"userHistory" gorm:"foreignKey:UID;references:UserID"`                  //用户观看记录,has-many
+	Favorites     []*Favorites                     `json:"favorites" gorm:"foreignKey:UID;references:UserID"`                    //用户收藏夹has-many
+	Comments      []*Comments                      `json:"comments" gorm:"foreignKey:UID;references:UserID"`                     //用户评论has-many
+	UserSearch    []*SearchHistory                 `json:"userSearch" gorm:"foreignKey:UID;references:UserID"`                   //用户搜索记录,has-many
+	Follows       []*FollowList                    `json:"follows" gorm:"foreignKey:UID;references:UserID"`                      //用户关注列表 has-many
+	Followed      []*RelationshipSets.UserFollowed `json:"followed" gorm:"foreignKey:UID;references:UserID"`                     //用户粉丝列表 has-many
+	Avatar        []byte                           `json:"avatar" gorm:"type:MediumBLOB;size:10240000"`                          //用户头像,最大为10MiB
 }
 
 func (u *User) TableName() string {
@@ -105,6 +117,7 @@ func GetUserInfoByID(db *gorm.DB, id int64) (*User, error) {
 	return user, nil
 }
 
+// UpdateUserAvatar 更新用户头像
 func UpdateUserAvatar(db *gorm.DB, userID int64, data []byte) error {
 	return db.Model(&User{}).Where("user_id=?", userID).Update("avatar", data).Error
 }

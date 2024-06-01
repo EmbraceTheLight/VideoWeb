@@ -14,7 +14,11 @@ func (s *SearchHistory) TableName() string {
 	return "search_history"
 }
 
-func InsertSearchRecord(db *gorm.DB, sh *SearchHistory) error {
+func InsertSearchRecord(db *gorm.DB, UID int64, searchString string) error {
+	sh := &SearchHistory{
+		UID:          UID,
+		SearchString: searchString,
+	}
 	return db.Model(&SearchHistory{}).Create(sh).Error
 }
 

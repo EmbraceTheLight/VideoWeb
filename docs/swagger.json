@@ -228,7 +228,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "要获取用户信息的视频ID",
+                        "description": "要获取用户信息的视频ID:在这个接口中用不到",
                         "name": "VideoID",
                         "in": "path",
                         "required": true
@@ -241,68 +241,6 @@
                         "collectionFormat": "multi",
                         "description": "用户ID列表",
                         "name": "UserIDs",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/User/AddSearchHistory": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "增加搜索历史记录",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "搜索记录",
-                        "name": "searchString",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/User/AddVideoHistory": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "增加视频历史记录",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "视频ID",
-                        "name": "VID",
                         "in": "query",
                         "required": true
                     }
@@ -415,7 +353,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "要取消关注的用户ID",
+                        "description": "关注列表ID",
                         "name": "FollowListID",
                         "in": "query",
                         "required": true
@@ -946,6 +884,64 @@
                 }
             }
         },
+        "/User/SearchUsers": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "获取搜索用户列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "搜索的用户数量",
+                        "name": "commentNums",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "搜索用户的偏移量",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索关键字",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户的排序方式,default:按粉丝数量排序,mostFans:粉丝数由高到低,leastFans:粉丝数由低到高,highLevel:等级由高到低,lowLevel:等级由低到高",
+                        "name": "sortOrder",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"搜索用户成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/User/User-detail": {
             "get": {
                 "consumes": [
@@ -1023,6 +1019,64 @@
                     }
                 ],
                 "responses": {}
+            }
+        },
+        "/video/SearchVideos": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "根据关键字搜索视频",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "搜索的视频数量",
+                        "name": "videoNums",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "搜索视频的偏移量",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "关键字",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "视频的排序方式,default:按热度排序,newest:按最新发布排序,mostPlay:按播放量排序,mostBarrage:按弹幕数量排序,mostFavorite:按收藏数量排序",
+                        "name": "sortOrder",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"data\": videoInfo,\"msg\":\"搜索视频成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/video/Upload": {

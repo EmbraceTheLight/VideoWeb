@@ -14,7 +14,7 @@ type ClientConnection struct {
 	hub1       *ServerHub
 	UserID     string
 	Conn       *websocket.Conn
-	Send       chan *define.Message //向客户端发送消息
+	Send       chan *DAO.Message //向客户端发送消息
 	CreateTime uint64
 }
 
@@ -32,7 +32,7 @@ func NewConnection(UserID string, ctx *gin.Context) (*ClientConnection, error) {
 		hub1:       hub,
 		UserID:     UserID,
 		Conn:       conn,
-		Send:       make(chan *define.Message),
+		Send:       make(chan *DAO.Message),
 		CreateTime: uint64(time.Now().Unix()),
 	}
 	newConn.hub1.register <- newConn

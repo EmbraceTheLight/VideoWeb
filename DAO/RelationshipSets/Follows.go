@@ -18,6 +18,16 @@ func (ufs *UserFollows) TableName() string {
 	return "user_follows"
 }
 
+// GetUserFollows 获取用户关注的用户信息,返回的是一个UserFollows的数组,FollowListID为0时,表示获取所有关注的用户信息
+func GetUserFollows(db *gorm.DB, FollowListID int64, UID int64) (ufs []*UserFollows, err error) {
+	if FollowListID == 0 {
+		err = db.Model(UserFollows{}).Where("user_id=?", UID).Find(&ufs).Error
+	} else {
+		err = db.Model(UserFollows{}).Where("followlist_id=? AND user_id=?", FollowListID, UID).Find(&ufs).Error
+	}
+	return
+}
+
 // InsertFollowsRecord 插入一条关注信息
 func InsertFollowsRecord(db *gorm.DB, ufs *UserFollows) error {
 	return db.Model(UserFollows{}).Create(&ufs).Error

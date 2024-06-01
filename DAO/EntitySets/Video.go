@@ -20,10 +20,10 @@ type Video struct {
 	define.MyModel
 
 	//用户显式指定
-	Title       string `json:"Title" gorm:"column:title;type:varchar(100);index:,class:FULLTEXT"` //视频题目,添加了全文索引
-	Description string `json:"Description" gorm:"column:description;type:text"`                   //视频描述
-	Class       string `json:"Class" gorm:"column:class;type:varchar(20);index:idx_class_hot"`    //视频分类
-	Path        string `json:"Path" gorm:"column:path;type:varchar(200)"`                         //视频路径
+	Title       string `json:"Title" gorm:"column:title;type:varchar(100);"`                   //视频题目
+	Description string `json:"Description" gorm:"column:description;type:text;"`               //视频描述
+	Class       string `json:"Class" gorm:"column:class;type:varchar(20);index:idx_class_hot"` //视频分类
+	Path        string `json:"Path" gorm:"column:path;type:varchar(200)"`                      //视频路径
 	//系统默认生成
 	VideoID      int64  `json:"VID" gorm:"column:video_id;type:bigint;primaryKey"`                     //视频唯一标识
 	UID          int64  `json:"UID" gorm:"column:user_id;type:bigint"`                                 //视频作者ID

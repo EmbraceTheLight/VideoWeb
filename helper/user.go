@@ -68,6 +68,31 @@ func DeleteFollowListRecords(userid int64, tx *gorm.DB) error {
 // GetUserBasicInfo 获取用户基本信息
 func GetUserBasicInfo(userid []int64) (info []*EntitySets.UserSummary, err error) {
 	err = DAO.DB.Debug().Model(&EntitySets.User{}).Where("user.user_id in (?)", userid).Joins("JOIN user_level ON user_level.user_id = user.user_id ").
-		Select("user.user_id", "user_name", "avatar", "user_level.user_level").Find(&info).Error
+		Select("user.user_id", "user_name", "avatar", "user_level.user_level", "user.signature").Find(&info).Error
+	return
+}
+
+// GetSearchedUsers 获取用户的模糊搜索结果
+func GetSearchedUsers(key string, nums int, offset int, order string) (searchResult []*EntitySets.UserSearch, err error) {
+	switch order {
+	case "default":
+		fallthrough
+	case "mostFans":
+		err = DAO.DB.Debug().Model(&EntitySets.User{}).Where("MATCH(user_name) against (? IN BOOLEAN MODE)", key).Joins("JOIN user_level ON user_level.user_id = user.user_id ").
+			Select("user.user_id", "user_name", "avatar", "user_level.user_level", "user.signature", "user.cnt_followers").
+			Order("user.cnt_followers DESC").Offset(offset).Limit(nums).Find(&searchResult).Error
+	case "leastFans":
+		err = DAO.DB.Model(&EntitySets.User{}).Where("MATCH(user_name) against (? IN BOOLEAN MODE)", key).Joins("JOIN user_level ON user_level.user_id = user.user_id ").
+			Select("user.user_id", "user_name", "avatar", "user_level.user_level", "user.signature", "user.cnt_followers").
+			Order("user.cnt_followers ASC").Offset(offset).Limit(nums).Find(&searchResult).Error
+	case "highLevel":
+		err = DAO.DB.Model(&EntitySets.User{}).Where("MATCH(user_name) against (? IN BOOLEAN MODE)", key).Joins("JOIN user_level ON user_level.user_id = user.user_id ").
+			Select("user.user_id", "user_name", "avatar", "user_level.user_level", "user.signature", "user.cnt_followers").
+			Order("user_level.user_level, user_level.cur_exp DESC").Offset(offset).Limit(nums).Find(&searchResult).Error
+	case "lowLevel":
+		err = DAO.DB.Model(&EntitySets.User{}).Where("MATCH(user_name) against (? IN BOOLEAN MODE)", key).Joins("JOIN user_level ON user_level.user_id = user.user_id ").
+			Select("user.user_id", "user_name", "avatar", "user_level.user_level", "user.signature", "user.cnt_followers").
+			Order("user_level.user_level, user_level.cur_exp ASC").Offset(offset).Limit(nums).Find(&searchResult).Error
+	}
 	return
 }

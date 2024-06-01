@@ -14,7 +14,7 @@ import (
 // @summary 获取用户基本信息
 // @Produce json
 // @Accept json
-// @Param VideoID path string true "要获取用户信息的视频ID"
+// @Param VideoID path string true "要获取用户信息的视频ID:在这个接口中用不到"
 // @Param UserIDs query []string true "用户ID列表"  collectionFormat(multi)
 // @Router /Comment/{VideoID}/UserBasicInfo [get]
 func GetUsersBasicInfo(c *gin.Context) {

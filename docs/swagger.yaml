@@ -146,7 +146,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 要获取用户信息的视频ID
+      - description: 要获取用户信息的视频ID:在这个接口中用不到
         in: path
         name: VideoID
         required: true
@@ -165,48 +165,6 @@ paths:
       summary: 获取用户基本信息
       tags:
       - Comment API
-  /User/AddSearchHistory:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: 搜索记录
-        in: query
-        name: searchString
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 增加搜索历史记录
-      tags:
-      - User API
-  /User/AddVideoHistory:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: 视频ID
-        in: query
-        name: VID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 增加视频历史记录
-      tags:
-      - User API
   /User/Face/Upload/Avatar:
     put:
       consumes:
@@ -273,7 +231,7 @@ paths:
         name: FID
         required: true
         type: string
-      - description: 要取消关注的用户ID
+      - description: 关注列表ID
         in: query
         name: FollowListID
         required: true
@@ -633,6 +591,45 @@ paths:
       summary: 用户注册
       tags:
       - User API
+  /User/SearchUsers:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 搜索的用户数量
+        in: query
+        name: commentNums
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 搜索用户的偏移量
+        in: query
+        name: offset
+        required: true
+        type: integer
+      - description: 搜索关键字
+        in: query
+        name: key
+        required: true
+        type: string
+      - description: 用户的排序方式,default:按粉丝数量排序,mostFans:粉丝数由高到低,leastFans:粉丝数由低到高,highLevel:等级由高到低,lowLevel:等级由低到高
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","msg":"搜索用户成功"}'
+          schema:
+            type: string
+      summary: 获取搜索用户列表
+      tags:
+      - User API
   /User/User-detail:
     get:
       consumes:
@@ -933,6 +930,45 @@ paths:
       - application/octet-stream
       responses: {}
       summary: 提供DASH所需的.mpd文件
+      tags:
+      - Video API
+  /video/SearchVideos:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 搜索的视频数量
+        in: query
+        name: videoNums
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 搜索视频的偏移量
+        in: query
+        name: offset
+        required: true
+        type: integer
+      - description: 关键字
+        in: query
+        name: key
+        required: true
+        type: string
+      - description: 视频的排序方式,default:按热度排序,newest:按最新发布排序,mostPlay:按播放量排序,mostBarrage:按弹幕数量排序,mostFavorite:按收藏数量排序
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","data": videoInfo,"msg":"搜索视频成功"}'
+          schema:
+            type: string
+      summary: 根据关键字搜索视频
       tags:
       - Video API
   /video/Upload:
