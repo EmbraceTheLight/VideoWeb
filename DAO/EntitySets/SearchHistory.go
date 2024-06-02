@@ -19,7 +19,7 @@ func InsertSearchRecord(db *gorm.DB, UID int64, searchString string) error {
 		UID:          UID,
 		SearchString: searchString,
 	}
-	return db.Model(&SearchHistory{}).Create(sh).Error
+	return db.Model(&SearchHistory{}).Save(sh).Error
 }
 
 // DeleteOneSearchRecord 根据记录ID删除单条搜索记录

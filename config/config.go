@@ -60,7 +60,7 @@ func parseConfig(path string) error {
 	if path == "" {
 		path = "./config/config.yaml"
 	}
-	//TODO: parse config file and return Config struct
+	//parse config file and return Config struct
 	file, err := os.Open(path)
 	if err != nil {
 		return err

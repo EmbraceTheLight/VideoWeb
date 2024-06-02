@@ -427,22 +427,22 @@ func GetVideosByKey(c *gin.Context, key, order string, offset, videoNums int) (v
 		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
 		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("hot desc").Limit(videoNums).Find(&videos).Error
 	case "mostPlay":
-		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_views desc").Limit(videoNums).Find(&videos).Error
 		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
 		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_views desc").Limit(videoNums).Find(&videos).Error
 	case "newest":
-		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("created_at desc").Limit(videoNums).Find(&videos).Error
 		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
 		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("created_at desc").Limit(videoNums).Find(&videos).Error
 	case "mostBarrage":
-		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_barrages desc").Limit(videoNums).Find(&videos).Error
 		//err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
 		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_barrages desc").Limit(videoNums).Find(&videos).Error
 	case "mostFavorite":
-		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_favorites desc").Limit(videoNums).Find(&videos).Error
 		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
 		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_favorites desc").Limit(videoNums).Find(&videos).Error
