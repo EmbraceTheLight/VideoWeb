@@ -1390,7 +1390,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "评论排序方式",
+                        "description": "评论排序方式:default,likes:按点赞数量排序;newest:按最新发布排序",
                         "name": "order",
                         "in": "query"
                     }

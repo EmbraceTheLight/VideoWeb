@@ -292,9 +292,9 @@ func OfferMpd(c *gin.Context) {
 func GetVideoInfo(c *gin.Context) {
 	c.Set("funcName", "Service::Videos::GetVideoInfo")
 	VID := Utilities.String2Int64(c.Param("ID"))
-
+	var UID int64
 	var videoInfo = new(EntitySets.Video)
-	err := DAO.DB.Where("video_id=?", VID).Preload("Comments").
+	err := DAO.DB.Where("video_id=?", VID).
 		Preload("Tags").Preload("Barrages").First(&videoInfo).Error
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
@@ -304,7 +304,7 @@ func GetVideoInfo(c *gin.Context) {
 	//更新UserVideo表：若没有对应记录则插入
 	u, _ := c.Get("user")
 	if u != nil {
-		UID := u.(*logic.UserClaims).UserId
+		UID = u.(*logic.UserClaims).UserId
 		err = logic.InsertUserVideoIfNotExist(UID, VID)
 		if err != nil {
 			Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
@@ -320,9 +320,16 @@ func GetVideoInfo(c *gin.Context) {
 
 	//TODO:添加历史观看记录
 
+	//查找对应的UserVideo记录
+	uv, err := RelationshipSets.GetUserVideoRecord(DAO.DB, UID, videoInfo.VideoID)
+	if err != nil {
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":     http.StatusOK,
 		"data":     videoInfo,
+		"status":   uv,
 		"basePath": path.Dir(videoInfo.Path),
 	})
 }
@@ -436,7 +443,7 @@ func GetVideoList(c *gin.Context) {
 // @Param Authorization header string true "token"
 // @Param commentNums query int true "请求的评论数量"
 // @Param offset query int true "评论的偏移量"
-// @Param order query string false "评论排序方式"
+// @Param order query string false "评论排序方式:default,likes:按点赞数量排序;newest:按最新发布排序"
 // @Success 200 {string}  json "{"code":"200","msg":"发送评论成功"}"
 // @Router /video/{ID}/Comments [get]
 func GetVideoComments(c *gin.Context) {
