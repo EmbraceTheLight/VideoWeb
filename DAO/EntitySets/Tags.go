@@ -16,7 +16,7 @@ func InsertTags(db *gorm.DB, tags []*Tags) error {
 }
 
 // DeleteTagRecords 删除视频标签记录
-func DeleteTagRecords(db *gorm.DB, VID int64) error {
-	err := db.Model(&Tags{}).Delete(&Tags{}, "video_id=?", VID).Error
+func DeleteTagRecords(db *gorm.DB, videoID int64) error {
+	err := db.Model(&Tags{}).Delete(&Tags{}, "video_id=?", videoID).Error
 	return err
 }

@@ -27,6 +27,7 @@ type Comments struct {
 
 func (c *Comments) TableName() string { return "comments" }
 
+// InsertCommentRecord 插入一条评论记录
 func InsertCommentRecord(db *gorm.DB, c *Comments) error {
 	return db.Model(&Comments{}).Create(c).Error
 }
@@ -35,10 +36,18 @@ func DeleteCommentRecordsByVideoID(db *gorm.DB, videoID int64) error {
 	return db.Model(&Comments{}).Delete(&Comments{}, "video_id = ?", videoID).Error
 }
 
+// GetCommentByCommentID 根据评论ID获取评论信息
 func GetCommentByCommentID(db *gorm.DB, commentID int64) (*Comments, error) {
 	var c = &Comments{}
-	err := db.Model(&Comments{}).Where("comment_id = ?", commentID).First(c).Error
+	err := db.Model(&Comments{}).Where("comment_id = ?", commentID).First(&c).Error
 	return c, err
+}
+
+// GetCommentsByUserID 获取用户的所有评论
+func GetCommentsByUserID(db *gorm.DB, userID int64) ([]*Comments, error) {
+	var comments []*Comments
+	err := db.Model(&Comments{}).Where("user_id = ?", userID).Find(&comments).Error
+	return comments, err
 }
 
 // UpdateCommentField 更新评论的点赞数或点踩数

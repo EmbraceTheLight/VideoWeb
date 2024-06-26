@@ -103,6 +103,9 @@ type IPInfo struct {
 	//AsName        string  `json:"asName"`
 }
 
+// BaseDir 数据存储根目录
+var BaseDir = "./resources/"
+
 // PicExtCheck 验证图片后缀名
 var PicExtCheck = make(map[string]struct{})
 var PictureSavePath = "./resources/pictures/"

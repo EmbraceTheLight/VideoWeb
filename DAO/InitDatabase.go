@@ -42,7 +42,7 @@ func initMongo() *mongo.Database {
 		log.Println("[initMongo] Error connecting to MongoDB:", err)
 		return nil
 	}
-	db := client.Database("IM")
+	db := client.Database("video_web")
 	logf.WriteInfoLog("initMongo", "Mongo init success")
 	return db
 }
@@ -92,19 +92,32 @@ func checkAndCreateTable() {
 	}
 }
 func setIndexes() error {
-	err := DB.Exec("CREATE FULLTEXT INDEX idx_user_name ON user(user_name) with parser ngram;").Error
-	if err != nil {
-		if strings.Contains(err.Error(), "Duplicate key name") {
-			return nil
-		}
-		return err
+	type IndexInfo struct {
+		KeyName    string
+		SeqInIndex int
+		ColumnName string
 	}
-	err = DB.Exec("CREATE FULLTEXT INDEX idx_fulltext_title_description ON video(title,description) with parser ngram;").Error
-	if err != nil {
-		if strings.Contains(err.Error(), "Duplicate key name") {
-			return nil
+
+	var err error
+	var results []IndexInfo
+	//检查是否存在索引，不存在则创建FULLTEXT索引
+	check := fmt.Sprintf("SHOW INDEX FROM `video` WHERE COLUMN_NAME IN ('title','description') AND Index_type = 'FULLTEXT'")
+	DB.Raw(check).Scan(&results)
+	if len(results) == 0 {
+		err = DB.Exec("CREATE FULLTEXT INDEX idx_user_name ON user(user_name) with parser ngram;").Error
+		if err != nil {
+			if strings.Contains(err.Error(), "Duplicate key name") {
+				return nil
+			}
+			return err
 		}
-		return err
+		err = DB.Exec("CREATE FULLTEXT INDEX idx_fulltext_title_description ON video(title,description) with parser ngram;").Error
+		if err != nil {
+			if strings.Contains(err.Error(), "Duplicate key name") {
+				return nil
+			}
+			return err
+		}
 	}
 
 	return err

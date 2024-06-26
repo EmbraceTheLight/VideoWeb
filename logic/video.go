@@ -53,33 +53,20 @@ func GetVideoDuration(VideoPath string) (duration int64, err error) {
 
 // CreateVideoRecord 创建视频记录
 func CreateVideoRecord(tx *gorm.DB, c *gin.Context, UserID int64, videoFilePath string, fileSize int64) (VID int64, err error) {
-	t, err := GetVideoDuration(videoFilePath)
-	if err != nil {
-		return VID, err
-	}
-	videoTime, _ := Utilities.SecondToTime(t)
-	Title := c.PostForm("title")
-	Description := c.PostForm("description")
-	Class := c.PostForm("class")
-
 	VID = GetUUID()
 	UID := UserID
-	var userInfo EntitySets.User
+	var userInfo *EntitySets.User
 	err = tx.Model(&EntitySets.User{}).Where("user_id = ?", UserID).First(&userInfo).Error
 	if err != nil {
 		return VID, err
 	}
 	video := &EntitySets.Video{
-		MyModel:     define.MyModel{},
-		VideoID:     VID,
-		UID:         UID,
-		UserName:    userInfo.UserName,
-		Title:       Title,
-		Description: Description,
-		Class:       Class,
-		Path:        videoFilePath,
-		Duration:    videoTime,
-		Size:        fileSize,
+		MyModel:  define.MyModel{},
+		VideoID:  VID,
+		UID:      UID,
+		UserName: userInfo.UserName,
+		Path:     videoFilePath,
+		Size:     fileSize,
 	}
 	err = EntitySets.InsertVideoRecord(tx, video)
 	return VID, err
@@ -95,7 +82,7 @@ func MakeDASHSegments(videoFilePath string) error {
 	if ext != ".mp4" {
 		err := helper.Other2MP4(videoFilePath)
 		inputFileName = path.Join(outputFilePath, "converted.mp4")
-		defer func() {
+		defer func() { //删除临时生成的视频文件，节约磁盘空间
 			err := os.Remove(inputFileName)
 			if err != nil {
 				logf.WriteErrLog("logic::MakeDASHSegments", fmt.Sprintf("删除%s生成的.mp4临时文件失败:%s", videoFilePath, err.Error()))
@@ -107,7 +94,7 @@ func MakeDASHSegments(videoFilePath string) error {
 	}
 
 	// 调用ffmpeg命令行工具生成分段文件
-	fmt.Println("inputFilePath:", inputFileName)
+	//fmt.Println("inputFilePath:", inputFileName)
 	ffmpegArgs := []string{
 		"-i", inputFileName,
 		"-c", "copy",
@@ -120,6 +107,33 @@ func MakeDASHSegments(videoFilePath string) error {
 	return err
 }
 
+// MakePreviews 生成视频预览图
+//func MakePreviews(videoFilePath string) error {
+//	outputDir := path.Dir(videoFilePath) + "/tmp" //缩略图存放路径
+//	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+//		return fmt.Errorf("MakePreviews failed: %w", err)
+//	}
+//
+//	// 使用 FFmpeg 提取关键帧
+//	ffmpegArgs := []string{
+//		"-i", videoFilePath,
+//		"-vf", fmt.Sprintf("select='not(mod(n,%d))'", 20*25),
+//		"-q:v", "2",
+//		"-vsync", "vfr",
+//		filepath.Join(outputDir, "keyframe_%04d.jpg"),
+//	}
+//	cmd := exec.Command("ffmpeg", ffmpegArgs...)
+//	cmd.Stdout = os.Stdout
+//	cmd.Stderr = os.Stderr
+//
+//	// 运行命令
+//	if err := cmd.Run(); err != nil {
+//		return fmt.Errorf("MakePreviews failed: %w", err)
+//	}
+//
+//	return nil
+//}
+
 // DeleteVideo 删除视频辅助函数
 func DeleteVideo(del *EntitySets.Video) error {
 	/*从硬盘中删除对应视频信息*/
@@ -131,6 +145,9 @@ func DeleteVideo(del *EntitySets.Video) error {
 	/*从数据库中删除视频相关信息*/
 	tx := DAO.DB.Begin()
 	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
@@ -139,28 +156,26 @@ func DeleteVideo(del *EntitySets.Video) error {
 	//从数据库中删除视频信息
 	err = EntitySets.DeleteVideoInfoByVideoID(tx, del.VideoID)
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
+
 	//从数据库中删除与视频绑定的Tag信息
 	err = EntitySets.DeleteTagRecords(tx, del.VideoID)
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
+
 	//从数据库中删除与视频绑定的弹幕信息
 	err = EntitySets.DeleteBarrageRecordsByVideoID(tx, del.VideoID)
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
+
 	//从数据库中删除与视频绑定的评论信息
 	err = EntitySets.DeleteCommentRecordsByVideoID(tx, del.VideoID)
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
-	//TODO:从数据库中删除与视频绑定的收藏信息
 
 	tx.Commit()
 	return nil
@@ -211,7 +226,7 @@ func AddVideoViewCount(c *gin.Context, videoID int64) error {
 }
 
 // UpdateVideoLikeStatus 更新视频点赞状态,若已经点赞，则为取消点赞，反之则为点赞，更新对应状态与数据
-func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, isLiked bool) error {
+func UpdateVideoLikeStatus(c *gin.Context, UserID, AuthorID, VideoID int64, isLiked bool) error {
 	var err error
 	tx := DAO.DB.Begin()
 	defer func() {
@@ -227,29 +242,46 @@ func UpdateVideoLikeStatus(c *gin.Context, UserID, VideoID int64, field string, 
 
 	//更新视频点赞数以及视频热度
 	if isLiked {
-		err = helper.UpdateVideoFieldForUpdate(VideoID, field, -1, tx)
+		err = helper.UpdateVideoFieldForUpdate(VideoID, "likes", -1, tx)
 		if err != nil {
 			return err
 		}
+
+		//更新视频热度
 		err = helper.UpdateVideoFieldForUpdate(VideoID, "hot", -define.AddHotEachLike, tx)
 		if err != nil {
 			return err
 		}
-	} else {
-		err = helper.UpdateVideoFieldForUpdate(VideoID, field, 1, tx)
+
+		//更新被点赞视频UP主的点赞数
+		err = helper.UpdateUserFieldForUpdate(AuthorID, "cnt_likes", -1, tx)
 		if err != nil {
 			return err
 		}
+
+	} else {
+		err = helper.UpdateVideoFieldForUpdate(VideoID, "likes", 1, tx)
+		if err != nil {
+			return err
+		}
+
 		err = helper.UpdateVideoFieldForUpdate(VideoID, "hot", define.AddHotEachLike, tx)
 		if err != nil {
 			return err
 		}
+
+		err = helper.UpdateUserFieldForUpdate(AuthorID, "cnt_likes", 1, tx)
+		if err != nil {
+			return err
+		}
+
 	}
 	//更新用户点赞状态:当前状态取反
 	err = helper.UpdateUserVideoFieldForUpdate(UserID, VideoID, "is_like", !isLiked, tx)
 	if err != nil {
 		return err
 	}
+
 	tx.Commit()
 	return nil
 }
@@ -390,6 +422,7 @@ func GetVideoCommentsList(c *gin.Context, videoID, UserID int64, order string, P
 		}
 	}()
 	//获取视频的根评论列表
+
 	comments, err := helper.GetRootCommentsSummariesByVideoID(videoID, order, Page, CommentsNumbers)
 	if err != nil {
 		return nil, err

@@ -5,8 +5,11 @@ import (
 	EntitySets "VideoWeb/DAO/EntitySets"
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
+	"VideoWeb/Utilities/logf"
+	"VideoWeb/cache/videoCache"
 	"VideoWeb/define"
 	"VideoWeb/logic"
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -18,21 +21,16 @@ import (
 	"strings"
 )
 
-// UploadVideo
+// UploadVideoFile
 // @Tags Video API
 // @summary 用户上传视频
 // @Accept multipart/form-data
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param  title formData string true "视频标题"
 // @Param uploadVideo formData file true "视频"
-// @Param videoCover formData file true "视频封面"
-// @Param class formData string true "视频分类"  Enums(娱乐,教育,科技,知识,健康,旅行,探险,美食,时尚,音乐,舞蹈,体育,健身,历史,文化,游戏,电影,搞笑,资讯)
-// @Param tags formData []string false "视频标签"  collectionFormat(multi)
-// @Param  description formData string false "视频描述"
-// @Router /video/Upload [post]
-func UploadVideo(c *gin.Context) {
-	Utilities.AddFuncName(c, "Service::videos::UploadVideo")
+// @Router /video/VideoFile [post]
+func UploadVideoFile(c *gin.Context) {
+	Utilities.AddFuncName(c, "Service::videos::UploadVideoFile")
 	var err error
 
 	u, _ := c.Get("user")
@@ -40,21 +38,21 @@ func UploadVideo(c *gin.Context) {
 	//检查视频后缀名
 	FH, _ := c.FormFile("uploadVideo")
 	if err := Utilities.CheckVideoExt(FH.Filename); err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ErrorVideoFormat, err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.ErrorVideoFormat, err.Error())
 		return
 	}
 
 	//创建对应目录
 	videoPath, err := Utilities.Mkdir(strconv.FormatInt(UserID, 10))
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ReadFileFailed, "创建视频目录失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.ReadFileFailed, "创建视频目录失败:"+err.Error())
 		return
 	}
 
 	//在对应目录下创建并写入文件
 	baseVideoName := path.Base(videoPath)                              //获得刚才创建的目录名作为文件名
 	videoFileName := videoPath + baseVideoName + path.Ext(FH.Filename) //拼接视频文件名
-	defer func() {                                                     ////处理发生错误的情况，以便删除已经上传的视频.注意defer注册函数的顺序，否则会因为删除未关闭的文件导致删除失败
+	defer func() {
 		if err != nil {
 			e := os.RemoveAll(videoPath)
 			if e == nil {
@@ -69,13 +67,68 @@ func UploadVideo(c *gin.Context) {
 	//写入视频源数据
 	err = Utilities.WriteToNewFile(FH, videoFileName)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 		return
 	}
 	//写入分段视频数据
 	err = logic.MakeDASHSegments(videoFileName)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "创建DASH视频切片失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.UploadVideoFailed, "创建DASH视频切片失败:"+err.Error())
+		return
+	}
+
+	//将视频数据插入数据库
+	VID, err := logic.CreateVideoRecord(DAO.DB, c, UserID, videoFileName, FH.Size)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.UploadVideoFailed, "上传视频失败:"+err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": http.StatusOK,
+		"ID":   VID,
+	})
+
+}
+
+// UploadVideoInfo
+// @Tags Video API
+// @Param ID path string true "视频ID"
+// @Param title formData string true "视频标题"
+// @Param Authorization header string true "token"
+// @Param videoCover formData file true "视频封面"
+// @Param isUpload query bool true "是否上传"
+// @Param tags formData []string true "视频标签"  collectionFormat(multi)
+// @Param class formData string true "视频分类"  Enums(娱乐,教育,科技,知识,健康,旅行,探险,美食,时尚,音乐,舞蹈,体育,健身,历史,文化,游戏,电影,搞笑,资讯)
+// @Param  description formData string false "视频描述"
+// @Router /video/{ID}/VideoInfo [post]
+func UploadVideoInfo(c *gin.Context) {
+	Utilities.AddFuncName(c, "Service::videos::UploadVideoInfo")
+	var err error
+
+	u, _ := c.Get("user")
+	userID := logic.GetUserID(u)
+	videoID := Utilities.String2Int64(c.Param("ID"))
+	isUpload := c.Query("isUpload")
+
+	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, videoID)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoInfo", 5000, err.Error())
+		return
+	}
+
+	if isUpload == "false" {
+		err = os.RemoveAll(path.Dir(videoInfo.Path))
+		if err != nil {
+			Utilities.SendErrMsg(c, "service::Videos::UploadVideoInfo", 5000, "取消视频上传失败:"+err.Error())
+			return
+		}
+		err = EntitySets.DeleteVideoInfoByVideoID(DAO.DB, videoID)
+		if err != nil {
+			Utilities.SendErrMsg(c, "service::Videos::UploadVideoInfo", 5000, "取消视频上传失败:"+err.Error())
+			return
+		}
+		c.String(http.StatusOK, "取消视频上传成功")
 		return
 	}
 
@@ -90,13 +143,6 @@ func UploadVideo(c *gin.Context) {
 		}
 	}()
 
-	//将视频数据插入数据库
-	VID, err := logic.CreateVideoRecord(tx, c, UserID, videoFileName, FH.Size)
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
-		return
-	}
-
 	//将视频标签数据插入数据库
 	Tags := c.PostFormArray("tags")
 	if len(Tags) != 0 {
@@ -104,12 +150,12 @@ func UploadVideo(c *gin.Context) {
 		for i, tag := range Tags {
 			tags[i] = &EntitySets.Tags{
 				Tag: tag,
-				VID: VID,
+				VID: videoID,
 			}
 		}
 		err = EntitySets.InsertTags(tx, tags)
 		if err != nil {
-			Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.UploadVideoFailed, "上传视频失败:"+err.Error())
+			Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 			return
 		}
 	}
@@ -118,32 +164,55 @@ func UploadVideo(c *gin.Context) {
 	//检查封面后缀名
 	Cover, _ := c.FormFile("videoCover")
 	if err = Utilities.CheckPicExt(Cover.Filename); err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.ImageFormatError, err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.ImageFormatError, err.Error())
 		return
 	}
 
 	//打开并读取视频封面文件
-	coverData, err := logic.OpenAndReadFile(Cover)
+	coverPath := path.Join(path.Dir(videoInfo.Path), "cover"+path.Ext(Cover.Filename))
+	err = Utilities.WriteToNewFile(Cover, coverPath)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo::Utilities.OpenAndReadFile", define.OpenFileFailed, "打开或读取文件失败:"+err.Error())
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile::Utilities.OpenAndReadFile", define.OpenFileFailed, "打开或读取文件失败:"+err.Error())
 		return
 	}
 
-	//将视频封面图片信息插入数据库
-	err = EntitySets.UpdateVideoCover(tx, VID, coverData)
+	/*更新视频用户指定的有关信息*/
+	// 获得hh:mm:ss格式的视频时长
+	duration, err := logic.GetVideoDuration(videoInfo.Path)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", define.CreateVideoCoverFailed, "上传视频封面失败")
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile::Utilities.OpenAndReadFile", 5000, "获取视频时长失败:"+err.Error())
 		return
 	}
-	//更新用户经验值
-	err = logic.AddExpForUploadVideo(c, UserID, tx)
+	durationStr, _ := Utilities.SecondToTime(duration)
+
+	//更新视频记录信息
+	err = tx.Model(&EntitySets.Video{}).Where("video_id = ?", videoID).Updates(map[string]any{
+		"title":       c.PostForm("title"),
+		"description": c.PostForm("description"),
+		"class":       c.PostForm("class"),
+		"cover_path":  coverPath,
+		"duration":    durationStr}).Error
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::UploadVideo", 500, "更新用户经验值失败")
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.UploadVideoFailed, "更新视频信息失败:"+err.Error())
+		return
+	}
+
+	//更新用户经验值
+	err = logic.AddExpForUploadVideo(c, userID, tx)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.UploadVideoFailed, "更新用户经验值失败")
 		return
 	}
 
 	tx.Commit()
 	Utilities.SendJsonMsg(c, http.StatusOK, "上传视频成功")
+
+	/*将信息更新到redis中*/
+	vc := videoCache.MakeVideoCache()
+	err = vc.MakeVideoInfo(context.Background(), videoID)
+	if err != nil {
+		logf.WriteErrLog("service::Videos::UploadVideoInfo", err.Error())
+	}
 }
 
 // DeleteVideo
@@ -363,7 +432,7 @@ func LikeOrUndoLike(c *gin.Context) {
 		return
 	}
 	//修改用户点赞状态与视频点赞数
-	err = logic.UpdateVideoLikeStatus(c, UserID, videoInfo.VideoID, "likes", uv.IsLike)
+	err = logic.UpdateVideoLikeStatus(c, UserID, videoInfo.UID, videoInfo.VideoID, uv.IsLike)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return

@@ -4,108 +4,90 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b03ac556-b29e-4ae2-8b6e-8a7be861813c" name="更改" comment="更改">
+    <list default="true" id="c110e402-76e8-4acb-92fe-4f0423d9bca8" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/mysql.osA4Bg.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/sys.zb4BAA.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/videoweb.-SChRA.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Comments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Level.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Level.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Tags.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Tags.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/User.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Video.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/InitDatabase.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/InitDatabase.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utilities/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/define/defines.go" beforeDir="false" afterPath="$PROJECT_DIR$/define/defines.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go-wrk/client_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/go-wrk/client_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helper/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helper/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/routers.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/routers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Comments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/Users.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Users.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/redis_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/redis_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Go File" />
-      </list>
-    </option>
-  </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../../tmp/go1.22.1" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;EmbraceTheLight&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:EmbraceTheLight/VideoWeb.git&quot;,
-    &quot;accountId&quot;: &quot;c1d93c50-52de-478e-9e2a-3d0518c9f0aa&quot;
-  }
-}</component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 7
 }</component>
-  <component name="ProjectId" id="2eYFWPWCeDEVd0r5dCkmWPIXjlh" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="1" id="Add" />
-  </component>
+  <component name="ProjectId" id="2iGZygp9paQ99XAsX2jV4NCVjku" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "Go 构建.go build main.go.executor": "Debug",
-    "Go 测试.TestPath in VideoWeb/test (1).executor": "Run",
-    "Go 测试.TestPath in VideoWeb/test.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestGetIPInfo.executor": "Debug",
-    "Go 测试.VideoWeb/test 中的 TestHardDelete.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestLog.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestReadConfig.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestSendEmail.executor": "Run",
-    "Go 测试.VideoWeb/test 中的 TestVideoTime.executor": "Run",
-    "Go 测试.config_test.go.executor": "Run",
-    "Go 测试.gobench VideoWeb/test.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "master",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "C:/Users/张恩阳",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
-  },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
-    ]
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Go 测试.TestGetUserComments in VideoWeb/test.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.TestMakeVideoInfo in VideoWeb/test.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestGetUserInfo.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestGetUserInfos.executor&quot;: &quot;Run&quot;,
+    &quot;Go 测试.VideoWeb/test 中的 TestMakeUserInfo.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/张恩阳&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\VideoWeb\Utilities" />
-      <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWebFromUbuntu-22.04LTS\VideoWeb\temp" />
-      <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWebFromUbuntu-22.04LTS\VideoWeb\Utilities\logf" />
-      <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\service" />
-      <recent name="D:\Go\WorkSpace\src\Go_Project\VideoWeb\service\Video" />
-    </key>
-  </component>
+}</component>
   <component name="RunAnythingCache">
     <myKeys>
       <visibility group="Grunt" flag="true" />
       <visibility group="Gulp" flag="true" />
-      <visibility group="HTTP Requests" flag="true" />
       <visibility group="HTTP 请求" flag="true" />
       <visibility group="npm" flag="true" />
       <visibility group="yarn" flag="true" />
@@ -113,17 +95,8 @@
       <visibility group="运行配置" flag="true" />
     </myKeys>
   </component>
-  <component name="RunManager" selected="Go 构建.go build main.go">
-    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="VideoWeb" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <package value="VideoWeb" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/main.go" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TestPath in VideoWeb/test (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Go 测试.TestMakeVideoInfo in VideoWeb/test">
+    <configuration name="TestGetUserComments in VideoWeb/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="VideoWeb" />
       <working_directory value="$PROJECT_DIR$/test" />
       <root_directory value="$PROJECT_DIR$" />
@@ -132,10 +105,10 @@
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
-      <pattern value="^\QTestPath\E$" />
+      <pattern value="^\QTestGetUserComments\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="VideoWeb/test 中的 TestGetIPInfo" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestMakeVideoInfo in VideoWeb/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="VideoWeb" />
       <working_directory value="$PROJECT_DIR$/test" />
       <root_directory value="$PROJECT_DIR$" />
@@ -144,10 +117,10 @@
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
-      <pattern value="^\QTestGetIPInfo\E$" />
+      <pattern value="^\QTestMakeVideoInfo\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="VideoWeb/test 中的 TestLog" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="VideoWeb/test 中的 TestGetUserInfo" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="VideoWeb" />
       <working_directory value="$PROJECT_DIR$/test" />
       <root_directory value="$PROJECT_DIR$" />
@@ -156,10 +129,10 @@
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
-      <pattern value="^\QTestLog\E$" />
+      <pattern value="^\QTestGetUserInfo\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="VideoWeb/test 中的 TestSendEmail" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="VideoWeb/test 中的 TestGetUserInfos" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="VideoWeb" />
       <working_directory value="$PROJECT_DIR$/test" />
       <root_directory value="$PROJECT_DIR$" />
@@ -168,13 +141,28 @@
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
-      <pattern value="^\QTestSendEmail\E$" />
+      <pattern value="^\QTestGetUserInfos\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="VideoWeb/test 中的 TestMakeUserInfo" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="VideoWeb" />
+      <working_directory value="$PROJECT_DIR$/test" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="VideoWeb/test" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestMakeUserInfo\E$" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go 构建.go build main.go" />
-        <item itemvalue="Go 测试.VideoWeb/test 中的 TestGetIPInfo" />
+        <item itemvalue="Go 测试.TestMakeVideoInfo in VideoWeb/test" />
+        <item itemvalue="Go 测试.TestGetUserComments in VideoWeb/test" />
+        <item itemvalue="Go 测试.VideoWeb/test 中的 TestGetUserInfos" />
+        <item itemvalue="Go 测试.VideoWeb/test 中的 TestMakeUserInfo" />
+        <item itemvalue="Go 测试.VideoWeb/test 中的 TestGetUserInfo" />
       </list>
     </recent_temporary>
   </component>
@@ -189,17 +177,6 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

@@ -1,9 +1,10 @@
 go-wrk
-resources/videos/*
+resources/*
 temp
 logs
 main
 main.exe
 vw
 vw.exe
-
+*.lua
+*.txt

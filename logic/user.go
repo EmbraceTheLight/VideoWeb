@@ -17,7 +17,7 @@ import (
 	"unicode/utf8"
 )
 
-// GetUserID 获取用户ID
+// GetUserID 根据gin.Context中设置的值获取用户ID
 func GetUserID(u any) int64 {
 	if u != nil {
 		return u.(*UserClaims).UserId
@@ -42,12 +42,12 @@ func InsertInitRecords(defaultFavorites, privateFavorites *EntitySets.Favorites,
 		}
 	}()
 
-	err = EntitySets.InsertFollowList(tx, defaultFollowList)
+	err = EntitySets.InsertUserRecord(tx, newUser)
 	if err != nil {
 		return err
 	}
 
-	err = EntitySets.InsertUserRecord(tx, newUser)
+	err = EntitySets.InsertFollowList(tx, defaultFollowList)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func CheckRegisterInfo(checkInfo *EntitySets.User, repeatPassword string) error 
 
 // RemoveUserResource 删除用户资源
 func RemoveUserResource(userID string) error {
-	err := os.RemoveAll(path.Join(define.VideoSavePath, userID))
+	err := os.RemoveAll(path.Join(define.BaseDir, userID))
 	if err != nil {
 		return err
 	}
@@ -160,26 +160,25 @@ func DeleteUserInfoInDB(c *gin.Context, uid int64) error {
 	if err != nil {
 		return err
 	}
-	///*删除用户上传的视频信息*/
-	//err = EntitySets.DeleteVideoInfoByUserID(tx, uid)
-	//if err != nil {
-	//	return err
-	//}
+
 	/*删除用户的关注列表信息*/
 	err = helper.DeleteFollowListRecords(uid, tx)
 	if err != nil {
 		return err
 	}
+
 	/*删除被关注用户的对应粉丝列表信息*/
 	err = RelationshipSets.DeleteFollowedRecordsByUserID(tx, uid)
 	if err != nil {
 		return err
 	}
+
 	/*删除用户对应等级信息*/
 	err = EntitySets.DeleteLevelRecordByUserID(tx, uid)
 	if err != nil {
 		return err
 	}
+
 	/*删除用户的搜索历史信息和观看历史信息*/
 	err = EntitySets.DeleteAllSearchRecord(tx, uid)
 	if err != nil {
@@ -189,6 +188,7 @@ func DeleteUserInfoInDB(c *gin.Context, uid int64) error {
 	if err != nil {
 		return err
 	}
+
 	/*删除用户信息*/
 	err = EntitySets.DeleteUserRecordByID(tx, uid)
 	if err != nil {
@@ -245,8 +245,8 @@ func FollowOtherUser(c *gin.Context, followlistID, UID, followsID int64) error {
 }
 
 // GetUsersBasicInfo 获取一批用户的基本信息
-func GetUsersBasicInfo(c *gin.Context, uids []string) (UBInfos []*EntitySets.UserSummary, err error) {
-	ids := Utilities.Strings2Int64s(uids)
+func GetUsersBasicInfo(c *gin.Context, userIDs []string) (UBInfos []*EntitySets.UserSummary, err error) {
+	ids := Utilities.Strings2Int64s(userIDs)
 	defer Utilities.DeferFunc(c, err, "GetUsersBasicInfo")
 	UBInfos, err = helper.GetUserBasicInfo(ids)
 	return

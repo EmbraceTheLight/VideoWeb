@@ -48,14 +48,24 @@ func (level *Level) AddExp(addNum int) {
 	}
 }
 
+// GetLevelByUserID 获取用户等级信息
+func GetLevelByUserID(db *gorm.DB, userID int64) (*Level, error) {
+	var level *Level
+	err := db.Model(&Level{}).Where("user_id = ?", userID).First(&level).Error
+	return level, err
+}
+
+// SaveLevelRecords 保存或更新用户等级信息
 func SaveLevelRecords(db *gorm.DB, l *Level) error {
 	return db.Model(&Level{}).Where("user_id = ?", l.UID).Save(&l).Error
 }
 
+// DeleteLevelRecordByUserID 删除用户等级信息
 func DeleteLevelRecordByUserID(db *gorm.DB, uid int64) error {
 	return db.Model(&Level{}).Where("user_id = ?", uid).Delete(&Level{}).Error
 }
 
+// GetLevelRecordByUserID 获取用户等级信息
 func GetLevelRecordByUserID(db *gorm.DB, uid int64) (l *Level, err error) {
 	err = db.Model(&Level{}).Where("user_id = ?", uid).First(&l).Error
 	return

@@ -1,0 +1,147 @@
+package cache
+
+import (
+	"VideoWeb/DAO"
+	"context"
+	"errors"
+	"fmt"
+	"github.com/redis/go-redis/v9"
+	"time"
+)
+
+type HashMap interface {
+	GetKey() string
+	GetMap() map[string]any
+}
+
+// SetNilHash sets a nil value of a hashmap to show that the key is not exist
+func SetNilHash(ctx context.Context, key string) (err error) {
+	_, err = DAO.RDB.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSet(ctx, key, "empty", true)
+		pipe.Expire(ctx, key, NotFoundExpireTime)
+		return nil
+	})
+
+	return err
+}
+
+// HSetWithRetry sets a hashmap with retry and interval time
+func HSetWithRetry(
+	ctx context.Context,
+	key string,
+	retryCount int, sleep time.Duration,
+	expire time.Duration,
+	values map[string]any) (err error) {
+	err = DAO.RDB.HSet(ctx, key, values).Err()
+	for err != nil {
+		err = DAO.RDB.HSet(ctx, key, values).Err()
+		retryCount--
+		if err == nil || retryCount == 0 {
+			break
+		}
+		time.Sleep(sleep)
+	}
+
+	if err != nil {
+		return err
+	}
+	err = DAO.RDB.Expire(ctx, key, expire).Err()
+	return
+}
+
+// HSets sets many hashmap with retry and interval time
+func HSets(
+	ctx context.Context,
+	expire time.Duration,
+	values ...HashMap) (err error) {
+
+	pipe := DAO.RDB.Pipeline()
+
+	//cmdsHSet := make([]*redis.IntCmd, len(values))
+	//cmdsExpire := make([]*redis.BoolCmd, len(values))
+
+	for _, value := range values {
+		pipe.HSet(ctx, value.GetKey(), value.GetMap())
+		pipe.Expire(ctx, value.GetKey(), expire)
+	}
+	if _, err = pipe.Exec(ctx); err != nil {
+		return err
+	}
+
+	return
+}
+
+// HGetAll gets all values of a hashmap
+func HGetAll(ctx context.Context, key string) (mp map[string]string, err error) {
+	mp, err1 := DAO.RDB.HGetAll(ctx, key).Result()
+	if err1 != nil {
+		return nil, fmt.Errorf("cache.util.HGetAll: %w", err1)
+	}
+	err2 := DAO.RDB.Expire(ctx, key, 60*time.Minute).Err()
+	if err2 != nil {
+		return nil, fmt.Errorf("cache.util.HGetAll: %w", err2)
+	}
+	return
+}
+
+// SAddWithRetry sets values of a hashmap with retry and interval time
+func SAddWithRetry(
+	ctx context.Context,
+	key string,
+	retryCount int,
+	sleep time.Duration,
+	expire time.Duration,
+	values ...any,
+) (err error) {
+	err = DAO.RDB.SAdd(ctx, key, values...).Err()
+	for err != nil {
+		err = DAO.RDB.SAdd(ctx, key, values...).Err()
+		retryCount--
+		if err == nil || retryCount == 0 {
+			break
+		}
+		time.Sleep(sleep)
+	}
+	if err != nil {
+		return err
+	}
+	err = DAO.RDB.Expire(ctx, key, expire).Err()
+	return
+}
+
+// SMembers gets all members of a set
+func SMembers(ctx context.Context, key string) (members []string, err error) {
+	members, err = DAO.RDB.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, fmt.Errorf("::cache.util.SMembers]: %w", err)
+	}
+	err = DAO.RDB.Expire(ctx, key, 60*time.Minute).Err()
+	if err != nil {
+		return nil, fmt.Errorf("::cache.util.SMembers : %w", err)
+	}
+	return
+}
+
+// SIsMember checks if a member is in a set
+func SIsMember(ctx context.Context, key, member string) (err error) {
+	exist, err := DAO.RDB.SIsMember(ctx, key, member).Result()
+	switch {
+	case err != nil:
+		return fmt.Errorf("cache.util.SIsMember : %w", err)
+	case !exist:
+		return fmt.Errorf("cache.util.SIsMember : %w", errors.New("member is not exist"))
+	default:
+		return nil
+	}
+}
+
+// LPush pushes values to the left of a list
+func LPush(ctx context.Context, key string, values ...any) (err error) {
+	DAO.RDB.Pipeline()
+	err = DAO.RDB.LPush(ctx, key, values...).Err()
+
+	if err != nil {
+		return fmt.Errorf("::cache.util.LPush : %w", err)
+	}
+	return nil
+}

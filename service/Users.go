@@ -14,7 +14,9 @@ import (
 	"gorm.io/gorm"
 	"io"
 	"net/http"
+	"os"
 	"path"
+	"strconv"
 	"unicode/utf8"
 )
 
@@ -28,6 +30,7 @@ import (
 // @Param repeatPassword formData string true "再次确认密码"
 // @Param Email formData string true "用户邮箱"
 // @Param Code formData string true "验证码"
+// @Param avatar formData file false "用户头像"
 // @Param Signature formData string false "用户个性签名(至多25个字)"
 // @Success 200 {string}  json "{"code":"200","data":"data"}"
 // @Router /User/Register [post]
@@ -73,13 +76,46 @@ func Register(c *gin.Context) {
 	}
 	newUser.Password = string(hashedPassword)
 
-	//设置用户默认头像
-	avatar, err := Utilities.ReadFileContent(define.PictureSavePath + "default.jpg")
+	/*设置用户默认头像*/
+	userDir := define.BaseDir + strconv.FormatInt(newUser.UserID, 10)
+	err = os.MkdirAll(userDir, os.ModePerm)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register-->Utilities.ReadFileContent", define.CreateUserFailed, "创建用户失败:"+err.Error())
 		return
 	}
-	newUser.Avatar = avatar
+	defer func() {
+		if err != nil {
+			_ = os.RemoveAll(userDir)
+		}
+	}()
+
+	avatar, _ := c.FormFile("avatar")
+	//用户未上传头像，使用默认头像
+	var avatarFilePath string
+	if avatar == nil {
+		avatarFilePath = userDir + "/" + strconv.FormatInt(newUser.UserID, 10) + "_avatar.jpg"
+
+		defaultAvatar, err := Utilities.ReadFileContent(define.PictureSavePath + "default.jpg")
+		if err != nil {
+			Utilities.SendErrMsg(c, "service::Users::Register-->Utilities.ReadFileContent", define.CreateUserFailed, "创建用户失败:"+err.Error())
+			return
+		}
+
+		err = os.WriteFile(avatarFilePath, defaultAvatar, os.ModePerm)
+		if err != nil {
+			Utilities.SendErrMsg(c, "service::Users::Register-->Utilities.ReadFileContent", define.CreateUserFailed, "创建用户失败:"+err.Error())
+			return
+		}
+	} else {
+		avatarFilePath = userDir + "/" + strconv.FormatInt(newUser.UserID, 10) + "_avatar" + path.Ext(avatar.Filename)
+		err = Utilities.WriteToNewFile(avatar, avatarFilePath)
+		if err != nil {
+			Utilities.SendErrMsg(c, "service::Users::Register-->Utilities.ReadFileContent", define.CreateUserFailed, "创建用户失败:"+err.Error())
+			return
+		}
+	}
+
+	newUser.AvatarPath = avatarFilePath
 
 	defaultFavorites := &EntitySets.Favorites{
 		MyModel:     define.MyModel{},
@@ -227,6 +263,7 @@ func GetUserDetail(c *gin.Context) {
 	userID := logic.GetUserID(u)
 
 	var userInfo = new(EntitySets.User)
+
 	err := DAO.DB.Omit("password").Where("user_id=?", userID).Preload("Favorites").Preload("Comments").
 		Preload("Follows").Preload("Follows.Users").Preload("UserLevel").
 		Preload("Followed").Preload("UserWatch").Preload("UserSearch").First(&userInfo).Error

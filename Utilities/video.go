@@ -29,8 +29,11 @@ func SecondToTime(second int64) (string, []int64) {
 func Mkdir(uid string) (path string, err error) {
 	var b strings.Builder
 	curTime := time.Now().Format("2006-01-02T150405")
-	b.WriteString(define.VideoSavePath)
+	b.WriteString(define.BaseDir)
+	//TODO:可以改造这个函数，令其参数为string切片以更灵活地创建目录
 	b.WriteString(uid)
+	b.WriteString("/")
+	b.WriteString("videos")
 	b.WriteString("/")
 	b.WriteString(curTime)
 	b.WriteString("/")

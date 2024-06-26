@@ -11,7 +11,7 @@ import (
 
 // GetUsersBasicInfo
 // @Tags Comment API
-// @summary 获取用户基本信息
+// @summary 获取评论区用户基本信息
 // @Produce json
 // @Accept json
 // @Param VideoID path string true "要获取用户信息的视频ID:在这个接口中用不到"
@@ -19,8 +19,8 @@ import (
 // @Router /Comment/{VideoID}/UserBasicInfo [get]
 func GetUsersBasicInfo(c *gin.Context) {
 	Utilities.AddFuncName(c, "service::Comments::GetUsersBasicInfo")
-	uids := c.QueryArray("UserIDs")
-	infos, err := logic.GetUsersBasicInfo(c, uids)
+	userIDs := c.QueryArray("UserIDs")
+	infos, err := logic.GetUsersBasicInfo(c, userIDs)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return

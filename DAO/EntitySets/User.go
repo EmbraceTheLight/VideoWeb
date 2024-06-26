@@ -35,6 +35,7 @@ type User struct {
 	IsAdmin       int                              `json:"isAdmin" gorm:"column:is_admin;type:tinyint;default:-1"`               //用户是否为管理员,-1表示不是管理员，1表示是管理员
 	CntMsgNotRead int32                            `json:"count_msg" gorm:"column:cnt_msg_not_read;type:int unsigned;default:0"` //用户未读消息数
 	CntFollowers  uint32                           `json:"followers" gorm:"column:cnt_followers;type:int unsigned;default:0;"`   //用户粉丝数
+	CntLikes      uint32                           `json:"likes" gorm:"column:cnt_likes;type:int unsigned;default:0"`            //用户获赞数
 	UserLevel     Level                            `json:"userLevel" gorm:"foreignKey:UID;references:UserID"`                    //用户等级
 	Videos        []*Video                         `json:"videos" gorm:"foreignKey:UID;references:UserID;"`                      //has-many 一对多
 	UserWatch     []*VideoHistory                  `json:"userHistory" gorm:"foreignKey:UID;references:UserID"`                  //用户观看记录,has-many
@@ -43,7 +44,7 @@ type User struct {
 	UserSearch    []*SearchHistory                 `json:"userSearch" gorm:"foreignKey:UID;references:UserID"`                   //用户搜索记录,has-many
 	Follows       []*FollowList                    `json:"follows" gorm:"foreignKey:UID;references:UserID"`                      //用户关注列表 has-many
 	Followed      []*RelationshipSets.UserFollowed `json:"followed" gorm:"foreignKey:UID;references:UserID"`                     //用户粉丝列表 has-many
-	Avatar        []byte                           `json:"avatar" gorm:"type:MediumBLOB;size:10240000"`                          //用户头像,最大为10MiB
+	AvatarPath    string                           `json:"avatar" gorm:"type:varchar(128)"`                                      //用户头像路径
 }
 
 func (u *User) TableName() string {
@@ -110,7 +111,7 @@ func DeleteUserRecordByID(db *gorm.DB, id int64) error {
 // GetUserInfoByID 根据用户ID获取用户信息
 func GetUserInfoByID(db *gorm.DB, id int64) (*User, error) {
 	var user *User
-	err := db.Model(&User{}).Where("user_id = ?", id).First(&user).Error
+	err := db.Model(&User{}).Where("user_id = ?", id).Preload("UserLevel").First(&user).Error
 	if err != nil {
 		return nil, err
 	}

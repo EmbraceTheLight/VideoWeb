@@ -72,10 +72,11 @@ func CollectRouter(r *gin.Engine) {
 		video.GET("/DASHStreamTransmission", service.DASHStreamTransmission)
 		video.GET("/SearchVideos", middlewares.CheckIfUserLogin(), service.SearchVideos)
 		video.GET("/VideoList", middlewares.CheckIfUserLogin(), service.GetVideoList)
-		video.POST("/Upload", middlewares.CheckIfUserLogin(), service.UploadVideo)
+		video.POST("/VideoFile", middlewares.CheckIfUserLogin(), service.UploadVideoFile)
 
 		videoInfo := video.Group("/:ID", middlewares.CheckIfUserLogin()) //ID为视频ID
 		{
+			videoInfo.POST("/VideoInfo", middlewares.CheckIfUserLogin(), service.UploadVideoInfo)
 			videoInfo.POST("/AddBarrage", service.AddBarrage)
 			videoInfo.POST("/Bookmark", service.BookmarkVideo)
 			videoInfo.DELETE("/Bookmark", service.UnBookmarkVideo)

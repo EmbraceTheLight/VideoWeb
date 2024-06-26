@@ -42,7 +42,7 @@ type Video struct {
 	Tags     []*Tags     `gorm:"foreignKey:VID;references:VideoID"` //视频标签
 	Barrages []*Barrage  `gorm:"foreignKey:VID;references:VideoID"` //视频弹幕
 	//二进制大对象,存放视频封面信息
-	VideoCover []byte `json:"VideoCover" gorm:"column:cover;type:MediumBLOB;size:10240000"` //视频封面,最大为10MiB
+	CoverPath string `json:"VideoCover" gorm:"type:varchar(200)"` //视频封面路径
 }
 
 func (f *Video) TableName() string {

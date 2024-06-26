@@ -162,7 +162,7 @@ paths:
       produces:
       - application/json
       responses: {}
-      summary: 获取用户基本信息
+      summary: 获取评论区用户基本信息
       tags:
       - Comment API
   /User/Face/Upload/Avatar:
@@ -577,6 +577,10 @@ paths:
         name: Code
         required: true
         type: string
+      - description: 用户头像
+        in: formData
+        name: avatar
+        type: file
       - description: 用户个性签名(至多25个字)
         in: formData
         name: Signature
@@ -900,6 +904,74 @@ paths:
       summary: 提供视频信息详情
       tags:
       - Video API
+  /video/{ID}/VideoInfo:
+    post:
+      parameters:
+      - description: 视频ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: 视频标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 视频封面
+        in: formData
+        name: videoCover
+        required: true
+        type: file
+      - description: 是否上传
+        in: query
+        name: isUpload
+        required: true
+        type: boolean
+      - collectionFormat: multi
+        description: 视频标签
+        in: formData
+        items:
+          type: string
+        name: tags
+        required: true
+        type: array
+      - description: 视频分类
+        enum:
+        - 娱乐
+        - 教育
+        - 科技
+        - 知识
+        - 健康
+        - 旅行
+        - 探险
+        - 美食
+        - 时尚
+        - 音乐
+        - 舞蹈
+        - 体育
+        - 健身
+        - 历史
+        - 文化
+        - 游戏
+        - 电影
+        - 搞笑
+        - 资讯
+        in: formData
+        name: class
+        required: true
+        type: string
+      - description: 视频描述
+        in: formData
+        name: description
+        type: string
+      responses: {}
+      tags:
+      - Video API
   /video/DASHStreamTransmission:
     get:
       consumes:
@@ -971,7 +1043,7 @@ paths:
       summary: 根据关键字搜索视频
       tags:
       - Video API
-  /video/Upload:
+  /video/VideoFile:
     post:
       consumes:
       - multipart/form-data
@@ -981,57 +1053,11 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: 视频标题
-        in: formData
-        name: title
-        required: true
-        type: string
       - description: 视频
         in: formData
         name: uploadVideo
         required: true
         type: file
-      - description: 视频封面
-        in: formData
-        name: videoCover
-        required: true
-        type: file
-      - description: 视频分类
-        enum:
-        - 娱乐
-        - 教育
-        - 科技
-        - 知识
-        - 健康
-        - 旅行
-        - 探险
-        - 美食
-        - 时尚
-        - 音乐
-        - 舞蹈
-        - 体育
-        - 健身
-        - 历史
-        - 文化
-        - 游戏
-        - 电影
-        - 搞笑
-        - 资讯
-        in: formData
-        name: class
-        required: true
-        type: string
-      - collectionFormat: multi
-        description: 视频标签
-        in: formData
-        items:
-          type: string
-        name: tags
-        type: array
-      - description: 视频描述
-        in: formData
-        name: description
-        type: string
       produces:
       - application/json
       responses: {}

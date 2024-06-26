@@ -67,6 +67,7 @@ func DeleteFollowListRecords(userid int64, tx *gorm.DB) error {
 
 // GetUserBasicInfo 获取用户基本信息
 func GetUserBasicInfo(userid []int64) (info []*EntitySets.UserSummary, err error) {
+
 	err = DAO.DB.Debug().Model(&EntitySets.User{}).Where("user.user_id in (?)", userid).Joins("JOIN user_level ON user_level.user_id = user.user_id ").
 		Select("user.user_id", "user_name", "avatar", "user_level.user_level", "user.signature").Find(&info).Error
 	return

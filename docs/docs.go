@@ -232,7 +232,7 @@ const docTemplate = `{
                 "tags": [
                     "Comment API"
                 ],
-                "summary": "获取用户基本信息",
+                "summary": "获取评论区用户基本信息",
                 "parameters": [
                     {
                         "type": "string",
@@ -876,6 +876,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "file",
+                        "description": "用户头像",
+                        "name": "avatar",
+                        "in": "formData"
+                    },
+                    {
                         "type": "string",
                         "description": "用户个性签名(至多25个字)",
                         "name": "Signature",
@@ -1087,7 +1093,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/video/Upload": {
+        "/video/VideoFile": {
             "post": {
                 "consumes": [
                     "multipart/form-data"
@@ -1108,69 +1114,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "视频标题",
-                        "name": "title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
                         "type": "file",
                         "description": "视频",
                         "name": "uploadVideo",
                         "in": "formData",
                         "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "视频封面",
-                        "name": "videoCover",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "enum": [
-                            "娱乐",
-                            "教育",
-                            "科技",
-                            "知识",
-                            "健康",
-                            "旅行",
-                            "探险",
-                            "美食",
-                            "时尚",
-                            "音乐",
-                            "舞蹈",
-                            "体育",
-                            "健身",
-                            "历史",
-                            "文化",
-                            "游戏",
-                            "电影",
-                            "搞笑",
-                            "资讯"
-                        ],
-                        "type": "string",
-                        "description": "视频分类",
-                        "name": "class",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "视频标签",
-                        "name": "tags",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "视频描述",
-                        "name": "description",
-                        "in": "formData"
                     }
                 ],
                 "responses": {}
@@ -1572,6 +1520,96 @@ const docTemplate = `{
                         "name": "Authorization",
                         "in": "header",
                         "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/video/{ID}/VideoInfo": {
+            "post": {
+                "tags": [
+                    "Video API"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "视频ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "视频标题",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "视频封面",
+                        "name": "videoCover",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否上传",
+                        "name": "isUpload",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "视频标签",
+                        "name": "tags",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "娱乐",
+                            "教育",
+                            "科技",
+                            "知识",
+                            "健康",
+                            "旅行",
+                            "探险",
+                            "美食",
+                            "时尚",
+                            "音乐",
+                            "舞蹈",
+                            "体育",
+                            "健身",
+                            "历史",
+                            "文化",
+                            "游戏",
+                            "电影",
+                            "搞笑",
+                            "资讯"
+                        ],
+                        "type": "string",
+                        "description": "视频分类",
+                        "name": "class",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "视频描述",
+                        "name": "description",
+                        "in": "formData"
                     }
                 ],
                 "responses": {}
