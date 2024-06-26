@@ -1,7 +1,11 @@
 package cache
 
 import (
+	"VideoWeb/DAO"
+	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
+	"strconv"
 )
 
 // MakeMap converts []any to map[string]any.
@@ -22,6 +26,24 @@ func MakeMap(values ...any) map[string]any {
 	return mp
 }
 
+// GetInfos gets detail infos from redis by keys.
+func GetInfos(ctx context.Context, prefixID int64, keys ...string) (ret []map[string]string, err error) {
+	cmds := make([]*redis.MapStringStringCmd, len(keys))
+
+	pipe := DAO.RDB.Pipeline()
+	for i, key := range keys {
+		cmds[i] = pipe.HGetAll(ctx, strconv.FormatInt(prefixID, 10)+key)
+	}
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("cache.common.GetInfos: %w", err)
+	}
+
+	for _, cmd := range cmds {
+		ret = append(ret, cmd.Val())
+	}
+	return
+}
 func AddFuncName(funcName string) {
 
 }

@@ -8,7 +8,6 @@ import (
 	"VideoWeb/cache/commentCache"
 	"context"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"strconv"
 )
 
@@ -109,22 +108,28 @@ func (vt *VideoTags) makeTagInfo(ctx context.Context, videoID int64) error {
 
 }
 
-func getBarragesInfo(ctx context.Context, videoID int64, barrageIDs ...string) (barrages []map[string]string, err error) {
-	cmds := make([]*redis.MapStringStringCmd, len(barrageIDs))
-
-	pipe := DAO.RDB.Pipeline()
-	for i, barrageID := range barrageIDs {
-		cmds[i] = pipe.HGetAll(ctx, strconv.FormatInt(videoID, 10)+barrageID)
+// makeBarragesInfos creates Barrage objects of a video.
+func makeBarragesInfos(ctx context.Context, prefix int64, barrages ...*EntitySets.Barrage) error {
+	barrageInfos := make([]*BarrageInfo, len(barrages))
+	HashMap := make([]cache.HashMap, len(barrages))
+	for i, b := range barrages {
+		barrageInfos[i] = new(BarrageInfo)
+		barrageInfos[i].barrageInfo = make(map[string]any)
+		barrageInfos[i].key = strconv.FormatInt(prefix, 10) + strconv.FormatInt(b.BID, 10)
+		barrageInfos[i].barrageInfo["barrage_id"] = b.BID
+		barrageInfos[i].barrageInfo["user_id"] = b.UID
+		barrageInfos[i].barrageInfo["video_id"] = b.VID
+		barrageInfos[i].barrageInfo["content"] = b.Content
+		barrageInfos[i].barrageInfo["color"] = b.Color
+		HashMap[i] = barrageInfos[i]
 	}
-	_, err = pipe.Exec(ctx)
+	err := cache.HSets(ctx, cache.VideoExpireTime, HashMap...)
 	if err != nil {
-		return nil, fmt.Errorf("VideoBarrages->getBarragesInfo: %w", err)
+		return fmt.Errorf("VideoCache.MakeBarragesInfos::cache.HSets: %w", err)
 	}
 
-	for _, cmd := range cmds {
-		barrages = append(barrages, cmd.Val())
-	}
-	return
+	return nil
+
 }
 
 func (vc *VideoComments) makeCommentsInfo(ctx context.Context, videoID int64) error {

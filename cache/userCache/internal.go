@@ -55,7 +55,7 @@ func (ub *UserBasic) makeBasicInfo(ctx context.Context, userID int64) error {
 	ub.Userinfo["cnt_msg_not_read"] = userinfo.CntMsgNotRead
 	ub.Userinfo["cnt_likes"] = userinfo.CntLikes
 	ub.Userinfo["level"] = level.UserLevel
-	ub.Userinfo["avatar"] = userinfo.Avatar
+	ub.Userinfo["avatar"] = userinfo.AvatarPath
 
 	err = cache.HSetWithRetry(
 		ctx,

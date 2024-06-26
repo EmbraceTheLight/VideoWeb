@@ -54,10 +54,6 @@ func getUserComments(ctx context.Context, userID int64) (ucIDs []string, err err
 	ucIDs, err = cache.SMembers(ctx, strconv.FormatInt(userID, 10)+"_comments")
 	return
 }
-func getUserBasics(ctx context.Context, userID []int64) (mp []map[string]string, err error) {
-	mp, err = userCache.GetUsersBasicInfo(ctx, userID)
-	return
-}
 func TestGetUserInfo(t *testing.T) {
 	var userID int64 = 52826422661189
 	ctx := context.Background()
@@ -131,6 +127,7 @@ func TestGetUserInfos(t *testing.T) {
 		fmt.Println()
 	}
 }
+
 func TestGetUserComments(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -168,6 +165,54 @@ func TestMakeVideoInfo(t *testing.T) {
 
 }
 
-func TestGetVideoInfo(t *testing.T) {}
+func TestGetVideoInfo(t *testing.T) {
+	var videoID int64 = 52826949386309
+	err := makeVideoInfo(videoID)
+	require.NoError(t, err)
+
+	ctx := context.Background()
+	//video basic info
+	vb, err := videoCache.GetVideoBasicInfo(ctx, videoID)
+	require.NoError(t, err)
+	fmt.Println("↓↓↓↓↓video basic info↓↓↓↓↓")
+	for k, v := range vb {
+		fmt.Println("k:", k, "	v:", v)
+	}
+
+	//tags
+	fmt.Println()
+	vt, err := videoCache.GetTagsInfo(ctx, videoID)
+	require.NoError(t, err)
+	fmt.Println("↓↓↓↓↓video tags↓↓↓↓↓")
+	for i, tag := range vt {
+		fmt.Printf("tag%d: %s\n", i+1, tag)
+	}
+	fmt.Println()
+
+	//comments
+	vc, err := videoCache.GetVideoCommentsInfo(ctx, videoID)
+	require.NoError(t, err)
+	fmt.Println("↓↓↓↓↓video comments↓↓↓↓↓")
+	for _, comment := range vc {
+		for k, v := range comment {
+			fmt.Println("k:", k, "	v:", v)
+		}
+		println()
+		println()
+		println()
+	}
+
+	//barrages
+	barrages, err := videoCache.GetBarragesInfo(ctx, videoID)
+	require.NoError(t, err)
+	fmt.Println("↓↓↓↓↓video barrages↓↓↓↓↓")
+	for _, barrage := range barrages {
+		for k, v := range barrage {
+			fmt.Println("k:", k, "	v:", v)
+		}
+		fmt.Println()
+		fmt.Println()
+	}
+}
 
 func TestGetVideoInfos(t *testing.T) {}

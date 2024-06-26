@@ -421,6 +421,7 @@ func GetVideoCommentsList(c *gin.Context, videoID, UserID int64, order string, P
 			Utilities.AddFuncName(c, "GetVideoCommentsList")
 		}
 	}()
+	//videoCache.GetCommentsInfo(ctx)
 	//获取视频的根评论列表
 
 	comments, err := helper.GetRootCommentsSummariesByVideoID(videoID, order, Page, CommentsNumbers)

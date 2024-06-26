@@ -2,7 +2,6 @@ package videoCache
 
 import (
 	"VideoWeb/DAO"
-	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/cache"
 	"context"
 	"errors"
@@ -41,97 +40,51 @@ func (video *VideoCache) MakeVideoInfo(ctx context.Context, videoID int64) (err 
 	return nil
 }
 
-// makeBarragesInfos creates Barrage objects of a video.
-func makeBarragesInfos(ctx context.Context, prefix int64, barrages ...*EntitySets.Barrage) error {
-	barrageInfos := make([]*BarrageInfo, len(barrages))
-	HashMap := make([]cache.HashMap, len(barrages))
-	for i, b := range barrages {
-		barrageInfos[i] = new(BarrageInfo)
-		barrageInfos[i].barrageInfo = make(map[string]any)
-		barrageInfos[i].key = strconv.FormatInt(prefix, 10) + strconv.FormatInt(b.BID, 10)
-		barrageInfos[i].barrageInfo["barrage_id"] = b.BID
-		barrageInfos[i].barrageInfo["user_id"] = b.UID
-		barrageInfos[i].barrageInfo["video_id"] = b.VID
-		barrageInfos[i].barrageInfo["content"] = b.Content
-		barrageInfos[i].barrageInfo["color"] = b.Color
-		HashMap[i] = barrageInfos[i]
-	}
-	err := cache.HSets(ctx, cache.VideoExpireTime, HashMap...)
+// GetBarragesInfo Gets the detailed information of a barrage from cache.
+func GetBarragesInfo(ctx context.Context, videoID int64) (barrages []map[string]string, err error) {
+	barrageIDs, err := cache.SMembers(ctx, strconv.FormatInt(videoID, 10)+"_barrages")
 	if err != nil {
-		return fmt.Errorf("VideoCache.MakeBarragesInfos::cache.HSets: %w", err)
+		return nil, fmt.Errorf("VideoCache.GetBarragesInfo::%w", err)
 	}
 
-	return nil
-
+	barrages, err = cache.GetInfos(ctx, videoID, barrageIDs...)
+	if err != nil {
+		err = fmt.Errorf("VideoCache.GetBarragesInfos::%w", err)
+	}
+	return
 }
 
-// GetVideoInfo Gets all the information of a video from cache.
-func GetVideoInfo(ctx context.Context, videoID int64) (basic map[string]string, barrages, Tags, Comments []map[string]string, err error) {
-	pipe := DAO.RDB.Pipeline()
-	cmdMMS := new(redis.MapStringStringCmd)   //map-string-string command to Get basic information
-	cmdSS := make([]*redis.StringSliceCmd, 3) //string-slice commands to get tags,barrages,comments ID
-
-	// Get basic information
-	cmdMMS = pipe.HGetAll(ctx, strconv.FormatInt(videoID, 10))
-	// Get barrage IDs
-	cmdSS[0] = pipe.SMembers(ctx, strconv.FormatInt(videoID, 10)+"_barrages")
-	// Get tag IDs
-	cmdSS[1] = pipe.SMembers(ctx, strconv.FormatInt(videoID, 10)+"_tags")
-	// Get Comment IDs
-	cmdSS[2] = pipe.SMembers(ctx, strconv.FormatInt(videoID, 10)+"_comments")
-
-	_, err = pipe.Exec(ctx)
+// GetTagsInfo Gets the detailed information of a tag from cache.
+func GetTagsInfo(ctx context.Context, videoID int64) (tags []string, err error) {
+	tags, err = cache.SMembers(ctx, strconv.FormatInt(videoID, 10)+"_tags")
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("VideoCache.GetVideoInfo::Pipelener.Exec: %w", err)
+		err = fmt.Errorf("VideoCache.GetTagsInfo::%w", err)
+	}
+	return
+}
+
+// GetVideoCommentsInfo Gets the detailed information of a comment from cache.
+func GetVideoCommentsInfo(ctx context.Context, videoID int64) (comments []map[string]string, err error) {
+	commentIDs, err := cache.SMembers(ctx, strconv.FormatInt(videoID, 10)+"_comments")
+	if err != nil {
+		return nil, fmt.Errorf("VideoCache.GetVideoCommentsInfo::%w", err)
 	}
 
-	// Get basic information
-	basic, err = cmdMMS.Result()
+	comments, err = cache.GetInfos(ctx, videoID, commentIDs...)
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("VideoCache.GetVideoInfo::cmdMMS.Result(): %w", err)
+		err = fmt.Errorf("VideoCache.GetVideoCommentsInfo::%w", err)
 	}
-
-	// Get barrages' information
-	barrageIDs, err := cmdSS[0].Result()
-	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("VideoCache.GetVideoInfo::cmdSS[0].Result(): %w", err)
-	}
-	barrages, err = getBarragesInfo(ctx, videoID, barrageIDs...)
-	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("VideoCache.GetVideoInfo::getBarragesInfo::%w", err)
-	}
-
-	// Get tags' information
-	tagIDs, err := cmdSS[1].Result()
-	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("VideoCache.GetVideoInfo::cmdSS[0].Result(): %w", err)
-	}
-	tags, err := getTagsInfo(ctx, videoID, tagIDs...)
-	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("VideoCache.GetVideoInfo::getTagsInfo::%w", err)
-	}
-
-	//Get comments' information
-	commentIDs, err := cmdSS[2].Result()
-	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("VideoCache.GetVideoInfo::cmdSS[0].Result(): %w", err)
-	}
-	comments, err := getCommentsInfo(ctx, videoID, commentIDs...)
-	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("VideoCache.GetVideoInfo::getCommentsInfo::%w", err)
-	}
-
 	return
 }
 
 // GetVideoBasicInfo gets basic information of a video from cache.
-func GetVideoBasicInfo(ctx context.Context, videoID int64) (res map[string]string, err error) {
-	res, err = cache.HGetAll(ctx, strconv.FormatInt(videoID, 10))
+func GetVideoBasicInfo(ctx context.Context, videoID int64) (videoBasic map[string]string, err error) {
+	videoBasic, err = cache.HGetAll(ctx, strconv.FormatInt(videoID, 10))
 	if err != nil {
 		return nil, fmt.Errorf("VideoCache.GetVideoBasicInfo::%w", err)
 	}
 
-	if len(res) == 0 { // Video not found in cache, get from database and set cache
+	if len(videoBasic) == 0 { // Video not found in cache, get from database and set cache
 		vbasic := &VideoBasic{VideoInfo: make(map[string]any)}
 		err = vbasic.makeBasicInfo(ctx, videoID)
 		if err != nil {
@@ -145,12 +98,12 @@ func GetVideoBasicInfo(ctx context.Context, videoID int64) (res map[string]strin
 			return nil, fmt.Errorf("VideoCache.GetVideoBasicInfo::%w", err)
 		}
 
-		res, err = cache.HGetAll(ctx, strconv.FormatInt(videoID, 10))
+		videoBasic, err = cache.HGetAll(ctx, strconv.FormatInt(videoID, 10))
 		if err != nil {
 			return nil, fmt.Errorf("VideoCache.GetVideoBasicInfo::%w", err)
 		}
 	}
-	return res, nil
+	return videoBasic, nil
 }
 
 // GetVideosBasicInfo gets basic information of many videos from cache.

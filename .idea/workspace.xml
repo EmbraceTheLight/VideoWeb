@@ -6,40 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="c110e402-76e8-4acb-92fe-4f0423d9bca8" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/mysql.osA4Bg.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/sys.zb4BAA.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6854648a-797e-4af5-a340-23b48edd3889/storage_v2/_src_/schema/videoweb.-SChRA.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Comments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Level.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Level.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Tags.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Tags.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/User.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Video.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/InitDatabase.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/InitDatabase.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utilities/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/define/defines.go" beforeDir="false" afterPath="$PROJECT_DIR$/define/defines.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/common.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/userCache/internal.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/userCache/internal.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/videoCache/internal.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/videoCache/internal.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/videoCache/videoCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/videoCache/videoCache.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go-wrk/client_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/go-wrk/client_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/routers.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/routers.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Comments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/Users.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Users.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/redis_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/redis_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -89,6 +62,8 @@
       <visibility group="Grunt" flag="true" />
       <visibility group="Gulp" flag="true" />
       <visibility group="HTTP 请求" flag="true" />
+      <visibility group="Recent projects" flag="true" />
+      <visibility group="Run configurations" flag="true" />
       <visibility group="npm" flag="true" />
       <visibility group="yarn" flag="true" />
       <visibility group="最近的项目" flag="true" />
