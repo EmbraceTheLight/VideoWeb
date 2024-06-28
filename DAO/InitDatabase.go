@@ -68,17 +68,17 @@ func connectMysql() {
 func checkAndCreateTable() {
 	var err error
 	var tables = []interface{}{
-		&EntitySets.Barrage{},
-		&RelationshipSets.FavoriteVideo{},
+		&EntitySets.User{},
 		&EntitySets.Level{},
+		&EntitySets.Favorites{},
+		&EntitySets.Video{},
+		&EntitySets.Barrage{},
 		&EntitySets.Tags{},
+		&RelationshipSets.FavoriteVideo{},
 		&EntitySets.Comments{},
 		&RelationshipSets.UserFollowed{},
 		&RelationshipSets.UserFollows{},
-		&EntitySets.Video{},
-		&EntitySets.Favorites{},
 		&EntitySets.FollowList{},
-		&EntitySets.User{},
 		&EntitySets.VideoHistory{},
 		&EntitySets.SearchHistory{},
 		&RelationshipSets.UserVideo{},

@@ -4,15 +4,32 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c110e402-76e8-4acb-92fe-4f0423d9bca8" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="0781ece5-70d5-4fce-bfc4-1a321229f17d" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cache/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/common.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/User.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Video.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/InitDatabase.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/InitDatabase.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/UserComment.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/UserComment.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/UserVideo.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/UserVideo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utilities/CommonUtilities.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/CommonUtilities.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/commentCache/commentCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/commentCache/commentCache.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cache/userCache/internal.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/userCache/internal.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/userCache/userCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/userCache/userCache.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/util.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/videoCache/defines.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/videoCache/defines.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cache/videoCache/internal.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/videoCache/internal.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cache/videoCache/videoCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/videoCache/videoCache.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go-wrk/client_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/go-wrk/client_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helper/comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/comments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helper/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/video.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/routers.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/routers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Comments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/Users.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/redis_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/redis_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -28,18 +45,13 @@
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 7
 }</component>
-  <component name="ProjectId" id="2iGZygp9paQ99XAsX2jV4NCVjku" />
+  <component name="ProjectId" id="2iSEfOOsYSn5D9UrUpa9F4vdqJU" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;Go 测试.TestGetUserComments in VideoWeb/test.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.TestMakeVideoInfo in VideoWeb/test.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.VideoWeb/test 中的 TestGetUserInfo.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.VideoWeb/test 中的 TestGetUserInfos.executor&quot;: &quot;Run&quot;,
-    &quot;Go 测试.VideoWeb/test 中的 TestMakeUserInfo.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
@@ -57,90 +69,6 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunAnythingCache">
-    <myKeys>
-      <visibility group="Grunt" flag="true" />
-      <visibility group="Gulp" flag="true" />
-      <visibility group="HTTP 请求" flag="true" />
-      <visibility group="Recent projects" flag="true" />
-      <visibility group="Run configurations" flag="true" />
-      <visibility group="npm" flag="true" />
-      <visibility group="yarn" flag="true" />
-      <visibility group="最近的项目" flag="true" />
-      <visibility group="运行配置" flag="true" />
-    </myKeys>
-  </component>
-  <component name="RunManager" selected="Go 测试.TestMakeVideoInfo in VideoWeb/test">
-    <configuration name="TestGetUserComments in VideoWeb/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="VideoWeb" />
-      <working_directory value="$PROJECT_DIR$/test" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="VideoWeb/test" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestGetUserComments\E$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TestMakeVideoInfo in VideoWeb/test" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="VideoWeb" />
-      <working_directory value="$PROJECT_DIR$/test" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="VideoWeb/test" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestMakeVideoInfo\E$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="VideoWeb/test 中的 TestGetUserInfo" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="VideoWeb" />
-      <working_directory value="$PROJECT_DIR$/test" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="VideoWeb/test" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestGetUserInfo\E$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="VideoWeb/test 中的 TestGetUserInfos" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="VideoWeb" />
-      <working_directory value="$PROJECT_DIR$/test" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="VideoWeb/test" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestGetUserInfos\E$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="VideoWeb/test 中的 TestMakeUserInfo" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="VideoWeb" />
-      <working_directory value="$PROJECT_DIR$/test" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="VideoWeb/test" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestMakeUserInfo\E$" />
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Go 测试.TestMakeVideoInfo in VideoWeb/test" />
-        <item itemvalue="Go 测试.TestGetUserComments in VideoWeb/test" />
-        <item itemvalue="Go 测试.VideoWeb/test 中的 TestGetUserInfos" />
-        <item itemvalue="Go 测试.VideoWeb/test 中的 TestMakeUserInfo" />
-        <item itemvalue="Go 测试.VideoWeb/test 中的 TestGetUserInfo" />
-      </list>
-    </recent_temporary>
-  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -155,5 +83,16 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/cache/commentCache/commentCache.go</url>
+          <line>114</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

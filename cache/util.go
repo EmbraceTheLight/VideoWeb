@@ -57,30 +57,28 @@ func HSets(
 
 	pipe := DAO.RDB.Pipeline()
 
-	//cmdsHSet := make([]*redis.IntCmd, len(values))
-	//cmdsExpire := make([]*redis.BoolCmd, len(values))
-
 	for _, value := range values {
 		pipe.HSet(ctx, value.GetKey(), value.GetMap())
 		pipe.Expire(ctx, value.GetKey(), expire)
 	}
 	if _, err = pipe.Exec(ctx); err != nil {
-		return err
+		return fmt.Errorf("cache.util.HSets: %w", err)
 	}
 
 	return
 }
 
 // HGetAll gets all values of a hashmap
-func HGetAll(ctx context.Context, key string) (mp map[string]string, err error) {
+func HGetAll(ctx context.Context, key string, expire time.Duration) (mp map[string]string, err error) {
 	mp, err1 := DAO.RDB.HGetAll(ctx, key).Result()
 	if err1 != nil {
 		return nil, fmt.Errorf("cache.util.HGetAll: %w", err1)
 	}
-	err2 := DAO.RDB.Expire(ctx, key, 60*time.Minute).Err()
+	err2 := DAO.RDB.Expire(ctx, key, 60*expire).Err()
 	if err2 != nil {
 		return nil, fmt.Errorf("cache.util.HGetAll: %w", err2)
 	}
+
 	return
 }
 
@@ -103,21 +101,25 @@ func SAddWithRetry(
 		time.Sleep(sleep)
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("cache.SAddWithRetry: %w", err)
 	}
+
 	err = DAO.RDB.Expire(ctx, key, expire).Err()
-	return
+	if err != nil {
+		return fmt.Errorf("cache.SAddWithRetry: %w", err)
+	}
+	return nil
 }
 
 // SMembers gets all members of a set
 func SMembers(ctx context.Context, key string) (members []string, err error) {
 	members, err = DAO.RDB.SMembers(ctx, key).Result()
 	if err != nil {
-		return nil, fmt.Errorf("::cache.util.SMembers]: %w", err)
+		return nil, fmt.Errorf("cache.util.SMembers: %w", err)
 	}
 	err = DAO.RDB.Expire(ctx, key, 60*time.Minute).Err()
 	if err != nil {
-		return nil, fmt.Errorf("::cache.util.SMembers : %w", err)
+		return nil, fmt.Errorf("cache.util.SMembers: %w", err)
 	}
 	return
 }
@@ -133,6 +135,15 @@ func SIsMember(ctx context.Context, key, member string) (err error) {
 	default:
 		return nil
 	}
+}
+
+// SInter gets the intersection of set1 and set2
+func SInter(ctx context.Context, key1, key2 string) (res []string, err error) {
+	res, err = DAO.RDB.SInter(ctx, key1, key2).Result()
+	if err != nil {
+		return nil, fmt.Errorf("cache.util.SInter: %w", err)
+	}
+	return
 }
 
 // LPush pushes values to the left of a list

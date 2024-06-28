@@ -42,6 +42,7 @@ func CollectRouter(r *gin.Engine) {
 		user.POST("/Login", service.Login)
 		userInfo := user.Group("", middlewares.CheckIfUserLogin()) //添加登录中间件
 		{
+			userInfo.GET("/OfferUserFile", service.OfferUserFile)
 			userInfo.GET("/SearchUsers", service.SearchUsers)
 			userInfo.GET("/User-detail", service.GetUserDetail)
 			userInfo.POST("/Fans/Follows", service.FollowOtherUser)
@@ -70,10 +71,10 @@ func CollectRouter(r *gin.Engine) {
 	{
 		video.GET("/OfferMpd", service.OfferMpd)
 		video.GET("/DASHStreamTransmission", service.DASHStreamTransmission)
+		video.GET("/VideoCover", service.GetVideoCover)
 		video.GET("/SearchVideos", middlewares.CheckIfUserLogin(), service.SearchVideos)
 		video.GET("/VideoList", middlewares.CheckIfUserLogin(), service.GetVideoList)
 		video.POST("/VideoFile", middlewares.CheckIfUserLogin(), service.UploadVideoFile)
-
 		videoInfo := video.Group("/:ID", middlewares.CheckIfUserLogin()) //ID为视频ID
 		{
 			videoInfo.POST("/VideoInfo", middlewares.CheckIfUserLogin(), service.UploadVideoInfo)

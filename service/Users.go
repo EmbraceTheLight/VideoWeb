@@ -4,19 +4,22 @@ import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
+	"VideoWeb/cache"
+	"VideoWeb/cache/userCache"
 	"VideoWeb/define"
 	"VideoWeb/logic"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"io"
 	"net/http"
 	"os"
 	"path"
 	"strconv"
+	"time"
 	"unicode/utf8"
 )
 
@@ -77,7 +80,7 @@ func Register(c *gin.Context) {
 	newUser.Password = string(hashedPassword)
 
 	/*设置用户默认头像*/
-	userDir := define.BaseDir + strconv.FormatInt(newUser.UserID, 10)
+	userDir := path.Join(define.BaseDir, strconv.FormatInt(newUser.UserID, 10))
 	err = os.MkdirAll(userDir, os.ModePerm)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Register-->Utilities.ReadFileContent", define.CreateUserFailed, "创建用户失败:"+err.Error())
@@ -93,9 +96,9 @@ func Register(c *gin.Context) {
 	//用户未上传头像，使用默认头像
 	var avatarFilePath string
 	if avatar == nil {
-		avatarFilePath = userDir + "/" + strconv.FormatInt(newUser.UserID, 10) + "_avatar.jpg"
+		avatarFilePath = path.Join(userDir, "avatar.jpg")
 
-		defaultAvatar, err := Utilities.ReadFileContent(define.PictureSavePath + "default.jpg")
+		defaultAvatar, err := Utilities.ReadFileContent(path.Join(define.PictureSavePath, "default.jpg"))
 		if err != nil {
 			Utilities.SendErrMsg(c, "service::Users::Register-->Utilities.ReadFileContent", define.CreateUserFailed, "创建用户失败:"+err.Error())
 			return
@@ -107,7 +110,7 @@ func Register(c *gin.Context) {
 			return
 		}
 	} else {
-		avatarFilePath = userDir + "/" + strconv.FormatInt(newUser.UserID, 10) + "_avatar" + path.Ext(avatar.Filename)
+		avatarFilePath = path.Join(userDir, "avatar"+path.Ext(avatar.Filename))
 		err = Utilities.WriteToNewFile(avatar, avatarFilePath)
 		if err != nil {
 			Utilities.SendErrMsg(c, "service::Users::Register-->Utilities.ReadFileContent", define.CreateUserFailed, "创建用户失败:"+err.Error())
@@ -484,24 +487,42 @@ func UploadUserAvatar(c *gin.Context) {
 		return
 	}
 
-	//读取用户头像文件内容
-	file, err := FH.Open()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	userBasicInfo, err := userCache.GetUserBasicInfo(ctx, userID)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.OpenFileFailed, "打开文件失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ImageFormatError, "图片格式错误或不支持此图片格式")
 		return
 	}
-	defer file.Close()
-	data, err := io.ReadAll(file)
+
+	avatarPath := userBasicInfo["avatar"]
+	_ = os.Remove(avatarPath) //删除原头像文件
+
+	userBasicInfo["avatar"] = path.Join(path.Dir(avatarPath), strconv.FormatInt(userID, 10)+"_avatar"+extension)
+	err = Utilities.WriteToNewFile(FH, userBasicInfo["avatar"]) //保存新头像文件
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ReadFileFailed, "读取文件内容失败"+err.Error())
+		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ImageFormatError, "图片格式错误或不支持此图片格式")
 		return
 	}
 
 	//更新用户头像
-	err = EntitySets.UpdateUserAvatar(DAO.DB, userID, data)
+	err = EntitySets.UpdateUserAvatar(DAO.DB, userID, userBasicInfo["avatar"])
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.UploadUserAvatarFailed, "上传用户头像失败")
-		fmt.Println("err:", err.Error())
+		return
+	}
+
+	err = cache.HSetWithRetry( //更新用户缓存
+		ctx,
+		strconv.FormatInt(userID, 10),
+		cache.DefaultTry,
+		cache.DefaultSleep,
+		cache.UserExpireTime,
+		map[string]any{"avatar": userBasicInfo["avatar"]},
+	)
+	if err != nil {
+		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.UploadUserAvatarFailed, "上传用户头像失败")
 		return
 	}
 
@@ -538,4 +559,16 @@ func SearchUsers(c *gin.Context) {
 		"code": http.StatusOK,
 		"data": res,
 	})
+}
+
+// OfferUserFile
+// @Tags User API
+// @summary 提供User相关文件
+// @Accept json
+// @Produce octet-stream
+// @Param filePath query string true "用户相关文件路径"
+// @Router /User/OfferUserFile [get]
+func OfferUserFile(c *gin.Context) {
+	fp := c.Query("filePath")
+	c.File(fp)
 }

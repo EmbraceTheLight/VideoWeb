@@ -3,6 +3,8 @@ package helper
 import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
+	RelationshipSets "VideoWeb/DAO/RelationshipSets"
+	"fmt"
 	"gorm.io/gorm"
 	"os/exec"
 	"path"
@@ -65,3 +67,31 @@ func UpdateVideoFieldForUpdate(videoID int64, field string, change int, tx *gorm
 	}
 	return nil
 }
+
+// DeleteCommentWithStatus 删除评论及其状态（如用户点赞等信息）
+func DeleteCommentWithStatus(videoID int64, tx *gorm.DB) error {
+	var commentsIDs []int64
+	err := tx.Model(EntitySets.Comments{}).Where("video_id =?", videoID).Select("id").Find(&commentsIDs).Error
+	if err != nil {
+		return fmt.Errorf("helper/video.DeleteCommentWithStatus: %w", err)
+	}
+
+	for _, id := range commentsIDs {
+		err = RelationshipSets.DeleteUserLikedCommentRecordByCommentID(tx, id)
+		if err != nil {
+			return fmt.Errorf("helper/video.DeleteCommentWithStatus: %w", err)
+		}
+	}
+
+	err = EntitySets.DeleteCommentRecordsByVideoID(tx, videoID)
+	if err != nil {
+		return fmt.Errorf("helper/video.DeleteCommentWithStatus: %w", err)
+	}
+
+	return nil
+}
+
+// GetVideosByClass 根据分类ID获取视频信息
+//func GetVideosByClass(class string) ([]*EntitySets.Video, error) {
+//
+//}

@@ -2,7 +2,10 @@ package videoCache
 
 import (
 	"VideoWeb/DAO"
+	EntitySets "VideoWeb/DAO/EntitySets"
+	"VideoWeb/Utilities"
 	"VideoWeb/cache"
+	"VideoWeb/cache/commentCache"
 	"context"
 	"errors"
 	"fmt"
@@ -10,6 +13,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 	"strconv"
+	"time"
 )
 
 // MakeVideoCache creates a VideoCache object that contains all the necessary information of a video.
@@ -63,23 +67,64 @@ func GetTagsInfo(ctx context.Context, videoID int64) (tags []string, err error) 
 	return
 }
 
-// GetVideoCommentsInfo Gets the detailed information of a comment from cache.
-func GetVideoCommentsInfo(ctx context.Context, videoID int64) (comments []map[string]string, err error) {
+// GetAllVideoCommentsInfo Gets the detailed information of comments of a video from cache.
+func GetAllVideoCommentsInfo(ctx context.Context, videoID int64) (comments []map[string]string, err error) {
+	if DAO.RDB.TTL(ctx, strconv.FormatInt(videoID, 10)+"_comments").Val() < 0 {
+		videoCache := MakeVideoCache()
+		err = videoCache.MakeVideoInfo(ctx, videoID)
+		if err != nil {
+			return nil, fmt.Errorf("VideoCache.MakeVideoInfo::%w", err)
+		}
+	}
+
 	commentIDs, err := cache.SMembers(ctx, strconv.FormatInt(videoID, 10)+"_comments")
 	if err != nil {
-		return nil, fmt.Errorf("VideoCache.GetVideoCommentsInfo::%w", err)
+		return nil, fmt.Errorf("VideoCache.GetAllVideoCommentsInfo::%w", err)
 	}
 
 	comments, err = cache.GetInfos(ctx, videoID, commentIDs...)
 	if err != nil {
-		err = fmt.Errorf("VideoCache.GetVideoCommentsInfo::%w", err)
+		err = fmt.Errorf("VideoCache.GetAllVideoCommentsInfo::%w", err)
+	}
+	return
+}
+
+// GetUserLikedCommentsInfo Gets the detailed information of comments liked by a user in a video from cache.
+func GetUserLikedCommentsInfo(ctx context.Context, videoID int64, userID int64) (res []map[string]string, err error) {
+	if DAO.RDB.TTL(ctx, strconv.FormatInt(videoID, 10)+"_comments").Val() < 0 {
+		videoCache := MakeVideoCache()
+		err = videoCache.MakeVideoInfo(ctx, videoID)
+		if err != nil {
+			return nil, fmt.Errorf("VideoCache.MakeVideoInfo::%w", err)
+		}
+	}
+
+	if DAO.RDB.TTL(ctx, strconv.FormatInt(userID, 10)+strconv.FormatInt(videoID, 10)+"_liked_comments").Val() < 0 {
+		err = commentCache.MakeUserLikedComments(ctx, videoID, userID)
+		if err != nil {
+			return nil, fmt.Errorf("VideoCache.MakeVideoInfo::%w", err)
+		}
+	}
+
+	likedCommentsIDs, err := cache.SInter(
+		ctx,
+		strconv.FormatInt(userID, 10)+strconv.FormatInt(videoID, 10)+"_liked_comments",
+		strconv.FormatInt(videoID, 10)+"_comments",
+	)
+	if err != nil {
+		return nil, fmt.Errorf("VideoCache.GetUserLikedCommentsInfo::%w", err)
+	}
+
+	res, err = getSpecificVideoCommentsInfo(ctx, videoID, likedCommentsIDs...)
+	if err != nil {
+		return nil, fmt.Errorf("VideoCache.GetUserLikedCommentsInfo::%w", err)
 	}
 	return
 }
 
 // GetVideoBasicInfo gets basic information of a video from cache.
 func GetVideoBasicInfo(ctx context.Context, videoID int64) (videoBasic map[string]string, err error) {
-	videoBasic, err = cache.HGetAll(ctx, strconv.FormatInt(videoID, 10))
+	videoBasic, err = cache.HGetAll(ctx, strconv.FormatInt(videoID, 10), cache.VideoExpireTime)
 	if err != nil {
 		return nil, fmt.Errorf("VideoCache.GetVideoBasicInfo::%w", err)
 	}
@@ -88,7 +133,7 @@ func GetVideoBasicInfo(ctx context.Context, videoID int64) (videoBasic map[strin
 		vbasic := &VideoBasic{VideoInfo: make(map[string]any)}
 		err = vbasic.makeBasicInfo(ctx, videoID)
 		if err != nil {
-			if errors.Is(errors.Unwrap(err), gorm.ErrRecordNotFound) { // Video not found in database, set cache to not found
+			if errors.Is(err, gorm.ErrRecordNotFound) { // Video not found in database, set cache to not found
 				key := strconv.FormatInt(videoID, 10)
 				err2 := cache.SetNilHash(ctx, key)
 				if err2 != nil {
@@ -98,7 +143,7 @@ func GetVideoBasicInfo(ctx context.Context, videoID int64) (videoBasic map[strin
 			return nil, fmt.Errorf("VideoCache.GetVideoBasicInfo::%w", err)
 		}
 
-		videoBasic, err = cache.HGetAll(ctx, strconv.FormatInt(videoID, 10))
+		videoBasic, err = cache.HGetAll(ctx, strconv.FormatInt(videoID, 10), cache.VideoExpireTime)
 		if err != nil {
 			return nil, fmt.Errorf("VideoCache.GetVideoBasicInfo::%w", err)
 		}
@@ -142,7 +187,7 @@ func GetVideosBasicInfo(ctx context.Context, videoIDs []int64) (res []map[string
 				return nil, fmt.Errorf("VideoCache.GetVideosBasicInfo::%w", err)
 			}
 
-			videoInfo, err = cache.HGetAll(ctx, strconv.FormatInt(videoIDs[i], 10))
+			videoInfo, err = cache.HGetAll(ctx, strconv.FormatInt(videoIDs[i], 10), cache.VideoExpireTime)
 			if err != nil {
 				return nil, fmt.Errorf("VideoCache.GetVideosBasicInfo::%w", err)
 			}
@@ -150,4 +195,77 @@ func GetVideosBasicInfo(ctx context.Context, videoIDs []int64) (res []map[string
 		res = append(res, videoInfo)
 	}
 	return res, nil
+}
+
+// MapStringStringToVideos maps a slice of map[string]string to a slice of *EntitySets.Video.
+func MapStringStringToVideos(videoInfos ...map[string]string) (res []*EntitySets.Video) {
+	for _, videoInfo := range videoInfos {
+		var video = new(EntitySets.Video)
+		video.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", videoInfo["created_at"])
+		video.Title = videoInfo["title"]
+		video.Description = videoInfo["description"]
+		video.Class = videoInfo["class"]
+		video.Path = videoInfo["path"]
+		video.VideoID = Utilities.String2Int64(videoInfo["video_id"])
+		video.UID = Utilities.String2Int64(videoInfo["user_id"])
+		video.UserName = videoInfo["user_name"]
+		video.Likes = Utilities.String2Uint32(videoInfo["likes"])
+		video.Shells = Utilities.String2Uint32(videoInfo["shells"])
+		video.Hot = Utilities.String2Uint32(videoInfo["hot"])
+		video.CntBarrages = Utilities.String2Uint32(videoInfo["cnt_barrages"])
+		video.CntShares = Utilities.String2Uint32(videoInfo["cnt_shares"])
+		video.CntFavorites = Utilities.String2Uint32(videoInfo["cnt_favorites"])
+		video.CntViews = Utilities.String2Uint32(videoInfo["cnt_views"])
+		video.Duration = videoInfo["duration"]
+		video.Size = Utilities.String2Int64(videoInfo["size"])
+		video.CoverPath = videoInfo["cover_path"]
+		res = append(res, video)
+	}
+
+	return
+}
+
+// MakeAllVideosZSet makes a sorted set of all videos.
+func MakeAllVideosZSet(ctx context.Context) (videoZSetInfos []*VideoZSetInfo, err error) {
+	videoZSetInfos = make([]*VideoZSetInfo, 0)
+	err = DAO.DB.Model(&EntitySets.Video{}).Find(&videoZSetInfos).Error
+	if err != nil {
+		return nil, fmt.Errorf("VideoCache.MakeAllVideosZSet: %w", err)
+	}
+
+	err = SaveVideoZSet(ctx, "all_videos", videoZSetInfos...)
+	if err != nil {
+		return nil, fmt.Errorf("VideoCache.MakeAllVideosZSet::SaveVideoZSet: %w", err)
+	}
+	return
+}
+
+// SaveVideoZSet saves the information of a video to a sorted set.
+func SaveVideoZSet(ctx context.Context, key string, info ...*VideoZSetInfo) (err error) {
+	pipe := DAO.RDB.Pipeline()
+	for _, v := range info {
+		pipe.ZAdd(ctx, key, redis.Z{Score: float64(v.Hot), Member: v.VideoID})
+	}
+
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("VideoCache.SaveVideoZSet::RDB.Pipelined:%w", err)
+	}
+	return nil
+}
+
+// GetVideoZSetInfo gets the information of a video from a sorted set.
+func GetVideoZSetInfo(ctx context.Context, key string, start, end int64) (videoIDs []int64, err error) {
+	cmd := DAO.RDB.ZRevRangeWithScores(ctx, key, start, end)
+	tmp, err := cmd.Result()
+	if err != nil {
+		return nil, fmt.Errorf("VideoCache.GetVideoZSetInfo::%w", err)
+	}
+
+	videoIDs = make([]int64, len(tmp))
+	for i, v := range tmp {
+		videoIDs[i] = Utilities.String2Int64(v.Member.(string))
+	}
+	return
+
 }

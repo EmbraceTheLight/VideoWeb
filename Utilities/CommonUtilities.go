@@ -74,7 +74,13 @@ func String2Int64(str string) int64 {
 }
 
 func String2Int(str string) int {
-	return int(String2Int64(str))
+	i, _ := strconv.ParseInt(str, 10, 32)
+	return int(i)
+}
+
+func String2Uint32(str string) uint32 {
+	i, _ := strconv.ParseUint(str, 10, 32)
+	return uint32(i)
 }
 func Strings2Int64s(sli []string) (ret []int64) {
 	for _, str := range sli {

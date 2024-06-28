@@ -3,10 +3,13 @@ package service
 import (
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
+	"VideoWeb/cache/commentCache"
 	"VideoWeb/define"
 	"VideoWeb/logic"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 // GetUsersBasicInfo
@@ -66,6 +69,15 @@ func PostComment(c *gin.Context) {
 		IPAddress: Country + " " + City,
 	}
 	err := logic.AddCommentToVideo(c, comment)
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = commentCache.AddCommentInfo(ctx, videoID, comment) //将评论更新到缓存
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return

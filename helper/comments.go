@@ -5,16 +5,26 @@ import (
 	EntitySets "VideoWeb/DAO/EntitySets"
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"gorm.io/gorm"
+	"sort"
 )
 
 // GetCommentReplies 根据To字段获取当前评论的所有回复评论
-func GetCommentReplies(videoID, to int64) (ret []*EntitySets.CommentSummary, err error) {
-	err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, to).Order("likes DESC").Find(&ret).Error
-	for _, comment := range ret {
-		replies, err := GetCommentReplies(videoID, comment.CommentID)
-		if err != nil {
-			return nil, err
+func GetCommentReplies(videoID, to int64, order string, comments []*EntitySets.CommentSummary) (ret []*EntitySets.CommentSummary) {
+	//err = DAO.DB.Model(&EntitySets.Comments{}).Where("`video_id` = ? AND `to` = ?", videoID, to).Order("likes DESC").Find(&ret).Error
+
+	//TODO:使用二分优化查询
+	for _, v := range comments {
+		if v.To == to {
+			ret = append(ret, v)
 		}
+	}
+
+	//按照点赞数排序
+	sort.Slice(ret, func(i, j int) bool {
+		return ret[i].Likes > ret[j].Likes
+	})
+	for _, comment := range ret {
+		replies := GetCommentReplies(videoID, comment.CommentID, order, comments)
 		comment.Replies = replies
 	}
 	return

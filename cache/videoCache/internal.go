@@ -8,6 +8,7 @@ import (
 	"VideoWeb/cache/commentCache"
 	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"strconv"
 )
 
@@ -130,6 +131,25 @@ func makeBarragesInfos(ctx context.Context, prefix int64, barrages ...*EntitySet
 
 	return nil
 
+}
+
+// getSpecificVideoCommentsInfo Gets the detailed information of specific comments of a video from cache.
+func getSpecificVideoCommentsInfo(ctx context.Context, videoID int64, commentID ...string) (comments []map[string]string, err error) {
+	pipe := DAO.RDB.Pipeline()
+	prefix := strconv.FormatInt(videoID, 10)
+	cmds := make([]*redis.MapStringStringCmd, len(commentID))
+	for i, id := range commentID {
+		cmds[i] = pipe.HGetAll(ctx, prefix+id)
+		pipe.Expire(ctx, prefix+id, cache.CommentExpireTime)
+	}
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("VideoCache.getSpecificVideoCommentsInfo::pipe.Exec(): %w", err)
+	}
+	for _, cmd := range cmds {
+		comments = append(comments, cmd.Val())
+	}
+	return
 }
 
 func (vc *VideoComments) makeCommentsInfo(ctx context.Context, videoID int64) error {

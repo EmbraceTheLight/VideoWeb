@@ -6,8 +6,11 @@ import (
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/Utilities/logf"
+	"VideoWeb/cache/commentCache"
+	"VideoWeb/cache/videoCache"
 	"VideoWeb/define"
 	"VideoWeb/helper"
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -16,8 +19,10 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // ParseRange 解析range头的start和end位置，若start或end不存在，则返回对应值为-1
@@ -173,6 +178,13 @@ func DeleteVideo(del *EntitySets.Video) error {
 
 	//从数据库中删除与视频绑定的评论信息
 	err = EntitySets.DeleteCommentRecordsByVideoID(tx, del.VideoID)
+	err = helper.DeleteCommentWithStatus(del.VideoID, tx)
+	if err != nil {
+		return err
+	}
+
+	//从数据库中删除与视频绑定的所有用户点赞、投币等信息
+	err = RelationshipSets.DeleteUserVideoRecordsByVideoID(tx, del.VideoID)
 	if err != nil {
 		return err
 	}
@@ -404,10 +416,13 @@ func GetVideoListByClass(c *gin.Context, class string) (videos []*EntitySets.Vid
 			Utilities.AddFuncName(c, "GetVideoListByClass")
 		}
 	}()
+
 	if class == "recommend" {
+
 		err = DAO.DB.Model(&EntitySets.Video{}).
 			Order("hot desc").Limit(define.DefaultSize).Omit("class").Find(&videos).Error
 	} else {
+		//helper.Get
 		err = DAO.DB.Model(&EntitySets.Video{}).Where("class=?", class).
 			Order("hot desc").Limit(define.DefaultSize).Find(&videos).Error
 	}
@@ -415,39 +430,87 @@ func GetVideoListByClass(c *gin.Context, class string) (videos []*EntitySets.Vid
 }
 
 // GetVideoCommentsList 获取视频评论列表
-func GetVideoCommentsList(c *gin.Context, videoID, UserID int64, order string, Page, CommentsNumbers int) (ret []*EntitySets.CommentSummary, err error) {
+func GetVideoCommentsList(c *gin.Context, videoID, userID int64, order string, offset, commentsNumbers int) (ret []*EntitySets.CommentSummary, err error) {
 	defer func() {
 		if err != nil {
 			Utilities.AddFuncName(c, "GetVideoCommentsList")
 		}
 	}()
-	//videoCache.GetCommentsInfo(ctx)
-	//获取视频的根评论列表
 
-	comments, err := helper.GetRootCommentsSummariesByVideoID(videoID, order, Page, CommentsNumbers)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	//找出所有评论
+	mapComments, err := videoCache.GetAllVideoCommentsInfo(ctx, videoID)
 	if err != nil {
 		return nil, err
 	}
+	if len(mapComments) == 0 {
+		return nil, nil
+	}
+	//if err != nil {
+	//	return nil, err
+	//}
+	//likedCommentIDs := Utilities.Strings2Int64s(tmpLikedCommentIDs)
+
+	//将map转为EntitySets.CommentSummary切片
+	var comments []*EntitySets.CommentSummary
+	for _, v := range mapComments {
+		comments = append(comments, commentCache.MapStringStringToComment(v))
+	}
+
+	//对评论按照`to`字段升序排序
+	sort.Slice(comments, func(i, j int) bool {
+		return comments[i].To < comments[j].To
+	})
+
+	//获取根评论
+	rootComments := make([]*EntitySets.CommentSummary, 0)
+
+	//TODO:使用二分查找优化该逻辑
+	var idx int
+	for i, v := range comments {
+		if v.To != -1 {
+			break
+		}
+		rootComments = append(rootComments, v)
+		idx = i
+	}
+	var start, end int
+	start = offset
+	end = start + commentsNumbers
+	if end > idx {
+		end = idx + 1
+	}
+
+	//获取用户点赞的评论
+	//tmpLikedCommentIDs, err := cache.SInter(
+	//	ctx,
+	//	strconv.FormatInt(userID, 10)+strconv.FormatInt(videoID, 10)+"_liked_comments",
+	//	strconv.FormatInt(videoID, 10)+"_comments",
+	//)
 
 	//递归获取每个根评论的回复列表
 	var replies []*EntitySets.CommentSummary
-	for _, comment := range comments {
-		replies, err = helper.GetCommentReplies(videoID, comment.CommentID)
-		if err != nil {
-			return nil, err
-		}
+	for _, comment := range comments[start:end] {
+		replies = helper.GetCommentReplies(videoID, comment.CommentID, order, comments[idx+1:])
 		comment.Replies = replies
 		ret = append(ret, comment)
 	}
+	sort.Slice(ret, func(i, j int) bool {
+		return ret[i].Likes > ret[j].Likes
+	})
+	//TODO:获取用户对这些评论的点赞/点踩信息
 
+	//
 	//获取用户对这些评论的点赞/点踩信息
-	likes, dislikes, err := helper.GetUserCommentRecords(UserID, videoID, DAO.DB)
-	if err != nil {
-		return nil, err
-	}
-
+	//likes, dislikes, err := helper.GetUserCommentRecords(userID, videoID, DAO.DB)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
 	//遍历获得的评论，递归更新点赞/点踩信息
-	helper.UpdateCommentsStatus(likes, dislikes, ret)
+	//helper.UpdateCommentsStatus(likes, dislikes, ret)
 	return
 }
 

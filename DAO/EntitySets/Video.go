@@ -13,7 +13,7 @@ type VideoSummary struct {
 	Title       string `json:"Title"`
 	CntViews    uint32 `json:"CntViews"`
 	Duration    string `json:"Duration"`
-	Cover       []byte `json:"Cover"`
+	CoverPath   string `json:"CoverPath"`
 }
 
 type Video struct {
@@ -37,12 +37,11 @@ type Video struct {
 	CntViews     uint32 `json:"CntViews" gorm:"column:cnt_views;type:int unsigned;default:0"`          //视频播放量
 	Duration     string `json:"Duration" gorm:"column:duration;type:varchar(10);"`                     //视频时长,单位秒
 	Size         int64  `json:"Size" gorm:"column:size;type:int;"`                                     //视频大小,单位字节
+	CoverPath    string `json:"VideoCover" gorm:"type:varchar(200)"`                                   //视频封面路径
 	//以下三项均为一对多
 	Comments []*Comments `gorm:"foreignKey:VID;references:VideoID"` //视频评论
 	Tags     []*Tags     `gorm:"foreignKey:VID;references:VideoID"` //视频标签
 	Barrages []*Barrage  `gorm:"foreignKey:VID;references:VideoID"` //视频弹幕
-	//二进制大对象,存放视频封面信息
-	CoverPath string `json:"VideoCover" gorm:"type:varchar(200)"` //视频封面路径
 }
 
 func (f *Video) TableName() string {

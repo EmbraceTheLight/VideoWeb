@@ -9,9 +9,16 @@ type VideoBasic struct {
 	VideoInfo map[string]any
 }
 
+// BarrageInfo is the struct of barrage info
 type BarrageInfo struct {
 	key         string
 	barrageInfo map[string]any
+}
+
+// VideoZSetInfo is the struct to store video's hot value in a ZSet
+type VideoZSetInfo struct {
+	VideoID int64
+	Hot     uint32
 }
 
 type VideoTags struct {

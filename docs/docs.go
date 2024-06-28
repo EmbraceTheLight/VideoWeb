@@ -827,6 +827,30 @@ const docTemplate = `{
                 }
             }
         },
+        "/User/OfferUserFile": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "提供User相关文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户相关文件路径",
+                        "name": "filePath",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/User/Register": {
             "post": {
                 "consumes": [
@@ -1091,6 +1115,30 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/video/VideoCover": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Video API"
+                ],
+                "summary": "提供视频封面",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "视频封面路径",
+                        "name": "coverPath",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/video/VideoFile": {

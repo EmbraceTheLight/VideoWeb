@@ -40,6 +40,11 @@ func UpdateUserVideoRecord(db *gorm.DB, UID, VID int64, field string, change boo
 }
 
 // DeleteUserVideoRecordsByUserID 根据用户ID删除用户所有观看过的视频记录
-func DeleteUserVideoRecordsByUserID(UserID int64, tx *gorm.DB) error {
-	return tx.Model(&UserVideo{}).Where("user_id =?", UserID).Delete(&UserVideo{}).Error
+func DeleteUserVideoRecordsByUserID(db *gorm.DB, UserID int64) error {
+	return db.Model(&UserVideo{}).Where("user_id =?", UserID).Delete(&UserVideo{}).Error
+}
+
+// DeleteUserVideoRecordsByVideoID 根据视频ID删除所有观看过该视频的用户记录
+func DeleteUserVideoRecordsByVideoID(db *gorm.DB, videoID int64) error {
+	return db.Model(&UserVideo{}).Where("video_id =?", videoID).Delete(&UserVideo{}).Error
 }

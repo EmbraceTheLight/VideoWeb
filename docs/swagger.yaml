@@ -547,6 +547,22 @@ paths:
       summary: 用户信息修改-修改用户名
       tags:
       - User API
+  /User/OfferUserFile:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户相关文件路径
+        in: query
+        name: filePath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 提供User相关文件
+      tags:
+      - User API
   /User/Register:
     post:
       consumes:
@@ -1041,6 +1057,22 @@ paths:
           schema:
             type: string
       summary: 根据关键字搜索视频
+      tags:
+      - Video API
+  /video/VideoCover:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 视频封面路径
+        in: query
+        name: coverPath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses: {}
+      summary: 提供视频封面
       tags:
       - Video API
   /video/VideoFile:

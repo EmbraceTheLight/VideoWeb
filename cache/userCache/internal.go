@@ -114,12 +114,12 @@ func (ufd *UserFollowed) makeFollowedInfo(ctx context.Context, userID int64) err
 		ufd.key = strconv.FormatInt(userID, 10) + "_followed"
 		err = cache.SAddWithRetry(ctx, ufd.key, cache.DefaultTry, cache.DefaultSleep, cache.UserExpireTime, followedIDs...)
 		if err != nil {
-			return fmt.Errorf("UserFollowed->makeFollowedInfo: %w", err)
+			return fmt.Errorf("UserFollowed->makeFollowedInfo::%w", err)
 		}
 
 		err = addToUserCache(ctx, strconv.FormatInt(userID, 10), "cnt_followed", len(followedIDs)) //add or update a key-value of followed count to user cache
 		if err != nil {
-			return fmt.Errorf("UserFollowed->makeFollowedInfo: %w", err)
+			return fmt.Errorf("UserFollowed->makeFollowedInfo::%w", err)
 		}
 	}
 

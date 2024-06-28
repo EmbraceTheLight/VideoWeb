@@ -119,6 +119,6 @@ func GetUserInfoByID(db *gorm.DB, id int64) (*User, error) {
 }
 
 // UpdateUserAvatar 更新用户头像
-func UpdateUserAvatar(db *gorm.DB, userID int64, data []byte) error {
-	return db.Model(&User{}).Where("user_id=?", userID).Update("avatar", data).Error
+func UpdateUserAvatar(db *gorm.DB, userID int64, path string) error {
+	return db.Model(&User{}).Where("user_id=?", userID).Update("avatar_path", path).Error
 }

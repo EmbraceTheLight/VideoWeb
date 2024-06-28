@@ -403,6 +403,17 @@ func GetVideoInfo(c *gin.Context) {
 	})
 }
 
+// GetVideoCover
+// @Tags Video API
+// @summary 提供视频封面
+// @Accept json
+// @Produce octet-stream
+// @Param coverPath query string true "视频封面路径"
+// @Router /video/VideoCover [get]
+func GetVideoCover(c *gin.Context) {
+	c.File(c.Query("coverPath"))
+}
+
 // LikeOrUndoLike
 // @Tags Video API
 // @summary 用户点赞/取消点赞视频

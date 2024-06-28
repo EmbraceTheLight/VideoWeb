@@ -190,7 +190,7 @@ func TestGetVideoInfo(t *testing.T) {
 	fmt.Println()
 
 	//comments
-	vc, err := videoCache.GetVideoCommentsInfo(ctx, videoID)
+	vc, err := videoCache.GetAllVideoCommentsInfo(ctx, videoID)
 	require.NoError(t, err)
 	fmt.Println("↓↓↓↓↓video comments↓↓↓↓↓")
 	for _, comment := range vc {
@@ -215,4 +215,51 @@ func TestGetVideoInfo(t *testing.T) {
 	}
 }
 
+// 测试通过redis交集获取用户点赞的评论
+func TestGetUserLikedComments(t *testing.T) {
+	var userID int64 = 52826422661189
+	var videoID int64 = 52826949386309
+
+	err := makeVideoInfo(videoID)
+	require.NoError(t, err)
+
+	ctx := context.Background()
+	err = commentCache.MakeUserLikedComments(ctx, userID, videoID)
+	require.NoError(t, err)
+
+	comments, err := videoCache.GetUserLikedCommentsInfo(ctx, videoID, userID)
+	require.NoError(t, err)
+
+	for _, comment := range comments {
+		fmt.Println("comment_id:", comment["comment_id"])
+		for k, v := range comment {
+			fmt.Println("k:", k, "	v:", v)
+		}
+		fmt.Println()
+	}
+}
+
 func TestGetVideoInfos(t *testing.T) {}
+
+func TestMakeAndGetVideoZSetInfos(t *testing.T) {
+	ctx := context.Background()
+	tmp, err := videoCache.MakeAllVideosZSet(ctx)
+	require.NoError(t, err)
+
+	err = videoCache.SaveVideoZSet(ctx, "all_videos", tmp...)
+	require.NoError(t, err)
+
+	videoIDs, err := videoCache.GetVideoZSetInfo(ctx, "all_videos", 0, 4)
+	require.NoError(t, err)
+
+	videos, err := videoCache.GetVideosBasicInfo(ctx, videoIDs)
+	require.NoError(t, err)
+
+	for _, video := range videos {
+		fmt.Println("video:", video["video_id"])
+		for k, v := range video {
+			fmt.Println("k:", k, "	v:", v)
+		}
+		fmt.Println()
+	}
+}

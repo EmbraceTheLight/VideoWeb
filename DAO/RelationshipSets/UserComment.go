@@ -32,8 +32,14 @@ func InsertUserLikedCommentRecord(db *gorm.DB, uid, vid, cid int64) error {
 	return db.Model(&UserLikedComments{}).Create(ulc).Error
 }
 
+// DeleteUserLikedCommentRecord 根据用户ID和评论ID删除用户点赞的评论记录，表示用户取消了对该评论的点赞
 func DeleteUserLikedCommentRecord(db *gorm.DB, uid, cid int64) error {
 	return db.Model(&UserLikedComments{}).Where("user_id = ? AND comment_id = ?", uid, cid).Delete(&UserLikedComments{}).Error
+}
+
+// DeleteUserLikedCommentRecordByCommentID 根据评论ID删除用户点赞的评论记录,即删除该评论的点赞记录
+func DeleteUserLikedCommentRecordByCommentID(db *gorm.DB, cid int64) error {
+	return db.Model(&UserLikedComments{}).Where("comment_id = ?", cid).Delete(&UserLikedComments{}).Error
 }
 
 // UserDislikedComments 用户点踩的评论记录
