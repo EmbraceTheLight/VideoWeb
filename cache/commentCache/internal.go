@@ -16,7 +16,7 @@ func addCommentInfo(ctx context.Context, prefix int64, comment *EntitySets.Comme
 
 	err = cache.SAddWithRetry(
 		ctx,
-		strconv.FormatInt(prefix, 10)+"_comments",
+		strconv.FormatInt(prefix, 10)+cache.CommentSfx,
 		cache.DefaultTry,
 		cache.DefaultSleep,
 		cache.CommentExpireTime,
@@ -25,6 +25,6 @@ func addCommentInfo(ctx context.Context, prefix int64, comment *EntitySets.Comme
 	if err != nil {
 		return fmt.Errorf("commentCache.AddCommentInfo::%w", err)
 	}
-	
+
 	return nil
 }
