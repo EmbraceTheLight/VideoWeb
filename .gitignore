@@ -2,7 +2,7 @@ go-wrk
 resources/*
 temp
 logs
-main
+VideoWeb.zip
 *.exe
 *.lua
 *.txt

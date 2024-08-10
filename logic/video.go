@@ -6,6 +6,7 @@ import (
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/Utilities/logf"
+	"VideoWeb/cache"
 	"VideoWeb/cache/commentCache"
 	"VideoWeb/cache/videoCache"
 	"VideoWeb/define"
@@ -14,15 +15,13 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"io"
-	"mime/multipart"
+	"gorm.io/gorm/clause"
 	"os"
 	"os/exec"
 	"path"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // ParseRange 解析range头的start和end位置，若start或end不存在，则返回对应值为-1
@@ -57,7 +56,7 @@ func GetVideoDuration(VideoPath string) (duration int64, err error) {
 }
 
 // CreateVideoRecord 创建视频记录
-func CreateVideoRecord(tx *gorm.DB, c *gin.Context, UserID int64, videoFilePath string, fileSize int64) (VID int64, err error) {
+func CreateVideoRecord(tx *gorm.DB, UserID int64, videoFilePath string, fileSize int64) (VID int64, err error) {
 	VID = GetUUID()
 	UID := UserID
 	var userInfo *EntitySets.User
@@ -112,33 +111,6 @@ func MakeDASHSegments(videoFilePath string) error {
 	return err
 }
 
-// MakePreviews 生成视频预览图
-//func MakePreviews(videoFilePath string) error {
-//	outputDir := path.Dir(videoFilePath) + "/tmp" //缩略图存放路径
-//	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
-//		return fmt.Errorf("MakePreviews failed: %w", err)
-//	}
-//
-//	// 使用 FFmpeg 提取关键帧
-//	ffmpegArgs := []string{
-//		"-i", videoFilePath,
-//		"-vf", fmt.Sprintf("select='not(mod(n,%d))'", 20*25),
-//		"-q:v", "2",
-//		"-vsync", "vfr",
-//		filepath.Join(outputDir, "keyframe_%04d.jpg"),
-//	}
-//	cmd := exec.Command("ffmpeg", ffmpegArgs...)
-//	cmd.Stdout = os.Stdout
-//	cmd.Stderr = os.Stderr
-//
-//	// 运行命令
-//	if err := cmd.Run(); err != nil {
-//		return fmt.Errorf("MakePreviews failed: %w", err)
-//	}
-//
-//	return nil
-//}
-
 // DeleteVideo 删除视频辅助函数
 func DeleteVideo(del *EntitySets.Video) error {
 	/*从硬盘中删除对应视频信息*/
@@ -190,6 +162,14 @@ func DeleteVideo(del *EntitySets.Video) error {
 	}
 
 	tx.Commit()
+
+	//从缓存中删除视频信息
+	ctx, cancel := context.WithTimeout(context.Background(), cache.OperationExpireTime)
+	defer cancel()
+	err = videoCache.DeleteVideoCache(ctx, del.VideoID)
+	if err != nil {
+		logf.WriteErrLog("logic::video.go::DeleteVideo", err.Error())
+	}
 	return nil
 }
 
@@ -197,17 +177,6 @@ func DeleteVideo(del *EntitySets.Video) error {
 func CheckFileIsExist(filePath string) bool {
 	_, err := os.Stat(filePath)
 	return err == nil || os.IsExist(err)
-}
-
-// OpenAndReadFile 打开并读取文件,返回读取到的文件内容
-func OpenAndReadFile(file *multipart.FileHeader) ([]byte, error) {
-	f, err := file.Open()
-	defer f.Close()
-	if err != nil {
-		return nil, err
-	}
-	data, err := io.ReadAll(f)
-	return data, err
 }
 
 // AddVideoViewCount 增加视频观看次数
@@ -224,12 +193,31 @@ func AddVideoViewCount(c *gin.Context, videoID int64) error {
 		}
 	}()
 
-	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
+	tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&EntitySets.Video{}, videoID) //添加行级锁(悲观)
+
 	err = helper.UpdateVideoFieldForUpdate(videoID, "cnt_views", 1, tx)
 	if err != nil {
 		return err
 	}
+
 	err = helper.UpdateVideoFieldForUpdate(videoID, "hot", define.AddHotEachView, tx)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), cache.OperationExpireTime)
+	defer cancel()
+
+	info, err := videoCache.GetVideoBasicInfo(ctx, videoID)
+	if err != nil {
+		return err
+	}
+
+	err = videoCache.UpdateVideoInfoFields(ctx, videoID, map[string]any{
+		"cnt_views": Utilities.String2Uint32(info["cnt_views"]) + 1,
+		"hot":       Utilities.String2Uint32(info["hot"]) + define.AddHotEachView,
+	})
+
 	if err != nil {
 		return err
 	}
@@ -252,42 +240,52 @@ func UpdateVideoLikeStatus(c *gin.Context, UserID, AuthorID, VideoID int64, isLi
 	}()
 	tx.Set("gorm:query_option", "FOR UPDATE") //添加行级锁(悲观)
 
+	var updatesVideo = make(map[string]any)
+	var updatesUser = make(map[string]any)
+
+	var videoInfo *EntitySets.Video
+	err = tx.Model(&EntitySets.Video{}).Where("video_id = ?", VideoID).First(&videoInfo).Error
+	if err != nil {
+		return err
+	}
+
+	var userInfo *EntitySets.User
+	err = tx.Model(&EntitySets.User{}).Where("user_id = ?", UserID).First(&userInfo).Error
+	if err != nil {
+		return err
+	}
+
 	//更新视频点赞数以及视频热度
 	if isLiked {
-		err = helper.UpdateVideoFieldForUpdate(VideoID, "likes", -1, tx)
-		if err != nil {
-			return err
-		}
+		updatesVideo["likes"] = videoInfo.Likes - 1
+		updatesVideo["hot"] = videoInfo.Hot - define.AddHotEachLike
 
-		//更新视频热度
-		err = helper.UpdateVideoFieldForUpdate(VideoID, "hot", -define.AddHotEachLike, tx)
-		if err != nil {
-			return err
-		}
-
-		//更新被点赞视频UP主的点赞数
-		err = helper.UpdateUserFieldForUpdate(AuthorID, "cnt_likes", -1, tx)
-		if err != nil {
-			return err
-		}
+		updatesUser["cnt_likes"] = userInfo.CntLikes - 1
 
 	} else {
-		err = helper.UpdateVideoFieldForUpdate(VideoID, "likes", 1, tx)
-		if err != nil {
-			return err
-		}
+		updatesVideo["likes"] = videoInfo.Likes + 1
+		updatesVideo["hot"] = videoInfo.Hot + define.AddHotEachLike
 
-		err = helper.UpdateVideoFieldForUpdate(VideoID, "hot", define.AddHotEachLike, tx)
-		if err != nil {
-			return err
-		}
-
-		err = helper.UpdateUserFieldForUpdate(AuthorID, "cnt_likes", 1, tx)
-		if err != nil {
-			return err
-		}
-
+		updatesUser["cnt_likes"] = userInfo.CntLikes + 1
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), cache.OperationExpireTime)
+	defer cancel()
+
+	//更新MySQL中的视频信息
+	err = tx.Model(&EntitySets.Video{}).Where("video_id = ?", VideoID).Updates(updatesVideo).Error
+	if err != nil {
+		return err
+	}
+
+	//延时删除Redis缓存中的视频信息,尽可能确保缓存一致性
+	go videoCache.DelayDoubleDelete(ctx, VideoID)
+
+	//更新UP主信息
+	err = tx.Model(&EntitySets.User{}).Where("user_id = ?", AuthorID).Updates(updatesUser).Error
+	if err != nil {
+		return err
+	}
+
 	//更新用户点赞状态:当前状态取反
 	err = helper.UpdateUserVideoFieldForUpdate(UserID, VideoID, "is_like", !isLiked, tx)
 	if err != nil {
@@ -345,6 +343,8 @@ func UpdateShells(c *gin.Context, videoInfo *EntitySets.Video, TSUID int64, thro
 		return err
 	}
 
+	//TODO: 更新Redis缓存相关字段,延时双删
+
 	tx.Commit()
 	return nil
 }
@@ -362,7 +362,7 @@ func UpdateVideoFavorite(c *gin.Context, videoID, fid, uid int64, change int) er
 			tx.Rollback()
 		}
 	}()
-
+	//TODO: 在更新函数中更新Redis缓存相关字段
 	/*收藏视频*/
 	//更新用户收藏记录
 	if change == 1 { //收藏
@@ -380,13 +380,15 @@ func UpdateVideoFavorite(c *gin.Context, videoID, fid, uid int64, change int) er
 	}
 
 	//更新Video收藏数
-	println(change)
-	err = helper.UpdateVideoFieldForUpdate(videoID, "cnt_favorites", change, tx.Set("gorm:query_option", "FOR UPDATE"))
+	tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&EntitySets.Video{}, videoID)
+	err = helper.UpdateVideoFieldForUpdate(videoID, "cnt_favorites", change, tx)
 	if err != nil {
 		return err
 	}
 
 	//更新UserVideo用户状态
+	tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("user_id = ? and video_id = ?", uid, videoID).First(&RelationshipSets.UserVideo{})
+
 	if change == 1 { //收藏
 		err = helper.UpdateUserVideoFieldForUpdate(uid, videoID, "is_favor", true, tx)
 	} else if change == -1 { //取消收藏
@@ -417,6 +419,7 @@ func GetVideoListByClass(c *gin.Context, class string) (videos []*EntitySets.Vid
 		}
 	}()
 
+	//TODO: 转为从redis获取
 	if class == "recommend" {
 
 		err = DAO.DB.Model(&EntitySets.Video{}).
@@ -437,7 +440,7 @@ func GetVideoCommentsList(c *gin.Context, videoID, userID int64, order string, o
 		}
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), cache.OperationExpireTime)
 	defer cancel()
 
 	//找出所有评论
@@ -448,16 +451,8 @@ func GetVideoCommentsList(c *gin.Context, videoID, userID int64, order string, o
 	if len(mapComments) == 0 {
 		return nil, nil
 	}
-	//if err != nil {
-	//	return nil, err
-	//}
-	//likedCommentIDs := Utilities.Strings2Int64s(tmpLikedCommentIDs)
-
 	//将map转为EntitySets.CommentSummary切片
-	var comments []*EntitySets.CommentSummary
-	for _, v := range mapComments {
-		comments = append(comments, commentCache.MapStringStringToComment(v))
-	}
+	var comments = commentCache.MapStringString2Comments(mapComments...)
 
 	//对评论按照`to`字段升序排序
 	sort.Slice(comments, func(i, j int) bool {
@@ -466,7 +461,6 @@ func GetVideoCommentsList(c *gin.Context, videoID, userID int64, order string, o
 
 	//获取根评论
 	rootComments := make([]*EntitySets.CommentSummary, 0)
-
 	//TODO:使用二分查找优化该逻辑
 	var idx int
 	for i, v := range comments {
@@ -476,19 +470,13 @@ func GetVideoCommentsList(c *gin.Context, videoID, userID int64, order string, o
 		rootComments = append(rootComments, v)
 		idx = i
 	}
+
 	var start, end int
 	start = offset
 	end = start + commentsNumbers
 	if end > idx {
 		end = idx + 1
 	}
-
-	//获取用户点赞的评论
-	//tmpLikedCommentIDs, err := cache.SInter(
-	//	ctx,
-	//	strconv.FormatInt(userID, 10)+strconv.FormatInt(videoID, 10)+"_liked_comments",
-	//	strconv.FormatInt(videoID, 10)+"_comments",
-	//)
 
 	//递归获取每个根评论的回复列表
 	var replies []*EntitySets.CommentSummary
@@ -504,45 +492,51 @@ func GetVideoCommentsList(c *gin.Context, videoID, userID int64, order string, o
 
 	//
 	//获取用户对这些评论的点赞/点踩信息
-	//likes, dislikes, err := helper.GetUserCommentRecords(userID, videoID, DAO.DB)
-	//if err != nil {
-	//	return nil, err
-	//}
+	likes, dislikes, err := helper.GetUserCommentRecords(userID, videoID, DAO.DB)
+	if err != nil {
+		return nil, err
+	}
 	//
 	//遍历获得的评论，递归更新点赞/点踩信息
-	//helper.UpdateCommentsStatus(likes, dislikes, ret)
+	helper.UpdateCommentsStatus(likes, dislikes, ret)
 	return
 }
 
 // GetVideosByKey 获取视频列表
 func GetVideosByKey(c *gin.Context, key, order string, offset, videoNums int) (videos []*EntitySets.VideoSummary, err error) {
 	defer Utilities.DeferFunc(c, err, "GetVideosByKey")
+	//TODO: 转为从redis获取
 	switch order {
 	case "default":
-		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("hot desc").Limit(videoNums).Find(&videos).Error
-		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
-		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("hot desc").Limit(videoNums).Find(&videos).Error
 	case "mostPlay":
-		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_views desc").Limit(videoNums).Find(&videos).Error
-		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
-		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_views desc").Limit(videoNums).Find(&videos).Error
 	case "newest":
-		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("created_at desc").Limit(videoNums).Find(&videos).Error
-		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
-		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("created_at desc").Limit(videoNums).Find(&videos).Error
 	case "mostBarrage":
-		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_barrages desc").Limit(videoNums).Find(&videos).Error
-		//err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
-		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_barrages desc").Limit(videoNums).Find(&videos).Error
 	case "mostFavorite":
-		err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
+		err = DAO.DB.Model(&EntitySets.Video{}).Offset(offset).
 			Where("MATCH(title,description) AGAINST (? IN BOOLEAN MODE)", key).Order("cnt_favorites desc").Limit(videoNums).Find(&videos).Error
-		//err = DAO.DB.Debug().Model(&EntitySets.Video{}).Offset(offset).
-		//	Where("title LIKE ? OR description LIKE ?", "%"+key+"%", "%"+key+"%").Order("cnt_favorites desc").Limit(videoNums).Find(&videos).Error
 	}
 	return
+}
+
+// AddVideoHistory 添加视频观看历史
+func AddVideoHistory(videoID int64, userID int64) (err error) {
+	//更新或插入用户观看历史记录
+	newHistory := &EntitySets.UserWatch{
+		VID: videoID,
+		UID: userID,
+	}
+	err = EntitySets.InsertVideoHistoryRecord(DAO.DB, newHistory)
+	if err != nil {
+		return fmt.Errorf("logic.video.AddVideoHistory::%w", err)
+	}
+	//更新redis中的观看历史记录
+	return nil
 }

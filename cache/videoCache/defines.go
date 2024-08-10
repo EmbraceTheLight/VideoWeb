@@ -81,19 +81,12 @@ func (vbi *BarrageInfo) del(k string) {
 	delete(vbi.barrageInfo, k)
 }
 
-func (vt *VideoTags) Set(v any) {
-	set(vt.Tags, v.(string))
-}
 func (vt *VideoTags) GetAll() []string { return vt.Tags }
 func (vt *VideoTags) GetOne(ctx context.Context, member string) string {
 	return getOne(ctx, "cache.videoCache.VideoTags->GetOne", vt.Key, member)
 }
 func (vt *VideoTags) Del(v any) {
 	del(vt.Tags, v.(string))
-}
-
-func (vb *VideoBarrages) Set(v any) {
-	set(vb.Barrages, v.(string))
 }
 
 func (vb *VideoBarrages) GetAll() []string {
@@ -106,10 +99,6 @@ func (vb *VideoBarrages) GetOne(ctx context.Context, member string) string {
 
 func (vb *VideoBarrages) Del(v any) {
 	del(vb.Barrages, v.(string))
-}
-
-func (vc *VideoComments) Set(v any) {
-	set(vc.Comments, v.(string))
 }
 
 func (vc *VideoComments) GetAll() []string {

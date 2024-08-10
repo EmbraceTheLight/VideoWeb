@@ -19,7 +19,7 @@ import (
 
 var (
 	DB      *gorm.DB
-	MongoDB *mongo.Database
+	MongoDB *mongo.Client
 	RDB     *redis.Client
 )
 
@@ -34,17 +34,27 @@ func initRedisClient() *redis.Client {
 		})
 }
 
-func initMongo() *mongo.Database {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+func initMongo() *mongo.Client {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(ctx,
+		options.Client().
+			ApplyURI("mongodb://localhost:27017").
+			SetMaxPoolSize(150))
 	if err != nil {
-		log.Println("[initMongo] Error connecting to MongoDB:", err)
-		return nil
+		log.Println("[initMongo] Error connecting to MongoDB: ", err)
+		panic(err)
 	}
-	db := client.Database("video_web")
+	//db := client.Database("video_web")
+
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Println("[initMongo] Error pinging MongoDB: ", err)
+		panic(err)
+	}
+
 	logf.WriteInfoLog("initMongo", "Mongo init success")
-	return db
+	return client
 }
 
 func createDatabase() {
@@ -79,8 +89,8 @@ func checkAndCreateTable() {
 		&RelationshipSets.UserFollowed{},
 		&RelationshipSets.UserFollows{},
 		&EntitySets.FollowList{},
-		&EntitySets.VideoHistory{},
-		&EntitySets.SearchHistory{},
+		&EntitySets.UserWatch{},
+		&EntitySets.UserSearchHistory{},
 		&RelationshipSets.UserVideo{},
 		&RelationshipSets.UserLikedComments{},
 		&RelationshipSets.UserDislikedComments{},

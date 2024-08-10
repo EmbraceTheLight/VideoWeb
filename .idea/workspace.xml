@@ -4,16 +4,25 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0781ece5-70d5-4fce-bfc4-1a321229f17d" name="更改" comment="">
+    <list default="true" id="06d68f85-2d43-41e2-b9e0-2b1ec7a96430" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Favorites.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Favorites.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Level.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Level.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/SearchHistory.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/UserSearch.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/EntitySets/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/User.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/EntitySets/Video.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/Video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAO/EntitySets/VideoHistory.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/EntitySets/UserWatch.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/InitDatabase.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/InitDatabase.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/UserComment.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/UserComment.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DAO/RelationshipSets/UserVideo.go" beforeDir="false" afterPath="$PROJECT_DIR$/DAO/RelationshipSets/UserVideo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utilities/CommonUtilities.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/CommonUtilities.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utilities/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/database.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utilities/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/Utilities/video.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cache/commentCache/commentCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/commentCache/commentCache.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/commentCache/internal.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/commentCache/internal.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/common.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/defines.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/defines.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cache/userCache/defines.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/userCache/defines.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cache/userCache/internal.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/userCache/internal.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cache/userCache/userCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/userCache/userCache.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cache/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/cache/util.go" afterDir="false" />
@@ -23,10 +32,14 @@
       <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper/comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/comments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go-wrk/client_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/go-wrk/client_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helper/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/helper/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/video.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/UserVideo.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/UserVideo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/comments.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/routers.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/routers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/middlewares/auth_admin.go" beforeDir="false" afterPath="$PROJECT_DIR$/middlewares/auth_admin.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Comments.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Comments.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Users.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Users.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/Videos.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/Videos.go" afterDir="false" />
@@ -37,7 +50,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../../tmp/go1.22.1" />
+  <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../tmp/go1.22.1" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -45,7 +58,7 @@
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 7
 }</component>
-  <component name="ProjectId" id="2iSEfOOsYSn5D9UrUpa9F4vdqJU" />
+  <component name="ProjectId" id="2ifuQPtKHICJ9AiSIx271kDeNxb" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -67,6 +80,11 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ]
   }
 }</component>
   <component name="SharedIndexes">
@@ -83,16 +101,5 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/cache/commentCache/commentCache.go</url>
-          <line>114</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

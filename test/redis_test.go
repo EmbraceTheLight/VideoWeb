@@ -36,13 +36,13 @@ func makeUserInfo(userID int64) error {
 	return uc.MakeUserinfo(ctx, userID)
 }
 func TestMakeUserInfo(t *testing.T) {
-	var userID1 int64 = 52826422661189 // 该用户没有粉丝表
+	var userID1 int64 = 63216299135045 // 该用户没有粉丝表
 	require.NoError(t, makeUserInfo(userID1))
 
-	var userID2 int64 = 52829362688069 // 该用户没有关注表
+	var userID2 int64 = 63354558959685 // 该用户没有关注表
 	require.NoError(t, makeUserInfo(userID2))
 
-	var userID3 int64 = 54022793506885 // 该用户没有评论表，关注表和粉丝表
+	var userID3 int64 = 63358285594693 // 该用户没有评论表，关注表和粉丝表
 	require.NoError(t, makeUserInfo(userID3))
 }
 
@@ -54,25 +54,25 @@ func getUserComments(ctx context.Context, userID int64) (ucIDs []string, err err
 	ucIDs, err = cache.SMembers(ctx, strconv.FormatInt(userID, 10)+"_comments")
 	return
 }
-func TestGetUserInfo(t *testing.T) {
-	var userID int64 = 52826422661189
+func TestGetUserAndCommentsInfo(t *testing.T) {
+	var userID int64 = 63216299135045
 	ctx := context.Background()
 	ub, err := getUserBasic(ctx, userID)
 	require.NoError(t, err)
-	require.Equal(t, "52826422661189", ub["user_id"])
+	require.Equal(t, "63216299135045", ub["user_id"])
+
 	ucIDs, err := getUserComments(ctx, userID)
 	require.NoError(t, err)
 
 	for k, v := range ub {
 		if k == "avatar" {
 			//a := []byte(v)
-
 			continue
 		}
 		fmt.Println("k:", k, "	v:", v)
 	}
 	for _, ucID := range ucIDs {
-		uc, err := cache.HGetAll(ctx, strconv.FormatInt(userID, 10)+strconv.FormatInt(Utilities.String2Int64(ucID), 10))
+		uc, err := cache.HGetAll(ctx, strconv.FormatInt(Utilities.String2Int64(ucID), 10), cache.CommentExpireTime)
 		require.NoError(t, err)
 
 		fmt.Println("ucID:", ucID)
@@ -95,24 +95,17 @@ func TestGetUserInfo(t *testing.T) {
 func TestGetUserInfos(t *testing.T) {
 	ctx := context.Background()
 	var userIDs = []int64{
-		52826422661189,
-		52829362688069,
-		52829497761861,
-		53292815888453,
-		53899353116741,
+		63216299135045,
+		63354558959685,
+		63358285594693,
 		000000000, // this user is not exist
 	}
 	ubs, err := userCache.GetUsersBasicInfo(ctx, userIDs)
 	println("ubslen:", len(ubs))
-	if ubs[5]["empty"] == "1" {
+	if ubs[len(userIDs)-1]["empty"] == "1" {
 		err = gorm.ErrRecordNotFound
 	}
 	require.ErrorIs(t, err, gorm.ErrRecordNotFound)
-	//if errors.Is(err, gorm.ErrRecordNotFound) {
-	//	fmt.Println("err is gorm.ErrRecordNotFound:", err)
-	//} else {
-	//	t.Fatal(err)
-	//}
 
 	for _, ub := range ubs {
 		for k, v := range ub {
@@ -132,23 +125,22 @@ func TestGetUserComments(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var userID int64 = 52826422661189
+	var userID int64 = 63216299135045
 	var ucIDs []int64
 	err := DAO.DB.Model(&EntitySets.Comments{}).Where("user_id = ?", userID).Select("comment_id").Find(&ucIDs).Error
 	require.NoError(t, err)
 	//ucIds, err :=
 
 	require.NoError(t, err)
-	comments, err := commentCache.GetUserCommentsInfo(ctx, userID, ucIDs)
+	comments, err := commentCache.GetCommentsInfo(ctx, ucIDs)
 	require.NoError(t, err)
 
 	for _, comment := range comments {
 		for k, v := range comment {
 			fmt.Println("k:", k, "	v:", v)
 		}
+		fmt.Println()
 	}
-	fmt.Println()
-	fmt.Println()
 	fmt.Println()
 
 }
@@ -166,17 +158,19 @@ func TestMakeVideoInfo(t *testing.T) {
 }
 
 func TestGetVideoInfo(t *testing.T) {
-	var videoID int64 = 52826949386309
+	var videoID int64 = 63216465526853
 	err := makeVideoInfo(videoID)
 	require.NoError(t, err)
 
 	ctx := context.Background()
 	//video basic info
-	vb, err := videoCache.GetVideoBasicInfo(ctx, videoID)
+	vbs, err := videoCache.GetVideosBasicInfo(ctx, videoID)
 	require.NoError(t, err)
 	fmt.Println("↓↓↓↓↓video basic info↓↓↓↓↓")
-	for k, v := range vb {
-		fmt.Println("k:", k, "	v:", v)
+	for _, v := range vbs {
+		for k, v := range v {
+			fmt.Println("k:", k, "	v:", v)
+		}
 	}
 
 	//tags
@@ -224,7 +218,7 @@ func TestGetUserLikedComments(t *testing.T) {
 	require.NoError(t, err)
 
 	ctx := context.Background()
-	err = commentCache.MakeUserLikedComments(ctx, userID, videoID)
+	err = userCache.MakeUserLikedComments(ctx, userID, videoID)
 	require.NoError(t, err)
 
 	comments, err := videoCache.GetUserLikedCommentsInfo(ctx, videoID, userID)
@@ -239,20 +233,18 @@ func TestGetUserLikedComments(t *testing.T) {
 	}
 }
 
-func TestGetVideoInfos(t *testing.T) {}
-
 func TestMakeAndGetVideoZSetInfos(t *testing.T) {
 	ctx := context.Background()
 	tmp, err := videoCache.MakeAllVideosZSet(ctx)
 	require.NoError(t, err)
 
-	err = videoCache.SaveVideoZSet(ctx, "all_videos", tmp...)
+	err = videoCache.SaveVideosZSet(ctx, "all_videos", tmp...)
 	require.NoError(t, err)
 
 	videoIDs, err := videoCache.GetVideoZSetInfo(ctx, "all_videos", 0, 4)
 	require.NoError(t, err)
 
-	videos, err := videoCache.GetVideosBasicInfo(ctx, videoIDs)
+	videos, err := videoCache.GetVideosBasicInfo(ctx, videoIDs...)
 	require.NoError(t, err)
 
 	for _, video := range videos {

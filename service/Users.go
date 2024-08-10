@@ -4,6 +4,7 @@ import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
 	"VideoWeb/Utilities"
+	"VideoWeb/Utilities/logf"
 	"VideoWeb/cache"
 	"VideoWeb/cache/userCache"
 	"VideoWeb/define"
@@ -80,6 +81,7 @@ func Register(c *gin.Context) {
 	newUser.Password = string(hashedPassword)
 
 	/*设置用户默认头像*/
+	//创建用户目录
 	userDir := path.Join(define.BaseDir, strconv.FormatInt(newUser.UserID, 10))
 	err = os.MkdirAll(userDir, os.ModePerm)
 	if err != nil {
@@ -93,8 +95,8 @@ func Register(c *gin.Context) {
 	}()
 
 	avatar, _ := c.FormFile("avatar")
-	//用户未上传头像，使用默认头像
 	var avatarFilePath string
+	//用户未上传头像，使用默认头像
 	if avatar == nil {
 		avatarFilePath = path.Join(userDir, "avatar.jpg")
 
@@ -191,7 +193,7 @@ func Login(c *gin.Context) {
 	userInfo, err := EntitySets.GetUserInfoByName(DAO.DB, Username)
 
 	if err != nil {
-		if gorm.ErrRecordNotFound != nil { //未找到用户信息记录
+		if errors.Is(err, gorm.ErrRecordNotFound) { //未找到用户信息记录
 			Utilities.SendErrMsg(c, "service::Users::Login", define.AccountNotFind, "用户名不存在，请重新检查输入的账号")
 			return
 		}
@@ -204,15 +206,27 @@ func Login(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::Login", define.ErrorPassword, "密码错误")
 		return
 	}
+
+	//登录成功，获取token
 	token, err := logic.CreateToken(userInfo.UserID, userInfo.UserName, userInfo.IsAdmin)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::Login", define.CreateTokenError, "CreateToken error:"+err.Error())
 		return
 	}
+
+	//添加用户经验
 	err = logic.AddExpForLogin(c, userInfo.UserID, DAO.DB)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), cache.OperationExpireTime)
+	defer cancel()
+	err = userCache.MakeUserCache().MakeUserinfo(ctx, userInfo.UserID)
+	if err != nil {
+		fn, _ := c.Get("funcNme")
+		logf.WriteErrLog(fn.(string), err.Error())
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -304,6 +318,15 @@ func ModifyUserSignature(c *gin.Context) {
 		return
 	}
 
+	//若用户信息存在于redis中，更新其签名部分;否则生成该用户信息缓存
+	ctx, cancel := context.WithTimeout(context.Background(), cache.OperationExpireTime)
+	defer cancel()
+	err = userCache.UpdateUserInfoFields(ctx, id, map[string]any{"signature": signature})
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+
 	Utilities.SendJsonMsg(c, http.StatusOK, "修改用户签名成功")
 }
 
@@ -340,6 +363,16 @@ func ModifyUserEmail(c *gin.Context) {
 		Utilities.SendErrMsg(c, "service::Users::ModifyEmail", define.CodeSendFailed, "邮箱修改失败:"+err.Error())
 		return
 	}
+
+	//若用户信息存在于redis中，更新其签名部分;否则生成该用户信息缓存
+	ctx, cancel := context.WithTimeout(context.Background(), cache.OperationExpireTime)
+	defer cancel()
+	err = userCache.UpdateUserInfoFields(ctx, id, map[string]any{"email": userEmail})
+	if err != nil {
+		Utilities.HandleInternalServerError(c, err)
+		return
+	}
+
 	Utilities.SendJsonMsg(c, http.StatusOK, "修改用户邮箱成功")
 	DAO.RDB.Del(c, userEmail)
 }
@@ -499,7 +532,7 @@ func UploadUserAvatar(c *gin.Context) {
 	avatarPath := userBasicInfo["avatar"]
 	_ = os.Remove(avatarPath) //删除原头像文件
 
-	userBasicInfo["avatar"] = path.Join(path.Dir(avatarPath), strconv.FormatInt(userID, 10)+"_avatar"+extension)
+	userBasicInfo["avatar"] = path.Join(path.Dir(avatarPath), "avatar"+extension)
 	err = Utilities.WriteToNewFile(FH, userBasicInfo["avatar"]) //保存新头像文件
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.ImageFormatError, "图片格式错误或不支持此图片格式")
@@ -508,19 +541,6 @@ func UploadUserAvatar(c *gin.Context) {
 
 	//更新用户头像
 	err = EntitySets.UpdateUserAvatar(DAO.DB, userID, userBasicInfo["avatar"])
-	if err != nil {
-		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.UploadUserAvatarFailed, "上传用户头像失败")
-		return
-	}
-
-	err = cache.HSetWithRetry( //更新用户缓存
-		ctx,
-		strconv.FormatInt(userID, 10),
-		cache.DefaultTry,
-		cache.DefaultSleep,
-		cache.UserExpireTime,
-		map[string]any{"avatar": userBasicInfo["avatar"]},
-	)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Users::UploadUserAvatar", define.UploadUserAvatarFailed, "上传用户头像失败")
 		return
@@ -549,6 +569,7 @@ func SearchUsers(c *gin.Context) {
 	offset := Utilities.String2Int(c.Query("offset"))
 	key := c.Query("key")
 	sortOrder := c.DefaultQuery("sortOrder", "default")
+
 	res, err := logic.GetSearchedUsers(c, key, sortOrder, UID, offset, commentNums)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)

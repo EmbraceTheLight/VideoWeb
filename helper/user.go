@@ -4,7 +4,12 @@ import (
 	"VideoWeb/DAO"
 	EntitySets "VideoWeb/DAO/EntitySets"
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
+	"VideoWeb/Utilities"
+	"VideoWeb/cache/userCache"
+	"context"
+	"fmt"
 	"gorm.io/gorm"
+	"time"
 )
 
 // UpdateUserFieldForUpdate 更新用户某个数值字段(悲观锁)
@@ -66,9 +71,24 @@ func DeleteFollowListRecords(userid int64, tx *gorm.DB) error {
 }
 
 // GetUserBasicInfo 获取用户基本信息
-func GetUserBasicInfo(userid []int64) (info []*EntitySets.UserSummary, err error) {
+func GetUserBasicInfo(userIDs []int64) (info []*EntitySets.UserSummary, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	err = DAO.DB.Debug().Model(&EntitySets.User{}).Where("user.user_id in (?)", userid).Joins("JOIN user_level ON user_level.user_id = user.user_id ").
+	users, err := userCache.GetUsersBasicInfo(ctx, userIDs)
+	if err != nil {
+		return nil, fmt.Errorf("helper.user.GetUserBasicInfo::%w", err)
+	}
+	info = make([]*EntitySets.UserSummary, len(users))
+	for i, user := range users {
+		info[i] = &EntitySets.UserSummary{
+			UserID:     Utilities.String2Int64(user["user_id"]),
+			UserName:   user["user_name"],
+			AvatarPath: user["avatar_path"],
+			UserLevel:  uint16(Utilities.String2Uint32(user["user_level"])),
+		}
+	}
+	err = DAO.DB.Debug().Model(&EntitySets.User{}).Where("user.user_id in (?)", userIDs).Joins("JOIN user_level ON user_level.user_id = user.user_id ").
 		Select("user.user_id", "user_name", "avatar", "user_level.user_level", "user.signature").Find(&info).Error
 	return
 }

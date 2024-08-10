@@ -57,7 +57,7 @@ func GetLevelByUserID(db *gorm.DB, userID int64) (*Level, error) {
 
 // SaveLevelRecords 保存或更新用户等级信息
 func SaveLevelRecords(db *gorm.DB, l *Level) error {
-	return db.Model(&Level{}).Where("user_id = ?", l.UID).Save(&l).Error
+	return db.Where("user_id = ?", l.UID).Save(&l).Error
 }
 
 // DeleteLevelRecordByUserID 删除用户等级信息

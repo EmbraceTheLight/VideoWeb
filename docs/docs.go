@@ -1578,6 +1578,7 @@ const docTemplate = `{
                 "tags": [
                     "Video API"
                 ],
+                "summary": "用户上传视频信息",
                 "parameters": [
                     {
                         "type": "string",

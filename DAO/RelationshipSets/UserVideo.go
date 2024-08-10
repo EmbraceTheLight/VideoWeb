@@ -2,6 +2,7 @@ package DAO
 
 import (
 	"VideoWeb/define"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +22,11 @@ func (*UserVideo) TableName() string {
 
 // InsertUserVideoRecord 插入用户视频记录
 func InsertUserVideoRecord(db *gorm.DB, uv *UserVideo) error {
-	return db.Model(&UserVideo{}).Create(uv).Error
+	err := db.Model(&UserVideo{}).Save(uv).Error
+	if err != nil {
+		return fmt.Errorf("UserVideo.InsertUserVideo: %w", err)
+	}
+	return nil
 }
 
 // GetUserVideoRecord 根据用户ID和视频ID获取用户视频记录

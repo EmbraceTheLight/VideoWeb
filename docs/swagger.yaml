@@ -986,6 +986,7 @@ paths:
         name: description
         type: string
       responses: {}
+      summary: 用户上传视频信息
       tags:
       - Video API
   /video/DASHStreamTransmission:

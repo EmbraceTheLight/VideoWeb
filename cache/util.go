@@ -17,12 +17,18 @@ type HashMap interface {
 // SetNilHash sets a nil value of a hashmap to show that the key is not exist
 func SetNilHash(ctx context.Context, key string) (err error) {
 	_, err = DAO.RDB.Pipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HSet(ctx, key, "empty", true)
-		pipe.Expire(ctx, key, NotFoundExpireTime)
-		return nil
+		var err1 error
+		err1 = pipe.HSet(ctx, key, "empty", true).Err()
+		if err1 != nil {
+			return err1
+		}
+		err1 = pipe.Expire(ctx, key, NotFoundExpireTime).Err()
+		return err1
 	})
-
-	return err
+	if err != nil {
+		return fmt.Errorf("SetNilHash::RDB.Pipelined --> %w", err)
+	}
+	return nil
 }
 
 // HSetWithRetry sets a hashmap with retry and interval time
@@ -74,7 +80,11 @@ func HGetAll(ctx context.Context, key string, expire time.Duration) (mp map[stri
 	if err1 != nil {
 		return nil, fmt.Errorf("cache.util.HGetAll: %w", err1)
 	}
-	err2 := DAO.RDB.Expire(ctx, key, 60*expire).Err()
+	if _, ok := mp["empty"]; ok {
+		return nil, fmt.Errorf("cache.util.HGetAll: %w", errors.New("hash is not exist"))
+	}
+
+	err2 := DAO.RDB.Expire(ctx, key, expire).Err()
 	if err2 != nil {
 		return nil, fmt.Errorf("cache.util.HGetAll: %w", err2)
 	}
@@ -108,6 +118,60 @@ func SAddWithRetry(
 	if err != nil {
 		return fmt.Errorf("cache.SAddWithRetry: %w", err)
 	}
+
+	return nil
+}
+
+// ZAddWithRetry sets values of a ZSet with retry and interval time
+func ZAddWithRetry(
+	ctx context.Context,
+	key string,
+	retryCount int,
+	sleep time.Duration,
+	expire time.Duration,
+	values ...redis.Z,
+) (err error) {
+	err = DAO.RDB.ZAdd(ctx, key, values...).Err()
+	for err != nil {
+		err = DAO.RDB.ZAdd(ctx, key, values...).Err()
+		retryCount--
+		if err == nil || retryCount == 0 {
+			break
+		}
+		time.Sleep(sleep)
+	}
+	if err != nil {
+		return fmt.Errorf("cache.ZAddWithRetry: %w", err)
+	}
+
+	err = DAO.RDB.Expire(ctx, key, expire).Err()
+	if err != nil {
+		return fmt.Errorf("cache.ZAddWithRetry: %w", err)
+	}
+
+	return nil
+}
+
+// AddToZSet adds values to redis zset
+func AddToZSet(ctx context.Context, key string, expire time.Duration, values ...ZSetValue) (err error) {
+	ZSetValues := make([]redis.Z, len(values))
+	for i, v := range values {
+		ZSetValues[i] = redis.Z{Score: v.GetScore(), Member: v.GetValue()}
+	}
+	err = ZAddWithRetry(
+		ctx,
+		key,
+		DefaultTry, DefaultSleep, UserExpireTime,
+		ZSetValues...,
+	)
+	if err != nil {
+		return fmt.Errorf("cache.util.AddToZSet::%w", err)
+	}
+
+	err = DAO.RDB.Expire(ctx, key, expire).Err()
+	if err != nil {
+		return fmt.Errorf("cache.util.AddToZSet: %w", err)
+	}
 	return nil
 }
 
@@ -117,6 +181,7 @@ func SMembers(ctx context.Context, key string) (members []string, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("cache.util.SMembers: %w", err)
 	}
+
 	err = DAO.RDB.Expire(ctx, key, 60*time.Minute).Err()
 	if err != nil {
 		return nil, fmt.Errorf("cache.util.SMembers: %w", err)

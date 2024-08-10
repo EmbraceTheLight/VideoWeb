@@ -73,5 +73,5 @@ func DeleteFavoritesRecordsByUserID(db *gorm.DB, uid int64) error {
 
 // SaveFavoritesRecords 保存收藏夹记录
 func SaveFavoritesRecords(db *gorm.DB, f *Favorites) error {
-	return db.Model(&Favorites{}).Where("favorite_id =?", f.FavoriteID).Save(&f).Error
+	return db.Where("favorite_id =?", f.FavoriteID).Save(&f).Error
 }

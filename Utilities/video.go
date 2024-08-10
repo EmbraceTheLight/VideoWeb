@@ -26,7 +26,7 @@ func SecondToTime(second int64) (string, []int64) {
 }
 
 // Mkdir 利用用户ID和当前时间来创建视频对应目录
-func Mkdir(uid string) (path string, err error) {
+func Mkdir(uid string) (pathString string, err error) {
 	var b strings.Builder
 	curTime := time.Now().Format("2006-01-02T150405")
 	b.WriteString(define.BaseDir)

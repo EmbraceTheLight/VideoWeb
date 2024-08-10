@@ -77,7 +77,7 @@ func PostComment(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err = commentCache.AddCommentInfo(ctx, videoID, comment) //将评论更新到缓存
+	err = commentCache.AddCommentInfo(ctx, videoID, userID, comment) //将评论更新到缓存
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return

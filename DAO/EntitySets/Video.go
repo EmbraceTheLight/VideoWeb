@@ -2,6 +2,7 @@ package DAO
 
 import (
 	"VideoWeb/define"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -56,6 +57,15 @@ func GetVideoInfoByID(db *gorm.DB, VID int64) (*Video, error) {
 		return nil, err
 	}
 	return info, nil
+}
+
+// GetVideoStringField 获得视频某个string类型字段
+func GetVideoStringField(db *gorm.DB, videoID int64, field string) (ret string, err error) {
+	err = db.Model(&Video{}).Where("video_id=?", videoID).Select(field).Find(&ret).Error
+	if err != nil {
+		return "", fmt.Errorf("EntitySets.GetVideoStringField :%w", err)
+	}
+	return ret, nil
 }
 
 // InsertVideoRecord 插入视频信息

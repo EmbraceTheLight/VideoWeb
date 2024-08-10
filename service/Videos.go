@@ -6,6 +6,7 @@ import (
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/Utilities"
 	"VideoWeb/Utilities/logf"
+	"VideoWeb/cache"
 	"VideoWeb/cache/videoCache"
 	"VideoWeb/define"
 	"VideoWeb/logic"
@@ -78,7 +79,7 @@ func UploadVideoFile(c *gin.Context) {
 	}
 
 	//将视频数据插入数据库
-	VID, err := logic.CreateVideoRecord(DAO.DB, c, UserID, videoFileName, FH.Size)
+	VID, err := logic.CreateVideoRecord(DAO.DB, UserID, videoFileName, FH.Size)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile", define.UploadVideoFailed, "上传视频失败:"+err.Error())
 		return
@@ -93,6 +94,7 @@ func UploadVideoFile(c *gin.Context) {
 
 // UploadVideoInfo
 // @Tags Video API
+// @summary 用户上传视频信息
 // @Param ID path string true "视频ID"
 // @Param title formData string true "视频标题"
 // @Param Authorization header string true "token"
@@ -111,14 +113,14 @@ func UploadVideoInfo(c *gin.Context) {
 	videoID := Utilities.String2Int64(c.Param("ID"))
 	isUpload := c.Query("isUpload")
 
-	videoInfo, err := EntitySets.GetVideoInfoByID(DAO.DB, videoID)
+	videoPath, err := EntitySets.GetVideoStringField(DAO.DB, videoID, "Path")
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideoInfo", 5000, err.Error())
 		return
 	}
 
 	if isUpload == "false" {
-		err = os.RemoveAll(path.Dir(videoInfo.Path))
+		err = os.RemoveAll(path.Dir(videoPath))
 		if err != nil {
 			Utilities.SendErrMsg(c, "service::Videos::UploadVideoInfo", 5000, "取消视频上传失败:"+err.Error())
 			return
@@ -169,7 +171,7 @@ func UploadVideoInfo(c *gin.Context) {
 	}
 
 	//打开并读取视频封面文件
-	coverPath := path.Join(path.Dir(videoInfo.Path), "cover"+path.Ext(Cover.Filename))
+	coverPath := path.Join(path.Dir(videoPath), "cover"+path.Ext(Cover.Filename))
 	err = Utilities.WriteToNewFile(Cover, coverPath)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile::Utilities.OpenAndReadFile", define.OpenFileFailed, "打开或读取文件失败:"+err.Error())
@@ -178,7 +180,7 @@ func UploadVideoInfo(c *gin.Context) {
 
 	/*更新视频用户指定的有关信息*/
 	// 获得hh:mm:ss格式的视频时长
-	duration, err := logic.GetVideoDuration(videoInfo.Path)
+	duration, err := logic.GetVideoDuration(videoPath)
 	if err != nil {
 		Utilities.SendErrMsg(c, "service::Videos::UploadVideoFile::Utilities.OpenAndReadFile", 5000, "获取视频时长失败:"+err.Error())
 		return
@@ -359,22 +361,48 @@ func OfferMpd(c *gin.Context) {
 // @Param Authorization header string true "token"
 // @Router /video/{ID}/VideoDetail [get]
 func GetVideoInfo(c *gin.Context) {
+	var err error
 	c.Set("funcName", "Service::Videos::GetVideoInfo")
+	defer func() {
+		if err != nil {
+			Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
+		}
+	}()
+
 	VID := Utilities.String2Int64(c.Param("ID"))
 	var UID int64
 	var videoInfo = new(EntitySets.Video)
-	err := DAO.DB.Where("video_id=?", VID).
-		Preload("Tags").Preload("Barrages").First(&videoInfo).Error
+
+	ctx, cancel := context.WithTimeout(context.Background(), cache.OperationExpireTime)
+	defer cancel()
+
+	tmp, err := videoCache.GetVideoBasicInfo(ctx, VID)
 	if err != nil {
-		Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
+		return
+	}
+	videoInfo = videoCache.MapStringString2Videos(tmp)[0]
+
+	tags, err := videoCache.GetTagsInfo(ctx, VID)
+	if err != nil {
 		return
 	}
 
-	//更新UserVideo表：若没有对应记录则插入
+	barrages, err := videoCache.GetBarragesInfo(ctx, VID)
+	if err != nil {
+		return
+	}
+
+	//更新UserVideo表与UserHistory表：若没有对应记录则插入
 	u, _ := c.Get("user")
 	if u != nil {
 		UID = u.(*logic.UserClaims).UserId
 		err = logic.InsertUserVideoIfNotExist(UID, VID)
+		if err != nil {
+			Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
+			return
+		}
+
+		err = logic.AddVideoHistory(videoInfo.VideoID, UID)
 		if err != nil {
 			Utilities.SendErrMsg(c, "service::Videos::GetVideoInfo", define.GetVideoInfoFailed, "获取视频信息失败:"+err.Error())
 			return
@@ -387,8 +415,6 @@ func GetVideoInfo(c *gin.Context) {
 		return
 	}
 
-	//TODO:添加历史观看记录
-
 	//查找对应的UserVideo记录
 	uv, err := RelationshipSets.GetUserVideoRecord(DAO.DB, UID, videoInfo.VideoID)
 	if err != nil {
@@ -398,6 +424,8 @@ func GetVideoInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":     http.StatusOK,
 		"data":     videoInfo,
+		"tags":     tags,
+		"barrages": barrages,
 		"status":   uv,
 		"basePath": path.Dir(videoInfo.Path),
 	})
@@ -575,11 +603,13 @@ func SearchVideos(c *gin.Context) {
 		return
 	}
 
-	//添加搜索记录
-	err = EntitySets.InsertSearchRecord(DAO.DB, UID, key)
-	if err != nil {
-		Utilities.HandleInternalServerError(c, err)
-		return
+	//若用户已登陆添加搜索记录
+	if u != nil {
+		err = EntitySets.InsertSearchRecord(DAO.DB, UID, key)
+		if err != nil {
+			Utilities.HandleInternalServerError(c, err)
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{

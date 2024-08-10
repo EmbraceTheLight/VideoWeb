@@ -8,7 +8,9 @@ import (
 	"VideoWeb/cache"
 	"VideoWeb/cache/commentCache"
 	"context"
+	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -82,7 +84,7 @@ func (ufs *UserFollows) makeFollowsInfo(ctx context.Context, userID int64) error
 	if len(followsIDs) != 0 {
 		err = cache.SAddWithRetry(
 			ctx,
-			strconv.FormatInt(userID, 10)+"_follows",
+			strconv.FormatInt(userID, 10)+cache.FlsSfx,
 			cache.DefaultTry,
 			cache.DefaultSleep,
 			cache.UserExpireTime,
@@ -111,7 +113,7 @@ func (ufd *UserFollowed) makeFollowedInfo(ctx context.Context, userID int64) err
 	}
 
 	if len(followedIDs) != 0 { //if followedIDs is not empty, add it to redis cache
-		ufd.key = strconv.FormatInt(userID, 10) + "_followed"
+		ufd.key = strconv.FormatInt(userID, 10) + cache.FldSfx
 		err = cache.SAddWithRetry(ctx, ufd.key, cache.DefaultTry, cache.DefaultSleep, cache.UserExpireTime, followedIDs...)
 		if err != nil {
 			return fmt.Errorf("UserFollowed->makeFollowedInfo::%w", err)
@@ -139,12 +141,12 @@ func (uc *UserComments) makeCommentsInfo(ctx context.Context, userID int64) erro
 			commentIDs[i] = c.CommentID
 		}
 
-		err = commentCache.MakeCommentInfos(ctx, userID, comments...)
+		err = commentCache.MakeCommentInfos(ctx, comments...)
 		if err != nil {
 			return fmt.Errorf("UserComments->makeCommentsInfo: %w", err)
 		}
 
-		uc.key = strconv.FormatInt(userID, 10) + "_comments"
+		uc.key = strconv.FormatInt(userID, 10) + cache.CommentSfx
 		err = cache.SAddWithRetry(ctx, uc.key, cache.DefaultTry, cache.DefaultSleep, cache.CommentExpireTime, commentIDs...)
 		if err != nil {
 			return fmt.Errorf("UserVideo->makeVideoIDInfo: %w", err)
@@ -172,20 +174,88 @@ func (uv *UserVideo) makeVideoIDInfo(ctx context.Context, userID int64) error {
 	return nil
 }
 
+func (us *UserSearch) makeUserSearch(ctx context.Context, userID int64) error {
+	var searchStrings []*EntitySets.UserSearchHistory
+	err := DAO.DB.Model(&EntitySets.UserSearchHistory{}).
+		Where("user_id = ?", userID).
+		Find(&searchStrings).Error
+	if err != nil {
+		return fmt.Errorf("UserSearch->makeUserSearch::%w", err)
+	}
+	if len(searchStrings) == 0 {
+		return nil
+	}
+
+	var ZSetValues = make([]cache.ZSetValue, len(searchStrings))
+	for i, s := range searchStrings {
+		ZSetValues[i] = s
+	}
+
+	err = cache.AddToZSet(ctx, strconv.FormatInt(userID, 10)+cache.SearchSfx, cache.UserExpireTime, ZSetValues...)
+	if err != nil {
+		return fmt.Errorf("UserSearch->makeUserSearch::%w", err)
+	}
+
+	return nil
+}
+
+func (uw *UserWatch) makeUserWatch(ctx context.Context, userID int64) error {
+	var watches []*EntitySets.UserWatch
+	err := DAO.DB.Model(&EntitySets.UserWatch{}).
+		Where("user_id = ?", userID).
+		Find(&watches).Error
+	if err != nil {
+		return fmt.Errorf("UserWatch->makeUserWatch::%w", err)
+	}
+	if len(watches) == 0 {
+		return nil
+	}
+
+	var ZSetValues = make([]cache.ZSetValue, len(watches))
+	for i, w := range watches {
+		ZSetValues[i] = w
+	}
+	err = cache.AddToZSet(ctx, strconv.FormatInt(userID, 10)+cache.WatchSfx, cache.UserExpireTime, ZSetValues...)
+	if err != nil {
+		return fmt.Errorf("UserWatch->makeUserWatch::%w", err)
+	}
+
+	return nil
+}
+
 // addToUserCache sets hash table in redis
-func addToUserCache(ctx context.Context, key string, values ...any) error {
+func addToUserCache(ctx context.Context, key string, values ...any) (err error) {
 	mp := cache.MakeMap(values...)
 	if mp == nil {
 		return fmt.Errorf("UserCache->addToUserCache: arguments is invalid")
 	}
 
-	err := cache.HSetWithRetry(
+	err = cache.HSetWithRetry(
 		ctx, key,
 		cache.DefaultTry, cache.DefaultSleep, cache.UserExpireTime,
 		mp,
 	)
 	if err != nil {
 		return fmt.Errorf("UserCache->addToUserCache: %w", err)
+	}
+	return nil
+}
+
+// checkUserCache checks if the user cache is exist, if not, it will create it
+func checkUserCache(ctx context.Context, key string, userID int64) (err error) {
+	if DAO.RDB.TTL(ctx, key).Val() < 0 {
+		userCache := MakeUserCache()
+		err = userCache.MakeUserinfo(ctx, userID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				err2 := cache.SetNilHash(ctx, key)
+				if err2 != nil {
+					return fmt.Errorf("checkUserCache::%w", err)
+				}
+			} else {
+				return fmt.Errorf("checkUserCache::%w", err)
+			}
+		}
 	}
 	return nil
 }

@@ -154,7 +154,7 @@ func HDFavorites() {
 }
 
 func HDVideoHistory() {
-	err := db.Unscoped().Delete(&EntitySets.VideoHistory{}, "deleted_at IS NOT NULL").Error
+	err := db.Unscoped().Delete(&EntitySets.UserWatch{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
 		id:  videoHistory,
 		err: err,
@@ -162,7 +162,7 @@ func HDVideoHistory() {
 }
 
 func HDUserHistory() {
-	err := db.Unscoped().Delete(&EntitySets.SearchHistory{}, "deleted_at IS NOT NULL").Error
+	err := db.Unscoped().Delete(&EntitySets.UserSearchHistory{}, "deleted_at IS NOT NULL").Error
 	errChannel <- &errInDelete{
 		id:  userHistory,
 		err: err,

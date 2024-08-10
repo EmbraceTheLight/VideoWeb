@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	"strconv"
 )
 
 // MakeMap converts []any to map[string]any.
@@ -27,12 +26,12 @@ func MakeMap(values ...any) map[string]any {
 }
 
 // GetInfos gets detail infos from redis by keys.
-func GetInfos(ctx context.Context, prefixID int64, keys ...string) (ret []map[string]string, err error) {
+func GetInfos(ctx context.Context, keys ...string) (ret []map[string]string, err error) {
 	cmds := make([]*redis.MapStringStringCmd, len(keys))
 
 	pipe := DAO.RDB.Pipeline()
 	for i, key := range keys {
-		cmds[i] = pipe.HGetAll(ctx, strconv.FormatInt(prefixID, 10)+key)
+		cmds[i] = pipe.HGetAll(ctx, key)
 	}
 	_, err = pipe.Exec(ctx)
 	if err != nil {
@@ -43,7 +42,4 @@ func GetInfos(ctx context.Context, prefixID int64, keys ...string) (ret []map[st
 		ret = append(ret, cmd.Val())
 	}
 	return
-}
-func AddFuncName(funcName string) {
-
 }

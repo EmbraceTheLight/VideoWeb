@@ -71,7 +71,7 @@ func UpdateVideoFieldForUpdate(videoID int64, field string, change int, tx *gorm
 // DeleteCommentWithStatus 删除评论及其状态（如用户点赞等信息）
 func DeleteCommentWithStatus(videoID int64, tx *gorm.DB) error {
 	var commentsIDs []int64
-	err := tx.Model(EntitySets.Comments{}).Where("video_id =?", videoID).Select("id").Find(&commentsIDs).Error
+	err := tx.Model(EntitySets.Comments{}).Where("video_id =?", videoID).Select("comment_id").Find(&commentsIDs).Error
 	if err != nil {
 		return fmt.Errorf("helper/video.DeleteCommentWithStatus: %w", err)
 	}
@@ -87,6 +87,7 @@ func DeleteCommentWithStatus(videoID int64, tx *gorm.DB) error {
 	if err != nil {
 		return fmt.Errorf("helper/video.DeleteCommentWithStatus: %w", err)
 	}
+	//TODO: Redis中删除评论状态记录
 
 	return nil
 }

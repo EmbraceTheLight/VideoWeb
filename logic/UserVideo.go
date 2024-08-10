@@ -5,6 +5,7 @@ import (
 	RelationshipSets "VideoWeb/DAO/RelationshipSets"
 	"VideoWeb/helper"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +21,7 @@ func InsertUserVideoIfNotExist(uid, vid int64) error {
 			}
 			err2 := RelationshipSets.InsertUserVideoRecord(DAO.DB, vu2)
 			if err2 != nil {
-				return err2
+				return fmt.Errorf("logic.InsertUserVideoIfNotExist::%w", err2)
 			}
 		} else { // 其他错误
 			return err1

@@ -7,16 +7,16 @@ import (
 )
 
 type UserSummary struct {
-	UserID    int64  `json:"userID" `
-	UserName  string `json:"userName" `
-	Avatar    []byte `json:"avatar"`
-	UserLevel uint16 `json:"userLevel" `
+	UserID     int64  `json:"userID" `
+	UserName   string `json:"userName" `
+	AvatarPath string `json:"avatar"`
+	UserLevel  uint16 `json:"userLevel" `
 }
 
 type UserSearch struct {
 	UserID        int64  `json:"userID" `
 	UserName      string `json:"userName"`
-	Avatar        []byte `json:"avatar"`
+	AvatarPath    string `json:"avatar"`
 	UserLevel     uint16 `json:"userLevel"`
 	IsFollow      bool   `json:"isFollow" gorm:"-"`
 	UserSignature string `json:"signature" gorm:"column:signature;type:varchar(25)"`
@@ -38,10 +38,10 @@ type User struct {
 	CntLikes      uint32                           `json:"likes" gorm:"column:cnt_likes;type:int unsigned;default:0"`            //用户获赞数
 	UserLevel     Level                            `json:"userLevel" gorm:"foreignKey:UID;references:UserID"`                    //用户等级
 	Videos        []*Video                         `json:"videos" gorm:"foreignKey:UID;references:UserID;"`                      //has-many 一对多
-	UserWatch     []*VideoHistory                  `json:"userHistory" gorm:"foreignKey:UID;references:UserID"`                  //用户观看记录,has-many
+	UserWatch     []*UserWatch                     `json:"userHistory" gorm:"foreignKey:UID;references:UserID"`                  //用户观看记录,has-many
 	Favorites     []*Favorites                     `json:"favorites" gorm:"foreignKey:UID;references:UserID"`                    //用户收藏夹has-many
 	Comments      []*Comments                      `json:"comments" gorm:"foreignKey:UID;references:UserID"`                     //用户评论has-many
-	UserSearch    []*SearchHistory                 `json:"userSearch" gorm:"foreignKey:UID;references:UserID"`                   //用户搜索记录,has-many
+	UserSearch    []*UserSearchHistory             `json:"userSearch" gorm:"foreignKey:UID;references:UserID"`                   //用户搜索记录,has-many
 	Follows       []*FollowList                    `json:"follows" gorm:"foreignKey:UID;references:UserID"`                      //用户关注列表 has-many
 	Followed      []*RelationshipSets.UserFollowed `json:"followed" gorm:"foreignKey:UID;references:UserID"`                     //用户粉丝列表 has-many
 	AvatarPath    string                           `json:"avatar" gorm:"type:varchar(128)"`                                      //用户头像路径
@@ -98,7 +98,7 @@ func UpdateUserNumField(db *gorm.DB, UID int64, field string, change int) error 
 	return db.Model(&User{}).Where("user_id=?", UID).Update(field, gorm.Expr(field+"+?", change)).Error
 }
 
-// UpdateUserStringField 根据用户ID以及字段名更新用户字符串字段
+// UpdateUserStringField 根据用户ID以及字段名更新用户字符串类型字段
 func UpdateUserStringField(db *gorm.DB, UID int64, field string, change string) error {
 	return db.Model(&User{}).Where("user_id=?", UID).Update(field, change).Error
 }

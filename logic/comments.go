@@ -7,6 +7,7 @@ import (
 	"VideoWeb/define"
 	"VideoWeb/helper"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm/clause"
 )
 
 // AddCommentToVideo 添加对视频的评论
@@ -29,8 +30,10 @@ func AddCommentToVideo(c *gin.Context, comment *EntitySets.Comments) error {
 	if err != nil {
 		return err
 	}
+
 	// 更新视频热度
-	err = helper.UpdateVideoFieldForUpdate(comment.VID, "hot", define.AddHotEachComment, tx.Set("gorm:query_option", "FOR UPDATE"))
+	tx.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&EntitySets.Video{}, comment.VID)
+	err = helper.UpdateVideoFieldForUpdate(comment.VID, "hot", define.AddHotEachComment, tx)
 	tx.Commit()
 	return nil
 }

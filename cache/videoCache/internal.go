@@ -56,15 +56,16 @@ func (vb *VideoBarrages) makeBarrageInfo(ctx context.Context, videoID int64) err
 	if err != nil {
 		return fmt.Errorf("VideoBarrages->makeBarrageInfo: %w", err)
 	}
+
 	var barrageIDs = make([]any, len(barrages))
 	for i, b := range barrages {
-		barrageIDs[i] = b.BID
+		barrageIDs[i] = strconv.FormatInt(videoID, 10) + strconv.FormatInt(b.BID, 10)
 	}
 
 	if len(barrageIDs) != 0 {
 		err = cache.SAddWithRetry(
 			ctx,
-			strconv.FormatInt(videoID, 10)+"_barrages",
+			strconv.FormatInt(videoID, 10)+cache.BarrageSfx,
 			cache.DefaultTry, cache.DefaultSleep, cache.VideoExpireTime,
 			barrageIDs...,
 		)
@@ -110,13 +111,13 @@ func (vt *VideoTags) makeTagInfo(ctx context.Context, videoID int64) error {
 }
 
 // makeBarragesInfos creates Barrage objects of a video.
-func makeBarragesInfos(ctx context.Context, prefix int64, barrages ...*EntitySets.Barrage) error {
+func makeBarragesInfos(ctx context.Context, videoID int64, barrages ...*EntitySets.Barrage) error {
 	barrageInfos := make([]*BarrageInfo, len(barrages))
 	HashMap := make([]cache.HashMap, len(barrages))
 	for i, b := range barrages {
 		barrageInfos[i] = new(BarrageInfo)
 		barrageInfos[i].barrageInfo = make(map[string]any)
-		barrageInfos[i].key = strconv.FormatInt(prefix, 10) + strconv.FormatInt(b.BID, 10)
+		barrageInfos[i].key = strconv.FormatInt(videoID, 10) + strconv.FormatInt(b.BID, 10)
 		barrageInfos[i].barrageInfo["barrage_id"] = b.BID
 		barrageInfos[i].barrageInfo["user_id"] = b.UID
 		barrageInfos[i].barrageInfo["video_id"] = b.VID
@@ -130,22 +131,22 @@ func makeBarragesInfos(ctx context.Context, prefix int64, barrages ...*EntitySet
 	}
 
 	return nil
-
 }
 
 // getSpecificVideoCommentsInfo Gets the detailed information of specific comments of a video from cache.
-func getSpecificVideoCommentsInfo(ctx context.Context, videoID int64, commentID ...string) (comments []map[string]string, err error) {
+func getSpecificVideoCommentsInfo(ctx context.Context, commentID ...string) (comments []map[string]string, err error) {
 	pipe := DAO.RDB.Pipeline()
-	prefix := strconv.FormatInt(videoID, 10)
 	cmds := make([]*redis.MapStringStringCmd, len(commentID))
+
 	for i, id := range commentID {
-		cmds[i] = pipe.HGetAll(ctx, prefix+id)
-		pipe.Expire(ctx, prefix+id, cache.CommentExpireTime)
+		cmds[i] = pipe.HGetAll(ctx, id)
+		pipe.Expire(ctx, id, cache.CommentExpireTime)
 	}
 	_, err = pipe.Exec(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("VideoCache.getSpecificVideoCommentsInfo::pipe.Exec(): %w", err)
 	}
+
 	for _, cmd := range cmds {
 		comments = append(comments, cmd.Val())
 	}
@@ -167,7 +168,7 @@ func (vc *VideoComments) makeCommentsInfo(ctx context.Context, videoID int64) er
 		for i, c := range comments {
 			commentIDs[i] = strconv.FormatInt(c.CommentID, 10)
 		}
-		err = commentCache.MakeCommentInfos(ctx, videoID, comments...)
+		err = commentCache.MakeCommentInfos(ctx, comments...)
 
 		err = cache.SAddWithRetry(
 			ctx,
@@ -182,9 +183,7 @@ func (vc *VideoComments) makeCommentsInfo(ctx context.Context, videoID int64) er
 	}
 	return nil
 }
-func set(set []string, v any) {
-	set = append(set, v.(string))
-}
+
 func getOne(ctx context.Context, funcName, key, member string) string {
 	err := cache.SIsMember(ctx, key, member)
 	if err != nil {
@@ -200,4 +199,16 @@ func del(sli []string, v any) {
 			break
 		}
 	}
+}
+
+// checkVideoCache Checks whether the video cache exists.If not, it will create cache.
+func checkVideoCache(ctx context.Context, key string, videoID int64) (err error) {
+	if DAO.RDB.TTL(ctx, key).Val() < 0 {
+		videoCache := MakeVideoCache()
+		err = videoCache.MakeVideoInfo(ctx, videoID)
+		if err != nil {
+			return fmt.Errorf("checkVideoCache::%w", err)
+		}
+	}
+	return nil
 }
