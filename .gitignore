@@ -2,7 +2,8 @@ go-wrk
 resources/*
 temp
 logs
-VideoWeb.zip
+.idea
+git_filter_repo.py
 *.exe
 *.lua
 *.txt

@@ -1,15 +1,18 @@
 package DAO
 
 import (
-	"VideoWeb/define"
 	"fmt"
 	"gorm.io/gorm"
 )
 
+//type UserWatch struct {
+//	define.MyModel
+//	UID int64 `json:"UID" gorm:"column:user_id;type:bigint;primaryKey"`
+//	VID int64 `json:"VID" gorm:"column:video_id;type:bigint;primaryKey"`
+//}
+
 type UserWatch struct {
-	define.MyModel
 	UID int64 `json:"UID" gorm:"column:user_id;type:bigint;primaryKey"`
-	VID int64 `json:"VID" gorm:"column:video_id;type:bigint;primaryKey"`
 }
 
 func (v *UserWatch) GetScore() float64 {
@@ -20,7 +23,7 @@ func (v *UserWatch) GetValue() any {
 	return v.VID
 }
 
-func (v *UserWatch) TableName() string {
+func (v *UserWatch) collectionName() string {
 	return "user_watch"
 }
 

@@ -6,12 +6,12 @@ import (
 )
 
 // UserLikedComments 用户点赞的评论记录
-type UserLikedComments struct {
-	define.MyModel
-	UID int64 `json:"uid" gorm:"primaryKey;column:user_id;type:bigint;"`
-	VID int64 `json:"vid" gorm:"primaryKey;column:video_id;type:bigint;"`
-	CID int64 `json:"cid" gorm:"primaryKey;column:comment_id;type:bigint;"`
-}
+//type UserLikedComments struct {
+//	define.MyModel
+//	UID int64 `json:"uid" gorm:"primaryKey;column:user_id;type:bigint;"`
+//	VID int64 `json:"vid" gorm:"primaryKey;column:video_id;type:bigint;"`
+//	CID int64 `json:"cid" gorm:"primaryKey;column:comment_id;type:bigint;"`
+//}
 
 func (*UserLikedComments) TableName() string {
 	return "user_liked_comments"

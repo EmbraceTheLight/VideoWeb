@@ -15,6 +15,8 @@ import (
 	"time"
 )
 
+//---------- MySQL Config ----------//
+
 type MySQLConfig struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
@@ -23,6 +25,9 @@ type MySQLConfig struct {
 	Database string `yaml:"database"`
 	Charset  string `yaml:"charset"`
 }
+
+//---------- Redis Config ----------//
+
 type RedisConfig struct {
 	Host     string `yaml:"host"`
 	Port     string `yaml:"port"`
@@ -30,8 +35,28 @@ type RedisConfig struct {
 	Database string `yaml:"database"`
 }
 
+//---------- MongoDB Config ----------//
+
+type Index struct {
+	Fields map[string]int `yaml:"fields"` // key is field name, value is index order:1 is ascending, -1 is descending
+	Type   string         `yaml:"type"`   // mongodb index type
+}
+type Collection struct {
+	Name    string  `yaml:"name"`
+	Indexes []Index `yaml:"indexes"`
+}
+type MongoConfig struct {
+	Host        string       `yaml:"host"`
+	Port        string       `yaml:"port"`
+	Database    string       `yaml:"database"`
+	Collections []Collection `yaml:"collections"`
+}
+
+//--------------------------------------------------------------------------//
+
 type DBConfig struct {
 	MySQLConf *MySQLConfig `yaml:"mysql"`
+	MongoConf *MongoConfig `yaml:"mongo"`
 	RedisConf *RedisConfig `yaml:"redis"`
 }
 type LogConfig struct {

@@ -11,7 +11,7 @@ import (
 
 // InsertUserVideoIfNotExist 如果不存在用户-视频记录,则插入新记录
 func InsertUserVideoIfNotExist(uid, vid int64) error {
-	vu1, err1 := RelationshipSets.GetUserVideoRecord(DAO.DB, uid, vid)
+	vu1, err1 := RelationshipSets.GetUserVideoRecord(DAO.MongoDB, uid, vid)
 	if vu1 == nil {
 		//未找到记录,则插入新记录
 		if errors.Is(err1, gorm.ErrRecordNotFound) {
@@ -19,7 +19,7 @@ func InsertUserVideoIfNotExist(uid, vid int64) error {
 				UID: uid,
 				VID: vid,
 			}
-			err2 := RelationshipSets.InsertUserVideoRecord(DAO.DB, vu2)
+			err2 := RelationshipSets.InsertUserVideoRecord(DAO.MongoDB, vu2)
 			if err2 != nil {
 				return fmt.Errorf("logic.InsertUserVideoIfNotExist::%w", err2)
 			}

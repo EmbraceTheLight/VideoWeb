@@ -5,6 +5,7 @@ import (
 	"VideoWeb/Utilities"
 	"VideoWeb/config"
 	"VideoWeb/routers"
+	"context"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -18,7 +19,7 @@ func main() {
 
 	DAO.InitDBs()
 	defer DAO.RDB.Close()
-
+	defer DAO.MongoDB.Disconnect(context.TODO())
 	//执行后台定时任务：删除软删除记录
 	go Utilities.HardDelete()
 

@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
@@ -34,27 +35,69 @@ func initRedisClient() *redis.Client {
 		})
 }
 
-func initMongo() *mongo.Client {
+/*
+以下摘自mongo-driver官方文档：
+
+	创建客户端的最佳方式是使用连接池。连接池可以重用现有的连接，而不是每次都创建新的连接。
+	为每个进程创建一个客户端，并在所有操作中重复使用。为每个请求创建一个新客户端是个常见的错误，效率非常低。
+	每个Client实例都有一个内置连接池。 连接池按需打开套接字以支持并发 MongoDB 操作或 goroutine
+*/
+func initMongoClient() *mongo.Client {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	cfg := config.GetConfig().DBConf.MongoConf
 	client, err := mongo.Connect(ctx,
 		options.Client().
-			ApplyURI("mongodb://localhost:27017").
+			ApplyURI(fmt.Sprintf("mongodb://%s:%s", cfg.Host, cfg.Port)).
 			SetMaxPoolSize(150))
 	if err != nil {
-		log.Println("[initMongo] Error connecting to MongoDB: ", err)
+		log.Println("[initMongoClient] Error connecting to MongoDB: ", err)
 		panic(err)
 	}
-	//db := client.Database("video_web")
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Println("[initMongo] Error pinging MongoDB: ", err)
+		log.Println("[initMongoClient] Error pinging MongoDB: ", err)
 		panic(err)
 	}
 
-	logf.WriteInfoLog("initMongo", "Mongo init success")
+	logf.WriteInfoLog("initMongoClient", "Mongo init success")
 	return client
+}
+func initMongoCollections(client *mongo.Client) {
+	db := client.Database(config.GetConfig().DBConf.MongoConf.Database)
+	collections := config.GetConfig().DBConf.MongoConf.Collections
+	fmt.Println("collections: ", collections)
+	for _, collection := range collections {
+		c := db.Collection(collection.Name)
+		var indexModel mongo.IndexModel
+
+		// handle indexes of a collection
+		for _, index := range collection.Indexes {
+			keys := bson.D{}
+			// handle keys and orders of an index
+			for key, order := range index.Fields {
+				keys = append(keys, bson.E{Key: key, Value: order})
+			}
+			// create index model
+			indexModel = mongo.IndexModel{
+				Keys:    keys,
+				Options: options.Index().SetUnique(index.Type == "unique"),
+			}
+		}
+
+		fmt.Println("keys: ", indexModel.Keys)
+		_, err := c.Indexes().CreateOne(context.Background(), indexModel)
+		if err != nil {
+			logf.WriteErrLog("initMongoCollections", err.Error())
+			log.Fatalf("Failed to create index: %v", err)
+		}
+	}
+}
+func initMongo() {
+	MongoDB = initMongoClient()
+	initMongoCollections(MongoDB)
 }
 
 func createDatabase() {
@@ -62,18 +105,19 @@ func createDatabase() {
 	dbConnection := fmt.Sprintf("%s:%s@(%s:%s)/mysql?charset=%s&parseTime=True&loc=Local&timeout=10s",
 		MySQLConf.User, MySQLConf.Password, MySQLConf.Host, MySQLConf.Port, MySQLConf.Charset)
 	db, _ := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
-	db.Exec("CREATE DATABASE  IF NOT EXISTS videoweb")
+	db.Exec("CREATE DATABASE  IF NOT EXISTS video_web")
 }
-func connectMysql() {
+func connectMysql() *gorm.DB {
 	var err error
 	MySQLConf := config.GetConfig().DBConf.MySQLConf
 	DBConnection := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=True&loc=Local&timeout=10s",
 		MySQLConf.User, MySQLConf.Password, MySQLConf.Host, MySQLConf.Port, MySQLConf.Database, MySQLConf.Charset)
-	DB, err = gorm.Open(mysql.Open(DBConnection), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(DBConnection), &gorm.Config{})
 	if err != nil {
 		fmt.Println("Open database failed: ", err)
 		panic(err)
 	}
+	return db
 }
 func checkAndCreateTable() {
 	var err error
@@ -92,7 +136,6 @@ func checkAndCreateTable() {
 		&EntitySets.UserWatch{},
 		&EntitySets.UserSearchHistory{},
 		&RelationshipSets.UserVideo{},
-		&RelationshipSets.UserLikedComments{},
 		&RelationshipSets.UserDislikedComments{},
 	}
 	err = DB.AutoMigrate(tables...)
@@ -101,7 +144,7 @@ func checkAndCreateTable() {
 		panic(err)
 	}
 }
-func setIndexes() error {
+func setFulltextIndexes() error {
 	type IndexInfo struct {
 		KeyName    string
 		SeqInIndex int
@@ -133,12 +176,14 @@ func setIndexes() error {
 	return err
 }
 func initMysql() {
+	// First, create the database
+	// Then, connect to the database and create tables
 	createDatabase()
-	connectMysql()
+	DB = connectMysql()
 	checkAndCreateTable()
-	err := setIndexes()
+	err := setFulltextIndexes()
 	if err != nil {
-		logf.WriteErrLog("setIndexes", err.Error())
+		logf.WriteErrLog("setFulltextIndexes", err.Error())
 		panic(err)
 	}
 	// 设置锁等待超时时间为 10 秒
@@ -152,6 +197,6 @@ func initMysql() {
 func InitDBs() {
 	initMysql()
 	RDB = initRedisClient()
-	MongoDB = initMongo()
+	initMongo()
 	logf.WriteInfoLog("InitDBs", "All DBs init success")
 }

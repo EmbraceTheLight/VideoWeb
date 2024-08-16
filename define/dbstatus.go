@@ -1,3 +1,7 @@
 package define
 
-const ()
+import "time"
+
+const (
+	MongoOperationTimeout = 5 * time.Second
+)

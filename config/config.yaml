@@ -6,7 +6,7 @@ database:
 #    port: 3307
     host: "127.0.0.1"
     port: 3306
-    database: VideoWeb
+    database: video_web
     charset: utf8mb4
   redis:
 #    host: "1.95.54.11"
@@ -15,6 +15,39 @@ database:
     port: 6379
     password: ""
     database: 0
+  mongo:
+    host: "127.0.0.1"
+    port: 27017
+    database: video_web
+    collections:
+      - name: user_search_history
+        indexes:
+          - fields:
+              user_id: 1
+            type: unique # unique compound text,etc.
+
+      - name: user_watch_history
+        indexes:
+          - fields:
+              user_id: 1
+              video_id: 1
+            type: unique
+
+      - name: user_video_status
+        indexes:
+          - fields:
+              user_id: 1
+              video_id: 1
+            type: unique
+
+      - name: user_comment_status
+        indexes:
+          - fields:
+              user_id: 1
+              video_id: 1
+              comment_id: 1
+            type: unique
+
 log:
   level: "InfoLevel"
   path: "./logs/VideoWeb.log"

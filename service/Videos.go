@@ -416,7 +416,7 @@ func GetVideoInfo(c *gin.Context) {
 	}
 
 	//查找对应的UserVideo记录
-	uv, err := RelationshipSets.GetUserVideoRecord(DAO.DB, UID, videoInfo.VideoID)
+	uv, err := RelationshipSets.GetUserVideoRecord(DAO.MongoDB, UID, videoInfo.VideoID)
 	if err != nil {
 		return
 	}
@@ -465,7 +465,7 @@ func LikeOrUndoLike(c *gin.Context) {
 
 	/*检查用户是否已经点赞*/
 	//查找对应的UserVideo记录
-	uv, err := RelationshipSets.GetUserVideoRecord(DAO.DB, UserID, videoInfo.VideoID)
+	uv, err := RelationshipSets.GetUserVideoRecord(DAO.MongoDB, UserID, videoInfo.VideoID)
 	if err != nil {
 		Utilities.HandleInternalServerError(c, err)
 		return
@@ -605,7 +605,7 @@ func SearchVideos(c *gin.Context) {
 
 	//若用户已登陆添加搜索记录
 	if u != nil {
-		err = EntitySets.InsertSearchRecord(DAO.DB, UID, key)
+		err = EntitySets.InsertSearchRecord(DAO.MongoDB, UID, key)
 		if err != nil {
 			Utilities.HandleInternalServerError(c, err)
 			return

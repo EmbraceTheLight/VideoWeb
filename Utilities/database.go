@@ -24,15 +24,15 @@ const (
 	users
 	comments
 	favorite
-	videoHistory
-	userHistory
+	//videoHistory
+	//userHistory
 	favoriteVideo
 	followed
 	follows
 	//followList
-	userVideo
-	userLikedComments
-	userDislikedComments
+	//userVideo
+	//userLikedComments
+	//userDislikedComments
 )
 
 var idToFunc = make(map[int]string)
@@ -57,15 +57,15 @@ func initNecessary() error {
 	idToFunc[users] = "HDUsers"
 	idToFunc[comments] = "HDComments"
 	idToFunc[favorite] = "HDFavorites"
-	idToFunc[videoHistory] = "HDVideoHistory"
-	idToFunc[userHistory] = "HDUserHistory"
+	//idToFunc[videoHistory] = "HDVideoHistory"
+	//idToFunc[userHistory] = "HDUserHistory"
 	idToFunc[favoriteVideo] = "HDFavoriteVideo"
 	idToFunc[followed] = "HDFollowed"
 	idToFunc[follows] = "HDFollows"
 	//idToFunc[followList] = "HDFollowList"
-	idToFunc[userVideo] = "HDUserVideo"
-	idToFunc[userLikedComments] = "userLikedComments"
-	idToFunc[userDislikedComments] = "userDislikedComments"
+	//idToFunc[userVideo] = "HDUserVideo"
+	//idToFunc[userLikedComments] = "userLikedComments"
+	//idToFunc[userDislikedComments] = "userDislikedComments"
 	return nil
 }
 
