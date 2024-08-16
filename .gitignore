@@ -2,7 +2,7 @@ go-wrk
 resources/*
 temp
 logs
-.idea
+./.idea
 git_filter_repo.py
 *.exe
 *.lua
